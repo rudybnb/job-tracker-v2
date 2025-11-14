@@ -1,9 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 
@@ -13,6 +14,24 @@ export default function Jobs() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: jobs, isLoading } = trpc.jobs.list.useQuery();
+  const utils = trpc.useUtils();
+
+  const deleteJob = trpc.jobs.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Job deleted successfully");
+      utils.jobs.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete job: ${error.message}`);
+    },
+  });
+
+  const handleDelete = async (e: React.MouseEvent, jobId: number, jobTitle: string) => {
+    e.stopPropagation(); // Prevent card click
+    if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`)) {
+      await deleteJob.mutateAsync({ jobId });
+    }
+  };
 
   const isAdmin = user?.role === "admin";
 
@@ -74,22 +93,36 @@ export default function Jobs() {
               onClick={() => setLocation(`/jobs/${job.id}`)}
             >
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="truncate">{job.title}</span>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      job.status === "completed"
-                        ? "bg-green-100 text-green-800"
-                        : job.status === "in_progress"
-                          ? "bg-blue-100 text-blue-800"
-                          : job.status === "cancelled"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {job.status.replace("_", " ")}
-                  </span>
-                </CardTitle>
+                <div className="flex items-center justify-between mb-2">
+                  <CardTitle className="truncate flex-1">{job.title}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        job.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : job.status === "in_progress"
+                            ? "bg-blue-100 text-blue-800"
+                            : job.status === "cancelled"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {job.status.replace("_", " ")}
+                    </span>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-red-950/30 transition-colors"
+                        onClick={(e) => handleDelete(e, job.id, job.title)}
+                        disabled={deleteJob.isPending}
+                        title="Delete job"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
                 <CardDescription className="truncate">{job.address || "No address"}</CardDescription>
               </CardHeader>
               <CardContent>

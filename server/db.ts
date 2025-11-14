@@ -164,6 +164,19 @@ export async function updateJob(id: number, data: Partial<InsertJob>) {
   await db.update(jobs).set(data).where(eq(jobs.id, id));
 }
 
+export async function deleteJob(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Delete related records first (phases, assignments, etc.)
+  await db.delete(buildPhases).where(eq(buildPhases.jobId, id));
+  await db.delete(jobAssignments).where(eq(jobAssignments.jobId, id));
+  await db.delete(workSessions).where(eq(workSessions.jobId, id));
+  await db.delete(expenses).where(eq(expenses.jobId, id));
+  await db.delete(jobBudgets).where(eq(jobBudgets.jobId, id));
+  // Finally delete the job
+  await db.delete(jobs).where(eq(jobs.id, id));
+}
+
 export async function assignJobToContractor(jobId: number, contractorId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

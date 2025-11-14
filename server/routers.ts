@@ -86,6 +86,13 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    delete: adminProcedure
+      .input(z.object({ jobId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteJob(input.jobId);
+        return { success: true };
+      }),
+
     assign: adminProcedure
       .input(
         z.object({

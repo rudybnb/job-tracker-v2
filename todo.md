@@ -94,3 +94,8 @@
 - [x] CSV upload stuck in "processing" status - deleted and ready for re-upload
 - [x] Delete button visible in Recent Uploads section
 - [x] Database cleared - ready for fresh upload with fixed code
+
+## Jobs Page Enhancement
+- [x] Add delete buttons to Jobs page for individual job deletion
+- [x] Add delete confirmation dialog
+- [x] Update job list after deletion
