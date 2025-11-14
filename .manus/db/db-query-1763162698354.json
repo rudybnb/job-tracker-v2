@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, filename, status, jobsCreated, errorMessage FROM csvUploads ORDER BY createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, filename, status, jobsCreated, errorMessage FROM csvUploads ORDER BY createdAt DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "90003",
+      "filename": "(Job 49) Flat2 1 Bedroom Smart Schedule Export test.csv",
+      "status": "processing",
+      "jobsCreated": "0",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfilename\tstatus\tjobsCreated\terrorMessage\n90003\t(Job 49) Flat2 1 Bedroom Smart Schedule Export test.csv\tprocessing\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

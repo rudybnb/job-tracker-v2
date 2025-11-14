@@ -20,6 +20,7 @@ export default function JobAssignments() {
   const [selectedContractors, setSelectedContractors] = useState<number[]>([]);
   const [postcode, setPostcode] = useState("");
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [selectedPhases, setSelectedPhases] = useState<string[]>([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [specialInstructions, setSpecialInstructions] = useState("");
@@ -27,6 +28,12 @@ export default function JobAssignments() {
   const { data: jobs, isLoading: jobsLoading } = trpc.jobs.list.useQuery();
   const { data: contractors, isLoading: contractorsLoading } = trpc.contractors.list.useQuery();
   const { data: assignments, isLoading: assignmentsLoading } = trpc.jobAssignments.list.useQuery();
+  
+  // Load phases when job is selected
+  const { data: phases, isLoading: phasesLoading } = trpc.phases.listByJob.useQuery(
+    { jobId: selectedJobId! },
+    { enabled: !!selectedJobId }
+  );
 
   const createAssignment = trpc.jobAssignments.create.useMutation({
     onSuccess: () => {
@@ -43,6 +50,7 @@ export default function JobAssignments() {
     setSelectedContractors([]);
     setPostcode("");
     setSelectedJobId(null);
+    setSelectedPhases([]);
     setStartDate("");
     setEndDate("");
     setSpecialInstructions("");
@@ -66,6 +74,7 @@ export default function JobAssignments() {
       jobId: selectedJobId,
       contractorIds: selectedContractors,
       workLocation: postcode,
+      selectedPhases: selectedPhases,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       specialInstructions,
@@ -166,15 +175,26 @@ export default function JobAssignments() {
                   onValueChange={(value) => setSelectedJobId(parseInt(value))}
                 >
                   <SelectTrigger className="bg-card border-input">
-                    <SelectValue placeholder="Select HBXL job" />
+                    <SelectValue placeholder="Select HBXL job">
+                      {selectedJobId && jobs && phases ? (
+                        `${jobs.find(j => j.id === selectedJobId)?.title} (${phases.length} phases)`
+                      ) : selectedJobId && jobs ? (
+                        jobs.find(j => j.id === selectedJobId)?.title
+                      ) : (
+                        "Select HBXL job"
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {jobs && jobs.length > 0 ? (
-                      jobs.map((job) => (
-                        <SelectItem key={job.id} value={job.id.toString()}>
-                          {job.title} - {job.address}
-                        </SelectItem>
-                      ))
+                      jobs.map((job) => {
+                        // We'll show phase count in the dropdown once phases are loaded
+                        return (
+                          <SelectItem key={job.id} value={job.id.toString()}>
+                            {job.title}
+                          </SelectItem>
+                        );
+                      })
                     ) : (
                       <SelectItem value="no-jobs" disabled>
                         No jobs available
@@ -188,6 +208,58 @@ export default function JobAssignments() {
                   </p>
                 )}
               </div>
+
+              {/* Build Phases */}
+              {selectedJobId && phases && phases.length > 0 && (
+                <div>
+                  <Label className="text-yellow mb-2 block">Build Phases</Label>
+                  <div className="flex gap-2 mb-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedPhases(phases.map((p) => p.phaseName))}
+                      className="text-yellow border-yellow hover:bg-yellow/10"
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedPhases([])}
+                      className="text-yellow border-yellow hover:bg-yellow/10"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {phases.map((phase) => (
+                      <label
+                        key={phase.id}
+                        className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-card/50"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedPhases.includes(phase.phaseName)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPhases([...selectedPhases, phase.phaseName]);
+                            } else {
+                              setSelectedPhases(selectedPhases.filter((p) => p !== phase.phaseName));
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-input"
+                        />
+                        <span className="text-sm text-foreground">{phase.phaseName}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Selected: {selectedPhases.length} of {phases.length} phases from {jobs?.find(j => j.id === selectedJobId)?.title}
+                  </p>
+                </div>
+              )}
 
               {/* Start Date */}
               <div>

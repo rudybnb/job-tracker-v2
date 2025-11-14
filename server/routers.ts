@@ -165,46 +165,67 @@ export const appRouter = router({
         const uploadId = Number((uploadResult as any).insertId || 0);
 
         try {
-          // Parse CSV content
-          const lines = input.content.trim().split("\n");
-          const headers = lines[0].split(",").map(h => h.trim());
+          // Parse CSV with proper handling of quoted fields
+          const { parse } = await import('csv-parse/sync');
+          const records = parse(input.content, {
+            columns: true,
+            skip_empty_lines: true,
+            trim: true,
+          });
+
+          // Group rows by job name and collect phases
+          interface JobData {
+            address: string;
+            projectType: string;
+            phases: Set<string>;
+            orderDate: string;
+          }
+          const jobsMap = new Map<string, JobData>();
+
+          for (const row of records) {
+            const rowData = row as Record<string, string>;
+            const jobName = rowData['Name'] || rowData['Job Name'] || '';
+            const buildPhase = rowData['Build Phase'] || '';
+            const orderDate = rowData['Order Date'] || '';
+            
+            if (!jobName) continue;
+
+            if (!jobsMap.has(jobName)) {
+              jobsMap.set(jobName, {
+                address: rowData['Address'] || '',
+                projectType: rowData['Project Type'] || '',
+                phases: new Set(),
+                orderDate: orderDate,
+              });
+            }
+
+            if (buildPhase) {
+              jobsMap.get(jobName)!.phases.add(buildPhase);
+            }
+          }
 
           let jobsCreated = 0;
 
-          // Process each row (skip header)
-          for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(",").map(v => v.trim());
-            const row: Record<string, string> = {};
-
-            headers.forEach((header, index) => {
-              row[header] = values[index] || "";
-            });
-
-            // Create job
+          // Create jobs with their phases
+          for (const [jobName, jobData] of Array.from(jobsMap.entries())) {
             const jobResult = await db.createJob({
-              title: row["Name"] || row["Job Name"] || `Job ${i}`,
-              address: row["Address"] || "",
-              projectType: row["Project Type"] || "",
+              title: `${jobName} (${jobData.orderDate})`,
+              address: jobData.address,
+              projectType: jobData.projectType,
             });
 
             const jobId = Number((jobResult as any).insertId || 0);
             jobsCreated++;
 
-            // Create phases from CSV columns
-            const phaseColumns = headers.filter(h => h !== "Name" && h !== "Address" && h !== "Project Type");
-
-            for (let j = 0; j < phaseColumns.length; j++) {
-              const phaseName = phaseColumns[j];
-              const tasks = row[phaseName];
-
-              if (tasks) {
-                await db.createBuildPhase({
-                  jobId,
-                  phaseName,
-                  tasks,
-                  order: j,
-                });
-              }
+            // Create phases for this job
+            const phasesArray = Array.from(jobData.phases);
+            for (let j = 0; j < phasesArray.length; j++) {
+              await db.createBuildPhase({
+                jobId,
+                phaseName: phasesArray[j],
+                tasks: '',
+                order: j,
+              });
             }
           }
 

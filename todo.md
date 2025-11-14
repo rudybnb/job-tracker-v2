@@ -76,3 +76,21 @@
 
 ## Color Scheme Refinement
 - [x] Update to exact old app colors: #1F2A38 (navy bg), #D97706 (amber buttons), #333D4D (slate borders), #3682FF (primary blue)
+
+## Database Maintenance
+- [x] Clear all data from database (jobs, contractors, assignments, uploads, etc.)
+
+## Job Assignment Enhancements
+- [ ] Implement dynamic build phase selection when job is selected
+- [ ] Add Select All / Clear All buttons for phases
+- [ ] Show phase count in job dropdown (e.g., "Timi (5 phases)")
+
+## CSV Upload Issues
+- [x] Fix CSV upload stuck in "processing" status (deleted stuck record)
+- [x] Fix Build Phase column extraction (using csv-parse library now)
+- [x] Ensure phases are properly linked to jobs after CSV upload
+
+## Urgent Bugs
+- [x] CSV upload stuck in "processing" status - deleted and ready for re-upload
+- [x] Delete button visible in Recent Uploads section
+- [x] Database cleared - ready for fresh upload with fixed code
