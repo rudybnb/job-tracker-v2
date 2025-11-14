@@ -36,3 +36,6 @@
 
 ## Design Updates
 - [x] Update color scheme to match old app (blue primary color hsl(218, 89%, 61%))
+
+## Bug Fixes
+- [x] Fix navigation menu - add sidebar to access all pages (Jobs, Contractors, Budget, Sessions)

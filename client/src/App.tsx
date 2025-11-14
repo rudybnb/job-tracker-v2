@@ -16,8 +16,12 @@ import WorkSessions from "./pages/WorkSessions";
 function Router() {
   return (
     <Switch>
-      {/* Public routes */}
-      <Route path={"/"} component={Home} />
+      {/* Dashboard routes */}
+      <Route path={"/"}>
+        <DashboardLayout>
+          <Home />
+        </DashboardLayout>
+      </Route>
       
       {/* Dashboard routes */}
       <Route path={"/dashboard"}>
