@@ -68,3 +68,8 @@
 - [x] Recent uploads with delete buttons
 - [x] Basic navigation
 - [x] Color scheme matching old app
+
+
+## Bug Fixes
+- [x] Fix jobs not loading on Job Assignments page (jobs are loading correctly)
+- [x] Restore delete buttons on CSV Upload page (improved visibility with red color)

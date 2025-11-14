@@ -181,11 +181,12 @@ export default function CsvUpload() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 text-red-500 hover:text-red-400 hover:bg-red-950/30 transition-colors"
                           onClick={() => handleDelete(upload.id)}
                           disabled={deleteMutation.isPending}
+                          title="Delete upload"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>
