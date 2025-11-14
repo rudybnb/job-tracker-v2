@@ -4,32 +4,76 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import DashboardLayout from "./components/DashboardLayout";
 import Home from "./pages/Home";
+import Jobs from "./pages/Jobs";
+import JobDetail from "./pages/JobDetail";
+import CsvUpload from "./pages/CsvUpload";
+import Contractors from "./pages/Contractors";
+import BudgetTracking from "./pages/BudgetTracking";
+import WorkSessions from "./pages/WorkSessions";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
+      {/* Public routes */}
       <Route path={"/"} component={Home} />
+      
+      {/* Dashboard routes */}
+      <Route path={"/dashboard"}>
+        <DashboardLayout>
+          <Home />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/jobs"}>
+        <DashboardLayout>
+          <Jobs />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/jobs/:id"}>
+        {(params) => (
+          <DashboardLayout>
+            <JobDetail jobId={parseInt(params.id)} />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      <Route path={"/upload"}>
+        <DashboardLayout>
+          <CsvUpload />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/contractors"}>
+        <DashboardLayout>
+          <Contractors />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/budgets"}>
+        <DashboardLayout>
+          <BudgetTracking />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/sessions"}>
+        <DashboardLayout>
+          <WorkSessions />
+        </DashboardLayout>
+      </Route>
+      
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />

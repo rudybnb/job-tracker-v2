@@ -1,11 +1,29 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import {
+  InsertUser,
+  users,
+  jobs,
+  InsertJob,
+  buildPhases,
+  InsertBuildPhase,
+  csvUploads,
+  InsertCsvUpload,
+  workSessions,
+  InsertWorkSession,
+  clients,
+  InsertClient,
+  jobBudgets,
+  InsertJobBudget,
+  phaseBudgets,
+  InsertPhaseBudget,
+  expenses,
+  InsertExpense,
+} from "../drizzle/schema";
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -18,6 +36,7 @@ export async function getDb() {
   return _db;
 }
 
+// User operations
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
@@ -56,8 +75,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -79,14 +98,203 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getAllContractors() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(users).where(eq(users.role, "contractor"));
+}
+
+// Job operations
+export async function createJob(job: InsertJob) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(jobs).values(job);
+  return result;
+}
+
+export async function getAllJobs() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(jobs).orderBy(desc(jobs.createdAt));
+}
+
+export async function getJobById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(jobs).where(eq(jobs.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getJobsByContractor(contractorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(jobs)
+    .where(eq(jobs.assignedContractorId, contractorId))
+    .orderBy(desc(jobs.createdAt));
+}
+
+export async function updateJob(id: number, data: Partial<InsertJob>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(jobs).set(data).where(eq(jobs.id, id));
+}
+
+export async function assignJobToContractor(jobId: number, contractorId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(jobs).set({ assignedContractorId: contractorId }).where(eq(jobs.id, jobId));
+}
+
+// Build phase operations
+export async function createBuildPhase(phase: InsertBuildPhase) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(buildPhases).values(phase);
+  return result;
+}
+
+export async function getPhasesByJobId(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(buildPhases).where(eq(buildPhases.jobId, jobId)).orderBy(buildPhases.order);
+}
+
+export async function updatePhase(id: number, data: Partial<InsertBuildPhase>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(buildPhases).set(data).where(eq(buildPhases.id, id));
+}
+
+// CSV upload operations
+export async function createCsvUpload(upload: InsertCsvUpload) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(csvUploads).values(upload);
+  return result;
+}
+
+export async function updateCsvUpload(id: number, data: Partial<InsertCsvUpload>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(csvUploads).set(data).where(eq(csvUploads.id, id));
+}
+
+export async function getRecentUploads(limit: number = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(csvUploads).orderBy(desc(csvUploads.createdAt)).limit(limit);
+}
+
+// Work session operations
+export async function createWorkSession(session: InsertWorkSession) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(workSessions).values(session);
+  return result;
+}
+
+export async function getWorkSessionsByJob(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(workSessions).where(eq(workSessions.jobId, jobId)).orderBy(desc(workSessions.startTime));
+}
+
+export async function getWorkSessionsByContractor(contractorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(workSessions)
+    .where(eq(workSessions.contractorId, contractorId))
+    .orderBy(desc(workSessions.startTime));
+}
+
+export async function endWorkSession(id: number, endTime: Date, notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(workSessions).set({ endTime, notes }).where(eq(workSessions.id, id));
+}
+
+// Client operations
+export async function createClient(client: InsertClient) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(clients).values(client);
+  return result;
+}
+
+export async function getAllClients() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(clients).orderBy(desc(clients.createdAt));
+}
+
+export async function getClientById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Job budget operations
+export async function createJobBudget(budget: InsertJobBudget) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(jobBudgets).values(budget);
+  return result;
+}
+
+export async function getJobBudgetByJobId(jobId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(jobBudgets).where(eq(jobBudgets.jobId, jobId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateJobBudget(id: number, data: Partial<InsertJobBudget>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(jobBudgets).set(data).where(eq(jobBudgets.id, id));
+}
+
+// Phase budget operations
+export async function createPhaseBudget(budget: InsertPhaseBudget) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(phaseBudgets).values(budget);
+  return result;
+}
+
+export async function getPhaseBudgetByPhaseId(phaseId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(phaseBudgets).where(eq(phaseBudgets.phaseId, phaseId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Expense operations
+export async function createExpense(expense: InsertExpense) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(expenses).values(expense);
+  return result;
+}
+
+export async function getExpensesByJob(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(expenses).where(eq(expenses.jobId, jobId)).orderBy(desc(expenses.date));
+}
+
+export async function getExpensesByPhase(phaseId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(expenses).where(eq(expenses.phaseId, phaseId)).orderBy(desc(expenses.date));
+}
