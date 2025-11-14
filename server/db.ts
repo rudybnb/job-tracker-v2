@@ -227,9 +227,15 @@ export async function deleteUploadAndJobs(uploadId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  // Get the upload to find associated jobs (we'll need to track this relationship)
-  // For now, just delete the upload record
-  // TODO: Add uploadId foreign key to jobs table to track which jobs came from which upload
+  // Get all jobs created from this upload
+  const jobsFromUpload = await db.select().from(jobs).where(eq(jobs.uploadId, uploadId));
+  
+  // Delete all related data for each job
+  for (const job of jobsFromUpload) {
+    await deleteJob(job.id);
+  }
+  
+  // Finally delete the upload record
   await db.delete(csvUploads).where(eq(csvUploads.id, uploadId));
 }
 

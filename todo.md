@@ -99,3 +99,9 @@
 - [x] Add delete buttons to Jobs page for individual job deletion
 - [x] Add delete confirmation dialog
 - [x] Update job list after deletion
+
+## CSV Upload Cascade Delete
+- [x] Add uploadId field to jobs table to track which upload created each job
+- [x] Update CSV upload process to store uploadId when creating jobs
+- [x] Fix deleteUpload to cascade delete all jobs created from that upload
+- [x] Ensure all related data (phases, assignments, etc.) are also deleted

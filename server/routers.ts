@@ -219,6 +219,7 @@ export const appRouter = router({
               title: `${jobName} (${jobData.orderDate})`,
               address: jobData.address,
               projectType: jobData.projectType,
+              uploadId: uploadId, // Track which upload created this job
             });
 
             const jobId = Number((jobResult as any).insertId || 0);

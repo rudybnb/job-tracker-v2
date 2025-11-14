@@ -29,6 +29,7 @@ export const jobs = mysqlTable("jobs", {
   projectType: varchar("projectType", { length: 100 }),
   status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
   assignedContractorId: int("assignedContractorId"),
+  uploadId: int("uploadId"), // Track which CSV upload created this job
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
