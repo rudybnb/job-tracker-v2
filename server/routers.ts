@@ -246,6 +246,82 @@ export const appRouter = router({
     list: adminProcedure.query(async () => {
       return await db.getAllContractors();
     }),
+
+    create: adminProcedure
+      .input(
+        z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          email: z.string().email(),
+          phone: z.string().optional(),
+          type: z.enum(["contractor", "subcontractor"]),
+          primaryTrade: z.string().optional(),
+          dailyRate: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await db.createContractor(input);
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const contractor = await db.getContractorById(input.id);
+        if (!contractor) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Contractor not found" });
+        }
+        return contractor;
+      }),
+  }),
+
+  // Job assignments
+  jobAssignments: router({
+    list: adminProcedure.query(async () => {
+      return await db.getAllJobAssignments();
+    }),
+
+    create: adminProcedure
+      .input(
+        z.object({
+          jobId: z.number(),
+          contractorIds: z.array(z.number()),
+          workLocation: z.string().optional(),
+          selectedPhases: z.array(z.string()).optional(),
+          startDate: z.date(),
+          endDate: z.date(),
+          specialInstructions: z.string().optional(),
+          milestonePrice: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { contractorIds, selectedPhases, ...assignmentData } = input;
+        const results = [];
+
+        // Create an assignment for each contractor
+        for (const contractorId of contractorIds) {
+          const result = await db.createJobAssignment({
+            ...assignmentData,
+            contractorId,
+            selectedPhases: selectedPhases ? JSON.stringify(selectedPhases) : null,
+            teamAssignment: contractorIds.length > 1 ? 1 : 0,
+          });
+          results.push(result);
+        }
+
+        return { success: true, assignmentsCreated: results.length };
+      }),
+
+    getByJob: adminProcedure
+      .input(z.object({ jobId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getJobAssignmentsByJob(input.jobId);
+      }),
+
+    getByContractor: protectedProcedure
+      .input(z.object({ contractorId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getJobAssignmentsByContractor(input.contractorId);
+      }),
   }),
 
   // Work sessions

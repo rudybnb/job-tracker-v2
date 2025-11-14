@@ -10,7 +10,7 @@
 
 ## Phase 1: Theme & Design
 - [x] Switch to dark theme matching old app (dark navy background)
-- [x] Ensure blue accent color hsl(218, 89%, 61%) is applied throughout
+- [x] Update color scheme: yellow (#FFD700) for labels, green (#10B981) for action buttons, blue (#3B82F6) for secondary actions
 
 ## Phase 2: Database Schema Updates
 - [x] Add contractor type field (contractor vs subcontractor)
@@ -21,15 +21,15 @@
 - [x] Link work sessions to expenses automatically
 
 ## Phase 3: Job Assignment
-- [ ] Create assignment page with multi-select contractors
-- [ ] Add contractor type selection (daily rate vs milestone)
-- [ ] Work location (postcode) field
-- [ ] HBXL job dropdown (loads from database)
+- [x] Create assignment page with multi-select contractors
+- [x] Add contractor type selection (daily rate vs milestone)
+- [x] Work location (postcode) field
+- [x] HBXL job dropdown (loads from database)
 - [ ] Dynamic build phases from selected job
-- [ ] Start/end date fields
-- [ ] Special instructions textarea
-- [ ] Team assignment support
-- [ ] Create assignment API endpoint
+- [x] Start/end date fields
+- [x] Special instructions textarea
+- [x] Team assignment support
+- [x] Create assignment API endpoint
 
 ## Phase 4: Clock In/Out & GPS
 - [ ] Build clock in/out interface

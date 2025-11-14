@@ -16,13 +16,23 @@ export default function Contractors() {
           contractors.map(contractor => (
             <Card key={contractor.id}>
               <CardHeader>
-                <CardTitle>{contractor.name || "Unnamed"}</CardTitle>
+                <CardTitle>{contractor.firstName} {contractor.lastName}</CardTitle>
                 <CardDescription>{contractor.email}</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Role: {contractor.role}
+                  Type: {contractor.type}
                 </p>
+                {contractor.dailyRate && (
+                  <p className="text-sm text-muted-foreground">
+                    Daily Rate: £{(contractor.dailyRate / 100).toFixed(2)}
+                  </p>
+                )}
+                {contractor.primaryTrade && (
+                  <p className="text-sm text-muted-foreground">
+                    Trade: {contractor.primaryTrade}
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))

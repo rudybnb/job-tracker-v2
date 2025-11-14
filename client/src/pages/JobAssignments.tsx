@@ -1,0 +1,308 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Loader2, Plus } from "lucide-react";
+
+export default function JobAssignments() {
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedContractors, setSelectedContractors] = useState<number[]>([]);
+  const [postcode, setPostcode] = useState("");
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [specialInstructions, setSpecialInstructions] = useState("");
+
+  const { data: jobs, isLoading: jobsLoading } = trpc.jobs.list.useQuery();
+  const { data: contractors, isLoading: contractorsLoading } = trpc.contractors.list.useQuery();
+  const { data: assignments, isLoading: assignmentsLoading } = trpc.jobAssignments.list.useQuery();
+
+  const createAssignment = trpc.jobAssignments.create.useMutation({
+    onSuccess: () => {
+      toast.success("Assignment created successfully");
+      setShowCreateForm(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error(`Failed to create assignment: ${error.message}`);
+    },
+  });
+
+  const resetForm = () => {
+    setSelectedContractors([]);
+    setPostcode("");
+    setSelectedJobId(null);
+    setStartDate("");
+    setEndDate("");
+    setSpecialInstructions("");
+  };
+
+  const handleCreateAssignment = () => {
+    if (selectedContractors.length === 0) {
+      toast.error("Please select at least one contractor");
+      return;
+    }
+    if (!selectedJobId) {
+      toast.error("Please select a job");
+      return;
+    }
+    if (!startDate || !endDate) {
+      toast.error("Please select start and end dates");
+      return;
+    }
+
+    createAssignment.mutate({
+      jobId: selectedJobId,
+      contractorIds: selectedContractors,
+      workLocation: postcode,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      specialInstructions,
+    });
+  };
+
+  const toggleContractor = (contractorId: number) => {
+    setSelectedContractors((prev) =>
+      prev.includes(contractorId)
+        ? prev.filter((id) => id !== contractorId)
+        : [...prev, contractorId]
+    );
+  };
+
+  if (jobsLoading || contractorsLoading || assignmentsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-yellow">Job Assignments</h1>
+          <Button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="bg-info hover:bg-info/90"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Assignment
+          </Button>
+        </div>
+
+        {/* Create Assignment Form */}
+        {showCreateForm && (
+          <Card className="mb-6 bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-yellow">Create New Job Assignment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Select Contractors */}
+              <div>
+                <Label className="text-yellow">
+                  Select Contractors <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  (Can select multiple for team work)
+                </p>
+                <div className="border border-input rounded-md p-3 bg-card max-h-48 overflow-y-auto">
+                  {contractors && contractors.length > 0 ? (
+                    contractors.map((contractor) => (
+                      <label
+                        key={contractor.id}
+                        className="flex items-center space-x-2 py-2 cursor-pointer hover:bg-accent rounded px-2"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedContractors.includes(contractor.id)}
+                          onChange={() => toggleContractor(contractor.id)}
+                          className="h-4 w-4"
+                        />
+                        <span className="text-foreground">
+                          {contractor.firstName} {contractor.lastName} ({contractor.type}) - £{contractor.dailyRate ? (contractor.dailyRate / 100).toFixed(2) : '0.00'}/day
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No contractors available</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Work Location */}
+              <div>
+                <Label htmlFor="postcode" className="text-yellow">
+                  Work Location (Postcode) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="postcode"
+                  placeholder="Enter postcode"
+                  value={postcode}
+                  onChange={(e) => setPostcode(e.target.value)}
+                  className="bg-card border-input"
+                />
+              </div>
+
+              {/* HBXL Job */}
+              <div>
+                <Label htmlFor="job" className="text-yellow">
+                  HBXL Job <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={selectedJobId?.toString() || ""}
+                  onValueChange={(value) => setSelectedJobId(parseInt(value))}
+                >
+                  <SelectTrigger className="bg-card border-input">
+                    <SelectValue placeholder="Select HBXL job" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobs && jobs.length > 0 ? (
+                      jobs.map((job) => (
+                        <SelectItem key={job.id} value={job.id.toString()}>
+                          {job.title} - {job.address}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-jobs" disabled>
+                        No jobs available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                {jobs && jobs.length > 0 && (
+                  <p className="text-sm text-green-500 mt-1">
+                    ✓ {jobs.length} job(s) loaded from CSV uploads
+                  </p>
+                )}
+              </div>
+
+              {/* Start Date */}
+              <div>
+                <Label htmlFor="startDate" className="text-yellow">
+                  Start Date
+                </Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-card border-input"
+                />
+              </div>
+
+              {/* End Date */}
+              <div>
+                <Label htmlFor="endDate" className="text-yellow">
+                  End Date
+                </Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-card border-input"
+                />
+              </div>
+
+              {/* Special Instructions */}
+              <div>
+                <Label htmlFor="instructions" className="text-yellow">
+                  Special Instructions
+                </Label>
+                <Textarea
+                  id="instructions"
+                  placeholder="Any special instructions for the contractor..."
+                  value={specialInstructions}
+                  onChange={(e) => setSpecialInstructions(e.target.value)}
+                  className="bg-card border-input min-h-[120px]"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => setShowCreateForm(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateAssignment}
+                  disabled={createAssignment.isPending}
+                  className="flex-1 bg-green hover:bg-green/90"
+                >
+                  {createAssignment.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Assignment"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Assignments List */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-yellow">Active Assignments</h2>
+          {assignments && assignments.length > 0 ? (
+            <div className="grid gap-4">
+              {assignments.map((assignment: any) => (
+                <Card key={assignment.id} className="bg-card border-border">
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm text-yellow font-medium">Job</p>
+                        <p className="text-foreground">Job #{assignment.jobId}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-yellow font-medium">Contractor</p>
+                        <p className="text-foreground">Contractor #{assignment.contractorId}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-yellow font-medium">Dates</p>
+                        <p className="text-foreground text-sm">
+                          {new Date(assignment.startDate).toLocaleDateString()} -{" "}
+                          {new Date(assignment.endDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    {assignment.specialInstructions && (
+                      <div className="mt-4">
+                        <p className="text-sm text-yellow font-medium">Instructions</p>
+                        <p className="text-muted-foreground text-sm">{assignment.specialInstructions}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-card border-border">
+              <CardContent className="pt-6 text-center">
+                <p className="text-muted-foreground">No assignments created yet</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

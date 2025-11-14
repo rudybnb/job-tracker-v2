@@ -19,6 +19,10 @@ import {
   InsertPhaseBudget,
   expenses,
   InsertExpense,
+  contractors,
+  InsertContractor,
+  jobAssignments,
+  InsertJobAssignment,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -106,7 +110,21 @@ export async function getUserByOpenId(openId: string) {
 export async function getAllContractors() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(users).where(eq(users.role, "contractor"));
+  return await db.select().from(contractors).orderBy(desc(contractors.createdAt));
+}
+
+export async function createContractor(contractor: InsertContractor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contractors).values(contractor);
+  return result;
+}
+
+export async function getContractorById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(contractors).where(eq(contractors.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }
 
 // Job operations
@@ -307,4 +325,30 @@ export async function getExpensesByPhase(phaseId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(expenses).where(eq(expenses.phaseId, phaseId)).orderBy(desc(expenses.date));
+}
+
+// Job assignment operations
+export async function createJobAssignment(assignment: InsertJobAssignment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(jobAssignments).values(assignment);
+  return result;
+}
+
+export async function getAllJobAssignments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(jobAssignments).orderBy(desc(jobAssignments.createdAt));
+}
+
+export async function getJobAssignmentsByJob(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(jobAssignments).where(eq(jobAssignments.jobId, jobId)).orderBy(desc(jobAssignments.createdAt));
+}
+
+export async function getJobAssignmentsByContractor(contractorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(jobAssignments).where(eq(jobAssignments.contractorId, contractorId)).orderBy(desc(jobAssignments.createdAt));
 }

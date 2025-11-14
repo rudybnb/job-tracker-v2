@@ -12,6 +12,7 @@ import CsvUpload from "./pages/CsvUpload";
 import Contractors from "./pages/Contractors";
 import BudgetTracking from "./pages/BudgetTracking";
 import WorkSessions from "./pages/WorkSessions";
+import JobAssignments from "./pages/JobAssignments";
 
 function Router() {
   return (
@@ -53,6 +54,12 @@ function Router() {
       <Route path={"/contractors"}>
         <DashboardLayout>
           <Contractors />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/assignments"}>
+        <DashboardLayout>
+          <JobAssignments />
         </DashboardLayout>
       </Route>
       
