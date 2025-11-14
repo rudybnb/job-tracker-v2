@@ -1,52 +1,70 @@
 # Job Tracker - Project TODO
 
-## Phase 1: Database Schema & Planning
-- [x] Design complete database schema
-- [x] Create todo.md with all features
+## Architecture Overview
+- Contractors = Daily rate workers (paid by time/day)
+- Subcontractors = Price/milestone workers (paid per completed phase)
+- Budget tracking = Admin only
+- GPS tracking = Health & safety (track who's on site)
+- Clock in/out = Auto-calculates time and money, creates expense records
+- Payroll = Linked to labour budget tracking
 
-## Phase 2: Backend Implementation
-- [x] Create database tables (jobs, contractors, csv_uploads, work_sessions, clients, job_phases, expenses)
-- [x] Implement CSV upload and parsing API
-- [x] Implement job management API (CRUD operations)
-- [x] Implement contractor management API
-- [x] Implement job assignment API
-- [x] Implement budget tracking API (clients, budgets, expenses)
-- [x] Implement work session logging API
+## Phase 1: Theme & Design
+- [x] Switch to dark theme matching old app (dark navy background)
+- [x] Ensure blue accent color hsl(218, 89%, 61%) is applied throughout
 
-## Phase 3: Frontend Implementation
-- [x] Set up dashboard layout with navigation
-- [x] Create login/authentication pages
-- [x] Create admin dashboard (overview)
-- [x] Create jobs list page with filters
-- [x] Create job detail page
-- [x] Create CSV upload page
-- [x] Create contractor assignment interface
-- [x] Create budget tracking pages
-- [x] Create contractor view (assigned jobs only)
-- [x] Create work session logging interface
+## Phase 2: Database Schema Updates
+- [x] Add contractor type field (contractor vs subcontractor)
+- [x] Add daily rate field for contractors
+- [x] Add milestone/phase pricing for subcontractors
+- [x] Add GPS coordinates to work sessions
+- [x] Add clock in/out timestamps
+- [x] Link work sessions to expenses automatically
 
-## Phase 4: Testing & Deployment
-- [ ] Test CSV upload with sample files
-- [ ] Test job assignment workflow
-- [ ] Test contractor login and views
-- [ ] Test budget tracking calculations
-- [ ] Test work session logging
-- [ ] Deploy to Render
-- [ ] Final verification
+## Phase 3: Job Assignment
+- [ ] Create assignment page with multi-select contractors
+- [ ] Add contractor type selection (daily rate vs milestone)
+- [ ] Work location (postcode) field
+- [ ] HBXL job dropdown (loads from database)
+- [ ] Dynamic build phases from selected job
+- [ ] Start/end date fields
+- [ ] Special instructions textarea
+- [ ] Team assignment support
+- [ ] Create assignment API endpoint
 
-## Design Updates
-- [x] Update color scheme to match old app (blue primary color hsl(218, 89%, 61%))
+## Phase 4: Clock In/Out & GPS
+- [ ] Build clock in/out interface
+- [ ] Capture GPS location on clock in/out
+- [ ] Auto-calculate work hours
+- [ ] Auto-create expense records for contractors (daily rate × hours)
+- [ ] Store GPS data for health & safety records
+- [ ] Show who's currently on site
 
-## Bug Fixes
-- [x] Fix navigation menu - add sidebar to access all pages (Jobs, Contractors, Budget, Sessions)
+## Phase 5: Budget Tracking (Admin Only)
+- [ ] Job budget dashboard
+- [ ] Labour costs tracking (contractors)
+- [ ] Milestone payments tracking (subcontractors)
+- [ ] Materials budget tracking
+- [ ] Expense logging and approval
+- [ ] Budget vs actual comparison
+- [ ] Payroll integration
 
-## Performance Issues
-- [ ] Fix CSV upload taking too long - optimize database insertion for large files
+## Phase 6: Contractor/Subcontractor Dashboards
+- [ ] Contractor view: assigned jobs, phases, clock in/out
+- [ ] Subcontractor view: assigned jobs, milestones, progress tracking
+- [ ] Phase/sub-phase progress monitoring (no budget visibility)
+- [ ] Task completion marking
+- [ ] Photo upload for completed work
 
-## Data Management
-- [x] Clear all data from database for fresh testing
+## Phase 7: Additional Features
+- [ ] Telegram notifications (optional)
+- [ ] Payroll reports
+- [ ] Health & safety reports (GPS tracking data)
+- [ ] Job completion workflow
 
-## New Features
-- [x] Implement recent uploads UI with delete buttons (match old app design)
-- [x] Create csv_uploads table to track upload history
-- [x] Add delete upload API that removes upload and all associated jobs
+## Completed Features
+- [x] Database schema (initial)
+- [x] CSV upload
+- [x] Job creation from CSV
+- [x] Recent uploads with delete buttons
+- [x] Basic navigation
+- [x] Color scheme matching old app

@@ -54,6 +54,49 @@ export type BuildPhase = typeof buildPhases.$inferSelect;
 export type InsertBuildPhase = typeof buildPhases.$inferInsert;
 
 /**
+ * Contractors table - stores contractor/subcontractor information
+ */
+export const contractors = mysqlTable("contractors", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // Optional link to user account
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  type: mysqlEnum("type", ["contractor", "subcontractor"]).notNull(),
+  primaryTrade: varchar("primaryTrade", { length: 100 }),
+  dailyRate: int("dailyRate"), // in cents, for contractors
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Contractor = typeof contractors.$inferSelect;
+export type InsertContractor = typeof contractors.$inferInsert;
+
+/**
+ * Job assignments - links jobs to contractors/subcontractors
+ */
+export const jobAssignments = mysqlTable("jobAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  contractorId: int("contractorId").notNull(),
+  workLocation: text("workLocation"),
+  selectedPhases: text("selectedPhases"), // JSON array of phase names
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  specialInstructions: text("specialInstructions"),
+  status: mysqlEnum("status", ["assigned", "in_progress", "completed", "cancelled"]).default("assigned").notNull(),
+  milestonePrice: int("milestonePrice"), // in cents, for subcontractors
+  teamAssignment: int("teamAssignment").default(0), // boolean: 1 for team, 0 for individual
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type JobAssignment = typeof jobAssignments.$inferSelect;
+export type InsertJobAssignment = typeof jobAssignments.$inferInsert;
+
+/**
  * CSV upload tracking
  */
 export const csvUploads = mysqlTable("csvUploads", {
@@ -78,6 +121,12 @@ export const workSessions = mysqlTable("workSessions", {
   contractorId: int("contractorId").notNull(),
   startTime: timestamp("startTime").notNull(),
   endTime: timestamp("endTime"),
+  clockInLatitude: varchar("clockInLatitude", { length: 50 }),
+  clockInLongitude: varchar("clockInLongitude", { length: 50 }),
+  clockOutLatitude: varchar("clockOutLatitude", { length: 50 }),
+  clockOutLongitude: varchar("clockOutLongitude", { length: 50 }),
+  hoursWorked: int("hoursWorked"), // in minutes
+  amountEarned: int("amountEarned"), // in cents, auto-calculated
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
