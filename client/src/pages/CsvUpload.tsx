@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
-import { Upload, FileText, Loader2 } from "lucide-react";
+import { Upload, FileText, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +24,23 @@ export default function CsvUpload() {
   });
 
   const { data: recentUploads } = trpc.csv.recentUploads.useQuery();
+
+  const deleteMutation = trpc.csv.deleteUpload.useMutation({
+    onSuccess: () => {
+      toast.success("Upload deleted successfully");
+      utils.csv.recentUploads.invalidate();
+      utils.jobs.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Delete failed: ${error.message}`);
+    },
+  });
+
+  const handleDelete = async (uploadId: number) => {
+    if (confirm("Are you sure? This will remove the upload record.")) {
+      await deleteMutation.mutateAsync({ uploadId });
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -149,17 +166,28 @@ export default function CsvUpload() {
                           {upload.jobsCreated} jobs created
                         </p>
                       </div>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ml-2 ${
-                          upload.status === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : upload.status === "failed"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {upload.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                            upload.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : upload.status === "failed"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {upload.status}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDelete(upload.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
                       {new Date(upload.createdAt).toLocaleString()}

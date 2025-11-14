@@ -232,6 +232,13 @@ export const appRouter = router({
     recentUploads: adminProcedure.query(async () => {
       return await db.getRecentUploads(10);
     }),
+
+    deleteUpload: adminProcedure
+      .input(z.object({ uploadId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteUploadAndJobs(input.uploadId);
+        return { success: true };
+      }),
   }),
 
   // Contractors

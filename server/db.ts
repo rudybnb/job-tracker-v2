@@ -192,6 +192,16 @@ export async function getRecentUploads(limit: number = 10) {
   return await db.select().from(csvUploads).orderBy(desc(csvUploads.createdAt)).limit(limit);
 }
 
+export async function deleteUploadAndJobs(uploadId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get the upload to find associated jobs (we'll need to track this relationship)
+  // For now, just delete the upload record
+  // TODO: Add uploadId foreign key to jobs table to track which jobs came from which upload
+  await db.delete(csvUploads).where(eq(csvUploads.id, uploadId));
+}
+
 // Work session operations
 export async function createWorkSession(session: InsertWorkSession) {
   const db = await getDb();

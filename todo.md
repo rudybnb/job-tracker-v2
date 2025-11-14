@@ -39,3 +39,14 @@
 
 ## Bug Fixes
 - [x] Fix navigation menu - add sidebar to access all pages (Jobs, Contractors, Budget, Sessions)
+
+## Performance Issues
+- [ ] Fix CSV upload taking too long - optimize database insertion for large files
+
+## Data Management
+- [x] Clear all data from database for fresh testing
+
+## New Features
+- [x] Implement recent uploads UI with delete buttons (match old app design)
+- [x] Create csv_uploads table to track upload history
+- [x] Add delete upload API that removes upload and all associated jobs
