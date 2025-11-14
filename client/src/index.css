@@ -66,10 +66,9 @@
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.141 0.005 285.823);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
+  --destructive-foreground: oklch(0.985 0 0);  /* Slate Borders - #333D4D */
+  --border: oklch(0.247 0.102 260);
+  --input: oklch(0.247 0.102 260);  --ring: oklch(0.623 0.214 259.815);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.235 0.015 65);
   --sidebar-accent: oklch(0.967 0.001 286.375);
@@ -79,22 +78,23 @@
 }
 
 .dark {
-  /* Yellow for labels and headings - #FFD700 gold */
-  --primary: oklch(0.88 0.15 95);
-  --primary-foreground: oklch(0.15 0.005 285.823);
+  /* Primary Blue for buttons - #3682FF */
+  --primary: oklch(0.574 0.788 260);
+  --primary-foreground: oklch(0.98 0 0);
+  /* Yellow-Grey for headers - #D97706 */
+  --yellow-header: oklch(0.65 0.15 50);
   /* Green for action buttons - #10B981 emerald */
   --success: oklch(0.7 0.17 160);
   --success-foreground: oklch(0.98 0 0);
-  /* Blue for secondary actions - #3B82F6 */
-  --info: oklch(0.62 0.21 260);
-  --info-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.88 0.15 95);
-  --sidebar-primary-foreground: oklch(0.15 0.005 285.823);
-  --background: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.574 0.788 260);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  /* Dark Navy Background - #1F2A38 */
+  --background: oklch(0.169 0.098 260);
   --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
+  /* Slightly lighter navy for cards */
+  --card: oklch(0.21 0.098 260);
   --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
+  --popover: oklch(0.21 0.098 260);
   --popover-foreground: oklch(0.85 0.005 65);
   --secondary: oklch(0.24 0.006 286.033);
   --secondary-foreground: oklch(0.7 0.005 65);
@@ -104,19 +104,22 @@
   --accent-foreground:  oklch(0.92 0.005 65);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  /* Slate Borders - #333D4D */
+  --border: oklch(0.247 0.102 260);
+  --input: oklch(0.247 0.102 260);
   --ring: oklch(0.488 0.243 264.376);
   --chart-1: var(--color-blue-300);
   --chart-2: var(--color-blue-500);
   --chart-3: var(--color-blue-600);
   --chart-4: var(--color-blue-700);
   --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
+  /* Sidebar uses dark navy background */
+  --sidebar: oklch(0.19 0.098 260);
   --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-accent: oklch(0.24 0.098 260);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  /* Slate border for sidebar */
+  --sidebar-border: oklch(0.247 0.102 260);
   --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
@@ -183,17 +186,18 @@
   }
 }
   /* Custom utility classes for Job Tracker color scheme */
+  /* Yellow-Grey Headers - #D97706 */
   .text-yellow {
-    color: oklch(0.88 0.15 95);
+    color: oklch(0.65 0.15 50);
   }
   
   .bg-yellow {
-    background-color: oklch(0.88 0.15 95);
+    background-color: oklch(0.65 0.15 50);
     color: oklch(0.15 0.005 285.823);
   }
   
   .bg-yellow:hover {
-    background-color: oklch(0.83 0.15 95);
+    background-color: oklch(0.6 0.15 50);
   }
   
   .bg-green {

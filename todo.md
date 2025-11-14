@@ -73,3 +73,6 @@
 ## Bug Fixes
 - [x] Fix jobs not loading on Job Assignments page (jobs are loading correctly)
 - [x] Restore delete buttons on CSV Upload page (improved visibility with red color)
+
+## Color Scheme Refinement
+- [x] Update to exact old app colors: #1F2A38 (navy bg), #D97706 (amber buttons), #333D4D (slate borders), #3682FF (primary blue)
