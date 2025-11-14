@@ -33,3 +33,6 @@
 - [ ] Test work session logging
 - [ ] Deploy to Render
 - [ ] Final verification
+
+## Design Updates
+- [x] Update color scheme to match old app (blue primary color hsl(218, 89%, 61%))
