@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, buildPhase, typeOfResource, supplier, resourceDescription, orderQuantity FROM jobResources WHERE typeOfResource = 'Material' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, buildPhase, typeOfResource, supplier, resourceDescription, orderQuantity FROM jobResources WHERE typeOfResource = 'Material' LIMIT 10;",
+  "rows": [
+    {
+      "id": "2",
+      "buildPhase": "Foundation",
+      "typeOfResource": "Material",
+      "supplier": "XYZ Suppliers",
+      "resourceDescription": "Ready mix concrete £150.00/Each",
+      "orderQuantity": "5"
+    },
+    {
+      "id": "4",
+      "buildPhase": "Framing",
+      "typeOfResource": "Material",
+      "supplier": "GHI Supplies",
+      "resourceDescription": "2x4 timber £3.50/Each",
+      "orderQuantity": "100"
+    },
+    {
+      "id": "6",
+      "buildPhase": "Foundation",
+      "typeOfResource": "Material",
+      "supplier": "XYZ Suppliers",
+      "resourceDescription": "Ready mix concrete £150.00/Each",
+      "orderQuantity": "5"
+    },
+    {
+      "id": "8",
+      "buildPhase": "Framing",
+      "typeOfResource": "Material",
+      "supplier": "GHI Supplies",
+      "resourceDescription": "2x4 timber £3.50/Each",
+      "orderQuantity": "100"
+    },
+    {
+      "id": "30001",
+      "buildPhase": "Masonry Shell",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Engineering Brick - Class A Blue 65mm £1.66/Each",
+      "orderQuantity": "50"
+    },
+    {
+      "id": "30002",
+      "buildPhase": "",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Cavity Trays Standard (Allowance £6.50 Each) £6.50/Each",
+      "orderQuantity": "200"
+    },
+    {
+      "id": "30003",
+      "buildPhase": "",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Pitch Polymer DPC 150mm x 20m £22.50/Each",
+      "orderQuantity": "1"
+    },
+    {
+      "id": "30005",
+      "buildPhase": "",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Sawn Softwood Kiln Dried Treated 47 x 75mm £2.70/m",
+      "orderQuantity": "34"
+    },
+    {
+      "id": "30006",
+      "buildPhase": "",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Concrete Padstone 440 x 140 x 100mm £23.40/Each",
+      "orderQuantity": "2"
+    },
+    {
+      "id": "30007",
+      "buildPhase": "",
+      "typeOfResource": "Material",
+      "supplier": "",
+      "resourceDescription": "Cavity Closer 140mm x 3m £9.00/m",
+      "orderQuantity": "12"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tbuildPhase\ttypeOfResource\tsupplier\tresourceDescription\torderQuantity\n2\tFoundation\tMaterial\tXYZ Suppliers\tReady mix concrete £150.00/Each\t5\n4\tFraming\tMaterial\tGHI Supplies\t2x4 timber £3.50/Each\t100\n6\tFoundation\tMaterial\tXYZ Suppliers\tReady mix concrete £150.00/Each\t5\n8\tFraming\tMaterial\tGHI Supplies\t2x4 timber £3.50/Each\t100\n30001\tMasonry Shell\tMaterial\t\tEngineering Brick - Class A Blue 65mm £1.66/Each\t50\n30002\t\tMaterial\t\tCavity Trays Standard (Allowance £6.50 Each) £6.50/Each\t200\n30003\t\tMaterial\t\tPitch Polymer DPC 150mm x 20m £22.50/Each\t1\n30005\t\tMaterial\t\tSawn Softwood Kiln Dried Treated 47 x 75mm £2.70/m\t34\n30006\t\tMaterial\t\tConcrete Padstone 440 x 140 x 100mm £23.40/Each\t2\n30007\t\tMaterial\t\tCavity Closer 140mm x 3m £9.00/m\t12\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

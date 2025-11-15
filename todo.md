@@ -350,3 +350,12 @@
 - [x] Add supplier column to materials list in JobDetail page (displays in blue text)
 - [x] Show where to buy materials from (supplier information from CSV)
 - [x] Test materials expansion with supplier data (working: shows N/A when no supplier, displays supplier when available)
+
+## Critical Bug - Supplier Column Not Extracted from CSV
+- [x] Bug: Supplier column showing "N/A" for all materials (FIXED: CSV parser now extracts Supplier column)
+- [x] Investigate csvProcessorNew.ts to check if Supplier column is being read (found: supplier field was missing)
+- [x] Check if supplier field is being mapped correctly during CSV parsing (fixed: added supplier extraction)
+- [x] Verify supplier data is being stored in jobResources table (confirmed: selco, MGN, Trade Piont, Travis Perkins, online all stored)
+- [x] Fix CSV parser to extract Supplier column (added supplier field to ResourceLine interface and extraction logic)
+- [x] Test with re-upload of CSV file (tested successfully)
+- [x] Verify supplier names display correctly in materials breakdown (verified: selco, MGN, Trade Piont all displaying in blue text)

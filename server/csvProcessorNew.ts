@@ -21,6 +21,7 @@ interface JobMetadata {
 interface ResourceLine {
   buildPhase: string;
   typeOfResource: 'Material' | 'Labour';
+  supplier: string;
   resourceDescription: string;
   orderQuantity: number;
   cost: number;
@@ -114,6 +115,7 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     
     const typeOfResource = (row['Type of Resource'] || '').trim();
     let buildPhase = (row['Build Phase'] || '').trim();
+    const supplier = (row['Supplier'] || '').trim();
     const resourceDescription = (row['Resource Description'] || '').trim();
     const orderQuantity = parseInt(row['Order Quantity'] || '0');
     
@@ -139,6 +141,7 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     resources.push({
       buildPhase,
       typeOfResource: typeOfResource as 'Material' | 'Labour',
+      supplier,
       resourceDescription,
       orderQuantity,
       cost,

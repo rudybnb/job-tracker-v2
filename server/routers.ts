@@ -280,7 +280,7 @@ export const appRouter = router({
               buildPhase: resource.buildPhase,
               typeOfResource: resource.typeOfResource,
               resourceType: '',
-              supplier: '',
+              supplier: resource.supplier || '',
               resourceDescription: resource.resourceDescription,
               orderQuantity: resource.orderQuantity,
               cost: resource.cost,
