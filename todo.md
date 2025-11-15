@@ -457,3 +457,5 @@
 - [x] Create ultra-simple vanilla JavaScript login page (no React complexity) - available at /contractor-login-simple.html
 
 - [x] Fix redirect after successful login - changed to window.location.replace()
+
+- [x] Fix ContractorDashboard to accept localStorage token authentication - updated dashboard, mobileApi.me endpoint, and tRPC client

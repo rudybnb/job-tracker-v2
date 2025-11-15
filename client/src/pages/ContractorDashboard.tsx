@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,29 @@ import { toast } from "sonner";
 
 export default function ContractorDashboard() {
   const [, setLocation] = useLocation();
+  const [contractorId, setContractorId] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   
-  const { data: contractor, isLoading } = trpc.mobileApi.me.useQuery();
+  // Check localStorage for authentication
+  useEffect(() => {
+    const token = localStorage.getItem('contractor_token');
+    const id = localStorage.getItem('contractor_id');
+    
+    if (token && id) {
+      setContractorId(id);
+      setAuthChecked(true);
+    } else {
+      setAuthChecked(true);
+      setLocation("/contractor-login");
+    }
+  }, [setLocation]);
+  
+  const { data: contractor, isLoading } = trpc.mobileApi.me.useQuery(
+    undefined,
+    {
+      enabled: authChecked && !!contractorId,
+    }
+  );
   const { data: assignments, isLoading: assignmentsLoading } = trpc.mobileApi.getMyAssignments.useQuery(
     undefined,
     {

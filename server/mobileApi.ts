@@ -140,7 +140,16 @@ export const mobileApiRouter = router({
    * Returns contractor info if logged in, null otherwise
    */
   me: publicProcedure.query(async ({ ctx }) => {
-    const token = ctx.req.cookies?.contractor_token;
+    // Check for token in cookie or Authorization header
+    let token = ctx.req.cookies?.contractor_token;
+    
+    if (!token) {
+      const authHeader = ctx.req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
     if (!token) {
       return null;
     }
