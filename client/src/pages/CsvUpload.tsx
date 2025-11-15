@@ -72,10 +72,19 @@ export default function CsvUpload() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "text/csv") {
-      setFile(selectedFile);
-    } else {
-      toast.error("Please select a valid CSV file");
+    if (selectedFile) {
+      // Check file extension instead of MIME type (more reliable across browsers)
+      const fileName = selectedFile.name.toLowerCase();
+      if (fileName.endsWith('.csv')) {
+        // Reset states when new file is selected
+        setDetectedJobs(null);
+        setCsvContent('');
+        setFilename('');
+        setFile(selectedFile);
+        console.log('File selected:', selectedFile.name);
+      } else {
+        toast.error("Please select a valid CSV file");
+      }
     }
   };
 

@@ -126,4 +126,10 @@
 - [ ] Test complete two-step workflow
 
 ## Upload Button Bug
-- [ ] Fix upload button not appearing when CSV file is selected
+- [x] Fix upload button not appearing when CSV file is selected (fixed file type validation)
+
+## CSV Parser Format Support
+- [x] Update CSV parser to handle Smart Schedule Export format (metadata header rows + data section)
+- [x] Created csvProcessorNew.ts with parseSmartScheduleCSV function
+- [x] Updated detectJobs and upload mutations to use new parser
+- [x] Successfully tested with real Smart Schedule Export file (121 resources, 8 phases, £25,635.23 total)
