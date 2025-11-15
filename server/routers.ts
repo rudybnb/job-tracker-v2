@@ -434,14 +434,16 @@ export const appRouter = router({
         jobId: z.number(), 
         selectedPhases: z.array(z.string()),
         startDate: z.date(),
-        endDate: z.date()
+        endDate: z.date(),
+        contractorCount: z.number().optional()
       }))
       .query(async ({ input }) => {
         return await db.getAssignmentTimeValidation(
           input.jobId, 
           input.selectedPhases, 
           input.startDate, 
-          input.endDate
+          input.endDate,
+          input.contractorCount || 1
         );
       }),
   }),

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -77,6 +77,52 @@ export default function JobAssignments() {
 
   const formatCurrency = (pence: number) => {
     return `£${(pence / 100).toFixed(2)}`;
+  };
+
+  // Fetch labour days for selected phases to suggest dates
+  const { data: suggestedDates, refetch: refetchSuggestedDates } = trpc.jobAssignments.getTimeValidation.useQuery(
+    {
+      jobId: selectedJobId!,
+      selectedPhases: selectedPhases,
+      startDate: startDate ? new Date(startDate) : new Date(),
+      endDate: endDate ? new Date(endDate) : new Date()
+    },
+    { enabled: false } // Don't auto-fetch, only fetch when button is clicked
+  );
+
+  const handleSuggestDates = async () => {
+    if (!selectedJobId || selectedPhases.length === 0) {
+      toast.error("Please select a job and at least one phase first");
+      return;
+    }
+
+    if (!startDate) {
+      toast.error("Please select a start date first");
+      return;
+    }
+
+    // Fetch the labour days required
+    const result = await refetchSuggestedDates();
+    
+    if (result.data) {
+      const requiredDays = result.data.requiredDays;
+      
+      if (requiredDays === 0) {
+        toast.info("No labour time data available for selected phases");
+        return;
+      }
+
+      // Calculate suggested end date
+      const start = new Date(startDate);
+      const suggestedEnd = new Date(start);
+      suggestedEnd.setDate(suggestedEnd.getDate() + requiredDays - 1); // -1 because start date counts as day 1
+
+      // Format date for input (YYYY-MM-DD)
+      const formattedEndDate = suggestedEnd.toISOString().split('T')[0];
+      setEndDate(formattedEndDate);
+
+      toast.success(`Suggested end date set to ${suggestedEnd.toLocaleDateString()} (${requiredDays} days required)`);
+    }
   };
 
   // Filter contractors to show only approved ones
@@ -266,31 +312,50 @@ export default function JobAssignments() {
                 )}
 
                 {/* Date Range */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="startDate" className="text-yellow">
-                      Start Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="bg-card border-input"
-                    />
+                <div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="startDate" className="text-yellow">
+                        Start Date <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="startDate"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="bg-card border-input"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="endDate" className="text-yellow">
+                        End Date <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="endDate"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="bg-card border-input"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="endDate" className="text-yellow">
-                      End Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="bg-card border-input"
-                    />
-                  </div>
+                  {/* Suggest Dates Button */}
+                  {selectedJobId && selectedPhases.length > 0 && startDate && (
+                    <div className="mt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSuggestDates}
+                        className="text-green-600 border-green-600 hover:bg-green-600/10"
+                      >
+                        ✨ Suggest End Date
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Automatically calculate minimum end date based on labour requirements
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Special Instructions */}
@@ -355,6 +420,7 @@ export default function JobAssignments() {
                   assignment={assignment}
                   jobs={jobs}
                   contractors={contractors}
+                  assignments={assignments}
                   formatCurrency={formatCurrency}
                 />
               ))}
@@ -376,10 +442,11 @@ interface AssignmentCardProps {
   assignment: any;
   jobs: any[] | undefined;
   contractors: any[] | undefined;
+  assignments: any[] | undefined;
   formatCurrency: (pence: number) => string;
 }
 
-function AssignmentCard({ assignment, jobs, contractors, formatCurrency }: AssignmentCardProps) {
+function AssignmentCard({ assignment, jobs, contractors, assignments, formatCurrency }: AssignmentCardProps) {
   const job = jobs?.find(j => j.id === assignment.jobId);
   const contractor = contractors?.find(c => c.id === assignment.contractorId);
   
@@ -397,13 +464,29 @@ function AssignmentCard({ assignment, jobs, contractors, formatCurrency }: Assig
     { enabled: selectedPhases.length > 0 }
   );
 
+  // Calculate contractor count for this job/phase combination
+  // Count how many contractors are assigned to overlapping phases
+  const contractorCount = useMemo(() => {
+    if (!assignments || selectedPhases.length === 0) return 1;
+    
+    // Find all assignments for the same job with overlapping phases
+    const overlappingAssignments = (assignments as any[]).filter(a => {
+      if (a.jobId !== assignment.jobId) return false;
+      const otherPhases = a.selectedPhases ? JSON.parse(a.selectedPhases) : [];
+      return selectedPhases.some((p: string) => otherPhases.includes(p));
+    });
+    
+    return overlappingAssignments.length || 1;
+  }, [assignments, assignment.jobId, selectedPhases]);
+
   // Fetch time validation for this assignment
   const { data: timeValidation, isLoading: timeValidationLoading } = trpc.jobAssignments.getTimeValidation.useQuery(
     {
       jobId: assignment.jobId,
       selectedPhases: selectedPhases,
       startDate: new Date(assignment.startDate),
-      endDate: new Date(assignment.endDate)
+      endDate: new Date(assignment.endDate),
+      contractorCount: contractorCount
     },
     { enabled: selectedPhases.length > 0 }
   );

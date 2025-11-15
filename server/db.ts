@@ -27,6 +27,8 @@ import {
   InsertJobAssignment,
   contractorApplications,
   InsertContractorApplication,
+  phaseCompletions,
+  InsertPhaseCompletion,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -605,7 +607,8 @@ export async function getAssignmentTimeValidation(
   jobId: number, 
   phaseNames: string[], 
   startDate: Date, 
-  endDate: Date
+  endDate: Date,
+  contractorCount: number = 1
 ) {
   const db = await getDb();
   if (!db) return { 
@@ -638,25 +641,30 @@ export async function getAssignmentTimeValidation(
   const availableDays = Math.ceil(timeDiff / millisecondsPerDay) + 1; // +1 to include both start and end dates
 
   // Assume labour quantity is in days (you may need to adjust if it's in hours)
-  const requiredDays = totalLabourQuantity;
+  // Adjust for multiple contractors: more contractors = less time needed
+  const requiredDays = contractorCount > 1 
+    ? Math.ceil(totalLabourQuantity / contractorCount)
+    : totalLabourQuantity;
 
   // Determine status
   let status: 'ok' | 'warning' | 'exceeded';
   let message: string;
 
+  const contractorInfo = contractorCount > 1 ? ` with ${contractorCount} contractors` : '';
+  
   if (requiredDays === 0) {
     status = 'ok';
     message = 'No labour time data available';
   } else if (requiredDays <= availableDays) {
     status = 'ok';
-    message = `✓ Time allocation OK (${requiredDays} days needed, ${availableDays} days allocated)`;
+    message = `✓ Time allocation OK (${requiredDays} days needed, ${availableDays} days allocated${contractorInfo})`;
   } else if (requiredDays <= availableDays * 1.2) {
     // Within 20% over
     status = 'warning';
-    message = `⚠️ Tight schedule (${requiredDays} days needed, ${availableDays} days allocated)`;
+    message = `⚠️ Tight schedule (${requiredDays} days needed, ${availableDays} days allocated${contractorInfo})`;
   } else {
     status = 'exceeded';
-    message = `❌ Insufficient time (${requiredDays} days needed, only ${availableDays} days allocated)`;
+    message = `❌ Insufficient time (${requiredDays} days needed, only ${availableDays} days allocated${contractorInfo})`;
   }
 
   return {
@@ -665,4 +673,82 @@ export async function getAssignmentTimeValidation(
     status,
     message,
   };
+}
+
+// Phase completion tracking for efficiency analysis
+export async function createPhaseCompletion(data: {
+  jobId: number;
+  phaseName: string;
+  contractorId: number;
+  assignmentId?: number;
+  estimatedLabourDays: number;
+  actualDaysWorked: number;
+  plannedStartDate?: Date;
+  plannedEndDate?: Date;
+  actualStartDate: Date;
+  actualEndDate: Date;
+  qualityRating?: number;
+  notes?: string;
+  createdBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Calculate efficiency multiplier (actual / estimated * 100)
+  const efficiencyMultiplier = Math.round((data.actualDaysWorked / data.estimatedLabourDays) * 100);
+
+  await db.insert(phaseCompletions).values({
+    ...data,
+    efficiencyMultiplier,
+  });
+}
+
+// Get phase completion history for a contractor
+export async function getContractorEfficiency(contractorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const completions = await db
+    .select()
+    .from(phaseCompletions)
+    .where(eq(phaseCompletions.contractorId, contractorId));
+
+  return completions;
+}
+
+// Get average efficiency multiplier by phase type
+export async function getPhaseEfficiencyByType(phaseName: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const completions = await db
+    .select()
+    .from(phaseCompletions)
+    .where(eq(phaseCompletions.phaseName, phaseName));
+
+  if (completions.length === 0) return null;
+
+  const avgMultiplier = completions.reduce((sum, c) => sum + (c.efficiencyMultiplier || 100), 0) / completions.length;
+
+  return {
+    phaseName,
+    completionCount: completions.length,
+    averageEfficiencyMultiplier: Math.round(avgMultiplier),
+    averageQualityRating: completions.filter(c => c.qualityRating).length > 0
+      ? completions.reduce((sum, c) => sum + (c.qualityRating || 0), 0) / completions.filter(c => c.qualityRating).length
+      : null,
+  };
+}
+
+// Get all phase completions for a job
+export async function getJobPhaseCompletions(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const completions = await db
+    .select()
+    .from(phaseCompletions)
+    .where(eq(phaseCompletions.jobId, jobId));
+
+  return completions;
 }

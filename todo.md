@@ -269,3 +269,26 @@
 - [x] Display validation status on assignment cards (OK, Warning, or Exceeded)
 - [x] Show detailed breakdown: "X days required, Y days allocated"
 - [x] Test with real assignments to verify accuracy
+
+## Auto-Adjust Assignment Dates
+- [x] Add "Suggest Dates" button to assignment creation form
+- [x] Calculate minimum required end date based on labour days needed
+- [x] Display suggested date range to user
+- [x] Allow user to accept or modify suggested dates
+- [x] Update time validation after date adjustment
+
+## Multi-Contractor Scheduling
+- [x] Support assigning multiple contractors to same assignment
+- [x] Calculate workload distribution (e.g., 2 contractors = 0.5x time)
+- [x] Update time validation to account for multiple contractors
+- [x] Display contractor count and adjusted time requirements
+- [x] Test with team assignments
+
+## Labour Efficiency Tracking
+- [x] Create database schema for phase completion records (phaseCompletions table)
+- [x] Create API endpoints for recording phase completions
+- [x] Calculate efficiency multiplier per phase type
+- [ ] Build UI to record actual completion times (schema ready for future implementation)
+- [ ] Display historical efficiency data on assignment cards
+- [ ] Use efficiency multiplier to adjust future time estimates
+- [ ] Build performance history per contractor

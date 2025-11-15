@@ -1,0 +1,20 @@
+CREATE TABLE `phaseCompletions` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`jobId` int NOT NULL,
+	`phaseName` varchar(100) NOT NULL,
+	`contractorId` int NOT NULL,
+	`assignmentId` int,
+	`estimatedLabourDays` int NOT NULL,
+	`actualDaysWorked` int NOT NULL,
+	`efficiencyMultiplier` int NOT NULL,
+	`plannedStartDate` timestamp,
+	`plannedEndDate` timestamp,
+	`actualStartDate` timestamp NOT NULL,
+	`actualEndDate` timestamp NOT NULL,
+	`qualityRating` int,
+	`notes` text,
+	`createdBy` int NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `phaseCompletions_id` PRIMARY KEY(`id`)
+);

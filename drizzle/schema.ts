@@ -285,3 +285,36 @@ export const contractorApplications = mysqlTable("contractor_applications", {
 
 export type ContractorApplication = typeof contractorApplications.$inferSelect;
 export type InsertContractorApplication = typeof contractorApplications.$inferInsert;
+
+/**
+ * Phase completion records for labour efficiency tracking
+ */
+export const phaseCompletions = mysqlTable("phaseCompletions", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  phaseName: varchar("phaseName", { length: 100 }).notNull(),
+  contractorId: int("contractorId").notNull(),
+  assignmentId: int("assignmentId"), // Link to the assignment
+  
+  // Estimated vs Actual
+  estimatedLabourDays: int("estimatedLabourDays").notNull(), // From CSV data
+  actualDaysWorked: int("actualDaysWorked").notNull(), // Actual completion time
+  efficiencyMultiplier: int("efficiencyMultiplier").notNull(), // Stored as percentage (e.g., 120 = 1.2x)
+  
+  // Dates
+  plannedStartDate: timestamp("plannedStartDate"),
+  plannedEndDate: timestamp("plannedEndDate"),
+  actualStartDate: timestamp("actualStartDate").notNull(),
+  actualEndDate: timestamp("actualEndDate").notNull(),
+  
+  // Quality & Notes
+  qualityRating: int("qualityRating"), // 1-5 stars
+  notes: text("notes"),
+  
+  createdBy: int("createdBy").notNull(), // Admin who recorded this
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PhaseCompletion = typeof phaseCompletions.$inferSelect;
+export type InsertPhaseCompletion = typeof phaseCompletions.$inferInsert;
