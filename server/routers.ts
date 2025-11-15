@@ -647,6 +647,33 @@ export const appRouter = router({
         return { success: true, contractorId: contractorResult.insertId };
       }),
 
+    // Public: Upload passport photo to S3
+    uploadPassportPhoto: publicProcedure
+      .input(
+        z.object({
+          fileName: z.string(),
+          fileData: z.string(), // base64 encoded
+          contentType: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Decode base64 data
+        const buffer = Buffer.from(input.fileData, 'base64');
+        
+        // Generate unique file key with timestamp and random suffix
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(7);
+        const ext = input.fileName.split('.').pop() || 'jpg';
+        const fileKey = `contractor-documents/${timestamp}-${randomSuffix}.${ext}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(fileKey, buffer, input.contentType);
+        
+        return { success: true, url };
+      }),
+
     // Admin: Reject application
     reject: adminProcedure
       .input(

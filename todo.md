@@ -194,3 +194,12 @@
 ## Telegram Bot URL Bug
 - [x] Fix Telegram form link to use public URL instead of localhost
 - [x] Test form access from Telegram message on mobile device
+
+## Passport Photo Upload Feature
+- [x] Update contractorApplications table schema to add passportPhotoUrl field (already existed)
+- [x] Create file upload API endpoint (trpc mutation)
+- [x] Integrate S3 storage for file uploads
+- [x] Add file upload UI component to Step 2 (Right to Work) of contractor form
+- [x] Implement file validation (image types, size limits)
+- [x] Show upload progress and preview
+- [x] Test complete upload workflow

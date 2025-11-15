@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,119 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle, ChevronLeft, ChevronRight, Upload, X, FileImage } from "lucide-react";
 import { APP_LOGO, APP_TITLE } from "@/const";
+
+// Passport Photo Upload Component
+function PassportPhotoUpload({ onUploadComplete, currentUrl }: { onUploadComplete: (url: string) => void; currentUrl: string }) {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string>(currentUrl || "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadMutation = trpc.contractorApplications.uploadPassportPhoto.useMutation({
+    onSuccess: (data) => {
+      setPreview(data.url);
+      onUploadComplete(data.url);
+      setUploading(false);
+      toast.success("Photo uploaded successfully!");
+    },
+    onError: (error) => {
+      setUploading(false);
+      toast.error(`Upload failed: ${error.message}`);
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a JPG, PNG, or PDF file");
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      uploadMutation.mutate({
+        fileName: file.name,
+        fileData: base64,
+        contentType: file.type,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemove = () => {
+    setPreview("");
+    onUploadComplete("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,application/pdf"
+        onChange={handleFileChange}
+        className="hidden"
+        id="passport-upload"
+      />
+      
+      {!preview ? (
+        <label
+          htmlFor="passport-upload"
+          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
+        >
+          {uploading ? (
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-2 text-sm text-muted-foreground">Uploading...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <p className="mt-2 text-sm text-muted-foreground">Click to upload passport photo</p>
+            </div>
+          )}
+        </label>
+      ) : (
+        <div className="relative w-full p-4 border rounded-lg bg-accent/20">
+          <div className="flex items-center gap-3">
+            <FileImage className="h-8 w-8 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">Photo uploaded</p>
+              <p className="text-xs text-muted-foreground truncate">{preview}</p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleRemove}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const STEPS = [
   "Personal Details",
@@ -300,16 +411,13 @@ export default function ContractorForm() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="passportPhoto">Passport Photo URL</Label>
-                  <Input
-                    id="passportPhoto"
-                    type="url"
-                    value={formData.passportPhotoUrl}
-                    onChange={(e) => updateField("passportPhotoUrl", e.target.value)}
-                    placeholder="https://..."
+                  <Label htmlFor="passportPhoto">Passport Photo *</Label>
+                  <PassportPhotoUpload
+                    onUploadComplete={(url) => updateField("passportPhotoUrl", url)}
+                    currentUrl={formData.passportPhotoUrl}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Upload your photo to a service like Imgur and paste the link here
+                    Upload a clear photo of your passport (JPG, PNG, or PDF, max 5MB)
                   </p>
                 </div>
               </>
