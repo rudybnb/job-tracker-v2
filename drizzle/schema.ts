@@ -92,7 +92,9 @@ export const contractors = mysqlTable("contractors", {
   passwordHash: varchar("passwordHash", { length: 255 }),
   type: mysqlEnum("type", ["contractor", "subcontractor"]).notNull(),
   primaryTrade: varchar("primaryTrade", { length: 100 }),
-  dailyRate: int("dailyRate"), // in pence, for contractors
+  paymentType: mysqlEnum("paymentType", ["day_rate", "price_work"]).default("day_rate").notNull(),
+  hourlyRate: int("hourlyRate"), // in pence, agency hourly rate (includes CIS/taxes)
+  dailyRate: int("dailyRate"), // in pence, calculated or custom daily rate
   cisVerified: boolean("cisVerified").default(false),
   adminNotes: text("adminNotes"),
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),

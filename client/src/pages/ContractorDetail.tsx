@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { TRADE_NAMES, getAgencyRate, formatCost } from "@shared/labourCosts";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,9 @@ export default function ContractorDetail() {
   );
 
   const [adminData, setAdminData] = useState({
+    primaryTrade: "",
+    paymentType: "day_rate" as "day_rate" | "price_work",
+    hourlyRate: 0,
     dailyRate: 0,
     cisVerified: false,
     adminNotes: "",
@@ -92,6 +96,9 @@ export default function ContractorDetail() {
 
   const handleEditAdmin = () => {
     setAdminData({
+      primaryTrade: contractor.primaryTrade || "",
+      paymentType: contractor.paymentType || "day_rate",
+      hourlyRate: contractor.hourlyRate || 0,
       dailyRate: contractor.dailyRate || 0,
       cisVerified: contractor.cisVerified || false,
       adminNotes: contractor.adminNotes || "",
@@ -337,15 +344,37 @@ export default function ContractorDetail() {
               {!editingAdmin ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">CIS:</span>
+                    <span className="text-sm text-muted-foreground">Trade:</span>
                     <span className="text-sm font-medium">
-                      {contractor.cisVerified ? "Verified" : "Not verified"}
+                      {contractor.primaryTrade || "Not set"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">£ Rate:</span>
+                    <span className="text-sm text-muted-foreground">Payment Type:</span>
                     <span className="text-sm font-medium">
-                      {formatCurrency(contractor.dailyRate)}
+                      {contractor.paymentType === "day_rate" ? "Day Rate" : "Price Work"}
+                    </span>
+                  </div>
+                  {contractor.paymentType === "day_rate" && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Hourly Rate:</span>
+                        <span className="text-sm font-medium">
+                          {contractor.hourlyRate ? formatCost(contractor.hourlyRate) + "/hr" : "Not set"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Daily Rate (8hrs):</span>
+                        <span className="text-sm font-medium">
+                          {contractor.hourlyRate ? formatCost(contractor.hourlyRate * 8) : formatCurrency(contractor.dailyRate)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">CIS:</span>
+                    <span className="text-sm font-medium">
+                      {contractor.cisVerified ? "Verified" : "Not verified"}
                     </span>
                   </div>
                   <div>
@@ -357,6 +386,68 @@ export default function ContractorDetail() {
                 </>
               ) : (
                 <>
+                  <div className="space-y-2">
+                    <Label htmlFor="primaryTrade">Trade</Label>
+                    <select
+                      id="primaryTrade"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={adminData.primaryTrade}
+                      onChange={(e) => {
+                        const trade = e.target.value;
+                        const agencyRate = getAgencyRate(trade);
+                        setAdminData({
+                          ...adminData,
+                          primaryTrade: trade,
+                          hourlyRate: agencyRate || adminData.hourlyRate,
+                        });
+                      }}
+                    >
+                      <option value="">Select trade...</option>
+                      {TRADE_NAMES.map(trade => (
+                        <option key={trade} value={trade}>{trade}</option>
+                      ))}
+                    </select>
+                    {adminData.primaryTrade && getAgencyRate(adminData.primaryTrade) && (
+                      <p className="text-xs text-muted-foreground">
+                        Agency rate: {formatCost(getAgencyRate(adminData.primaryTrade)!)}/hr
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="paymentType">Payment Type</Label>
+                    <select
+                      id="paymentType"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={adminData.paymentType}
+                      onChange={(e) =>
+                        setAdminData({ ...adminData, paymentType: e.target.value as "day_rate" | "price_work" })
+                      }
+                    >
+                      <option value="day_rate">Day Rate (Agency)</option>
+                      <option value="price_work">Price Work (Subcontractor)</option>
+                    </select>
+                  </div>
+                  {adminData.paymentType === "day_rate" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="hourlyRate">Hourly Rate (£)</Label>
+                      <Input
+                        id="hourlyRate"
+                        type="number"
+                        step="0.01"
+                        value={adminData.hourlyRate / 100}
+                        onChange={(e) =>
+                          setAdminData({
+                            ...adminData,
+                            hourlyRate: Math.round(parseFloat(e.target.value) * 100),
+                          })
+                        }
+                        placeholder="0.00"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Daily rate (8hrs): {formatCost(adminData.hourlyRate * 8)}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="cisVerified">CIS Verified</Label>
                     <select
@@ -370,22 +461,6 @@ export default function ContractorDetail() {
                       <option value="false">Not verified</option>
                       <option value="true">Verified</option>
                     </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dailyRate">Daily Rate (£)</Label>
-                    <Input
-                      id="dailyRate"
-                      type="number"
-                      step="0.01"
-                      value={adminData.dailyRate / 100}
-                      onChange={(e) =>
-                        setAdminData({
-                          ...adminData,
-                          dailyRate: Math.round(parseFloat(e.target.value) * 100),
-                        })
-                      }
-                      placeholder="0.00"
-                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="adminNotes">Admin Notes</Label>

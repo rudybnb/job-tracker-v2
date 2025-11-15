@@ -474,6 +474,9 @@ export async function getContractorApplicationStats() {
 // Update contractor admin details
 export async function updateContractorAdminDetails(data: {
   id: number;
+  primaryTrade?: string;
+  paymentType?: "day_rate" | "price_work";
+  hourlyRate?: number;
   dailyRate?: number;
   cisVerified?: boolean;
   adminNotes?: string;
@@ -482,6 +485,9 @@ export async function updateContractorAdminDetails(data: {
   if (!db) throw new Error("Database not available");
 
   const updateData: any = {};
+  if (data.primaryTrade !== undefined) updateData.primaryTrade = data.primaryTrade;
+  if (data.paymentType !== undefined) updateData.paymentType = data.paymentType;
+  if (data.hourlyRate !== undefined) updateData.hourlyRate = data.hourlyRate;
   if (data.dailyRate !== undefined) updateData.dailyRate = data.dailyRate;
   if (data.cisVerified !== undefined) updateData.cisVerified = data.cisVerified;
   if (data.adminNotes !== undefined) updateData.adminNotes = data.adminNotes;

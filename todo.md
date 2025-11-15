@@ -359,3 +359,43 @@
 - [x] Fix CSV parser to extract Supplier column (added supplier field to ResourceLine interface and extraction logic)
 - [x] Test with re-upload of CSV file (tested successfully)
 - [x] Verify supplier names display correctly in materials breakdown (verified: selco, MGN, Trade Piont all displaying in blue text)
+
+## Day-Block Labour Costing System
+- [ ] Update contractor schema to add trade/role field (Plasterer, Carpenter, Bricklayer, etc.)
+- [ ] Add hourly rate field to contractors (from agency rate list)
+- [ ] Add payment type field (Agency Day Rate vs Price Work)
+- [ ] Create agency rate list constants (Labourer £13-14.5, Plasterer £22, Carpenter £24-28, etc.)
+- [ ] Implement day-block calculation: HBXL hours ÷ 8 = days (rounded up)
+- [ ] Calculate realistic cost: days × 8 hours × agency hourly rate
+- [ ] Update assignment creation to show day-block breakdown
+- [ ] Support Price Work contractors (fixed price, no hourly calculation)
+- [ ] Update budget display to show realistic labour costs vs HBXL estimates
+- [ ] Test with example: 12 HBXL hours → 2 days × 8hrs × £22 = £352
+
+## Day-Block Labour Costing System (In Progress)
+- [x] Update contractor schema to add trade, hourly rate, and payment type fields
+- [x] Push database schema changes (migration 0010_breezy_triton.sql)
+- [x] Create agency rates constants file with all trades and hourly rates (shared/labourCosts.ts)
+- [x] Implement day-block calculation logic (hours ÷ 8, round up)
+- [x] Create calculateDayBlockCost function
+- [x] Update contractor create/update procedures to include new fields
+- [x] Update contractor database functions (updateContractorAdminDetails)
+- [x] Update ContractorDetail page to show and edit new fields
+- [x] Add trade dropdown with agency rates (24 trades: Labourer to Plumber)
+- [x] Add payment type selector (Day Rate vs Price Work)
+- [x] Add hourly rate input with auto-fill from agency rates
+- [x] Update Contractors list page to show payment type and rates
+- [x] Create day-block cost calculation function for assignments (server/dayBlockCosts.ts)
+- [x] Add getDayBlockCosts API endpoint to jobAssignments router
+- [ ] Update JobAssignments page to use day-block costing
+- [ ] Show day-block breakdown when creating assignments
+- [ ] Display realistic costs vs HBXL estimates
+- [ ] Add price work input field for subcontractors
+- [ ] Test day-block system end-to-end
+- [ ] Save checkpoint
+
+**Implementation Notes:**
+- Agency rates include CIS deductions, taxes, and agency fees
+- Day-block system: any work under 8 hours = 1 full day, over 8 hours = round up to nearest full day
+- Example: 12 HBXL hours → 2 day-blocks → 2 days × 8 hours × £22/hr = £352
+- Payment types: "day_rate" (agency contractors) vs "price_work" (subcontractors with fixed milestone prices)

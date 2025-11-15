@@ -337,6 +337,8 @@ export const appRouter = router({
           phone: z.string().optional(),
           type: z.enum(["contractor", "subcontractor"]),
           primaryTrade: z.string().optional(),
+          paymentType: z.enum(["day_rate", "price_work"]).default("day_rate"),
+          hourlyRate: z.number().optional(),
           dailyRate: z.number().optional(),
         })
       )
@@ -358,6 +360,9 @@ export const appRouter = router({
       .input(
         z.object({
           id: z.number(),
+          primaryTrade: z.string().optional(),
+          paymentType: z.enum(["day_rate", "price_work"]).optional(),
+          hourlyRate: z.number().optional(),
           dailyRate: z.number().optional(),
           cisVerified: z.boolean().optional(),
           adminNotes: z.string().optional(),
@@ -429,6 +434,21 @@ export const appRouter = router({
       .input(z.object({ jobId: z.number(), selectedPhases: z.array(z.string()) }))
       .query(async ({ input }) => {
         return await db.getAssignmentPhaseCosts(input.jobId, input.selectedPhases);
+      }),
+
+    getDayBlockCosts: adminProcedure
+      .input(z.object({ 
+        jobId: z.number(), 
+        selectedPhases: z.array(z.string()),
+        contractorId: z.number()
+      }))
+      .query(async ({ input }) => {
+        const { calculateDayBlockAssignmentCost } = await import("./dayBlockCosts");
+        return await calculateDayBlockAssignmentCost(
+          input.jobId, 
+          input.selectedPhases,
+          input.contractorId
+        );
       }),
 
     getTimeValidation: adminProcedure

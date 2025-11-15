@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { ChevronRight } from "lucide-react";
+import { formatCost } from "@shared/labourCosts";
 
 export default function Contractors() {
   const { data: contractors } = trpc.contractors.list.useQuery();
@@ -32,17 +33,17 @@ export default function Contractors() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Type: {contractor.type}
-                </p>
-                {contractor.dailyRate && (
-                  <p className="text-sm text-muted-foreground">
-                    Daily Rate: £{(contractor.dailyRate / 100).toFixed(2)}
+                {contractor.primaryTrade && (
+                  <p className="text-sm font-medium">
+                    🔨 {contractor.primaryTrade}
                   </p>
                 )}
-                {contractor.primaryTrade && (
+                <p className="text-sm text-muted-foreground">
+                  {contractor.paymentType === "day_rate" ? "📅 Day Rate" : "💰 Price Work"}
+                </p>
+                {contractor.paymentType === "day_rate" && contractor.hourlyRate && (
                   <p className="text-sm text-muted-foreground">
-                    Trade: {contractor.primaryTrade}
+                    {formatCost(contractor.hourlyRate)}/hr • {formatCost(contractor.hourlyRate * 8)}/day
                   </p>
                 )}
               </CardContent>
