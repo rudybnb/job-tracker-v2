@@ -2,19 +2,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Fingerprint, ArrowLeft, Home } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useLocation } from "wouter";
-import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 export default function ContractorLogin() {
-  console.log('ContractorLogin component rendered');
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<"requesting" | "enabled" | "disabled">("requesting");
-
   const [isLoading, setIsLoading] = useState(false);
 
   // Request GPS permission on mount
@@ -27,13 +24,9 @@ export default function ContractorLogin() {
     } else {
       setGpsStatus("disabled");
     }
-  }, []); // Run only once on mount
+  }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('handleLogin called!');
-    console.log('handleLogin called', { username, password: '***' });
-    
+  const handleLogin = async () => {
     if (!username || !password) {
       toast.error("Please enter username and password");
       return;
@@ -51,16 +44,16 @@ export default function ContractorLogin() {
       });
       
       const data = await response.json();
-      console.log('Login response:', data);
       
-      if (response.ok && data.result?.data) {
+      if (response.ok && data.result?.data?.json) {
+        const result = data.result.data.json;
         toast.success("Login successful!");
         // Store the token
-        localStorage.setItem('contractor_token', data.result.data.token);
-        localStorage.setItem('contractor_id', data.result.data.contractor.id);
+        localStorage.setItem('contractor_token', result.token);
+        localStorage.setItem('contractor_id', result.contractor.id);
         setLocation("/contractor-dashboard");
       } else {
-        toast.error(data.error?.message || "Login failed");
+        toast.error(data.error?.json?.message || "Login failed");
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -72,33 +65,27 @@ export default function ContractorLogin() {
 
   const handleBiometricLogin = async () => {
     toast.info("Biometric authentication coming soon!");
-    // WebAuthn implementation will go here
   };
 
   return (
-    <div className="min-h-screen bg-[#1a2332] relative overflow-hidden">
-      {/* Dot pattern background */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-          backgroundSize: "30px 30px"
-        }}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2332] via-[#0f1419] to-[#1a2332] relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#D97706] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-[#F59E0B] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-[#D97706] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+      </div>
 
-      {/* Header buttons */}
-      <div className="absolute top-6 left-6 flex gap-3 z-10">
+      {/* Back button */}
+      <div className="absolute top-6 left-6 z-20">
         <button
           onClick={() => setLocation("/")}
-          className="w-12 h-12 rounded-full bg-[#2a3847] hover:bg-[#3a4857] flex items-center justify-center transition-colors"
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 text-white" />
-        </button>
-        <button
-          onClick={() => setLocation("/")}
-          className="w-12 h-12 rounded-full bg-[#2a3847] hover:bg-[#3a4857] flex items-center justify-center transition-colors"
-        >
-          <Home className="w-5 h-5 text-white" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>Back</span>
         </button>
       </div>
 
@@ -122,7 +109,7 @@ export default function ContractorLogin() {
           <h2 className="text-3xl font-bold text-white text-center mb-2">Welcome Back</h2>
           <p className="text-gray-400 text-center mb-8">Sign in to access your dashboard</p>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-6">
             {/* Username field */}
             <div>
               <Label htmlFor="username" className="text-white text-base mb-2 block">
@@ -134,6 +121,7 @@ export default function ContractorLogin() {
                 placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 className="bg-[#1a2332] border-none text-white placeholder:text-gray-500 h-14 text-base"
               />
             </div>
@@ -150,6 +138,7 @@ export default function ContractorLogin() {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                   className="bg-[#1a2332] border-none text-white placeholder:text-gray-500 h-14 text-base pr-12"
                 />
                 <button
@@ -178,7 +167,7 @@ export default function ContractorLogin() {
 
             {/* Sign In button */}
             <Button
-              type="submit"
+              onClick={handleLogin}
               disabled={isLoading}
               className="w-full h-14 bg-gradient-to-r from-[#D97706] to-[#F59E0B] hover:from-[#B45309] hover:to-[#D97706] text-white text-lg font-semibold rounded-xl shadow-lg"
             >
@@ -189,13 +178,20 @@ export default function ContractorLogin() {
             <button
               type="button"
               onClick={handleBiometricLogin}
-              className="w-full flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors py-2"
+              className="w-full flex items-center justify-center gap-3 py-4 border-2 border-gray-600 rounded-xl text-gray-300 hover:border-[#F59E0B] hover:text-white transition-all"
             >
-              <Fingerprint className="w-5 h-5" />
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+              </svg>
               <span>Sign in with fingerprint</span>
             </button>
-          </form>
+          </div>
         </div>
+
+        {/* Footer */}
+        <p className="text-gray-500 text-sm mt-8">
+          Need help? Contact your project manager
+        </p>
       </div>
     </div>
   );

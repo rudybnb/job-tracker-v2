@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contractor Login - Sculpt Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a2332, #0f1419);
+    }
+
+    .container {
+      background: #2a3847;
+      padding: 3rem 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #D97706, #F59E0B);
+      border-radius: 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .logo-icon svg {
+      width: 48px;
+      height: 48px;
+      stroke: white;
+      fill: none;
+      stroke-width: 3;
+    }
+
+    h1 {
+      color: white;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #F59E0B;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      color: white;
+      font-size: 1.75rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .field {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      color: white;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border-radius: 0.75rem;
+      border: none;
+      background: #1a2332;
+      color: white;
+      font-size: 1rem;
+      transition: box-shadow 0.2s ease;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #6b7280;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #F59E0B;
+    }
+
+    .gps-status {
+      color: #9ca3af;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .gps-status.enabled {
+      color: #10b981;
+    }
+
+    .gps-status.disabled {
+      color: #ef4444;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.875rem;
+      border: none;
+      border-radius: 0.875rem;
+      background: linear-gradient(135deg, #D97706, #F59E0B);
+      color: white;
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(217, 119, 6, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(217, 119, 6, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+
+    .message.success {
+      background: #10b98120;
+      color: #10b981;
+      border: 1px solid #10b981;
+      display: block;
+    }
+
+    .message.error {
+      background: #ef444420;
+      color: #ef4444;
+      border: 1px solid #ef4444;
+      display: block;
+    }
+
+    .helper {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Back
+  </a>
+
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h1>Sculpt Projects</h1>
+      <div class="subtitle">GPS Time Tracking & Job Management</div>
+    </div>
+
+    <h2>Welcome Back</h2>
+    <div class="description">Sign in to access your dashboard</div>
+
+    <form id="login-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Enter username" autocomplete="username" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
+      </div>
+
+      <div id="gps-status" class="gps-status">GPS Status: Checking...</div>
+
+      <button type="submit" id="submit-btn">Sign In</button>
+
+      <div id="message" class="message"></div>
+    </form>
+
+    <div class="helper">
+      Need help? Contact your project manager
+    </div>
+  </div>
+
+  <script>
+    // GPS permission check
+    const gpsStatusEl = document.getElementById("gps-status");
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          gpsStatusEl.textContent = "GPS Status: Enabled";
+          gpsStatusEl.className = "gps-status enabled";
+        },
+        () => {
+          gpsStatusEl.textContent = "GPS Status: Disabled";
+          gpsStatusEl.className = "gps-status disabled";
+        }
+      );
+    } else {
+      gpsStatusEl.textContent = "GPS Status: Not Available";
+      gpsStatusEl.className = "gps-status disabled";
+    }
+
+    // Login form handling
+    const form = document.getElementById("login-form");
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        showMessage("Please fill in both fields.", "error");
+        return;
+      }
+
+      // Disable button during login
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Signing In...";
+
+      try {
+        const response = await fetch('/api/trpc/mobileApi.login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            json: {
+              username: username,
+              password: password
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.result?.data?.json) {
+          const result = data.result.data.json;
+          
+          if (result.success) {
+            // Store authentication data
+            localStorage.setItem('contractor_token', result.token);
+            localStorage.setItem('contractor_id', result.contractor.id);
+            
+            showMessage("Login successful! Redirecting...", "success");
+            
+            // Redirect to dashboard after short delay
+            setTimeout(() => {
+              window.location.href = '/contractor-dashboard';
+            }, 1000);
+          } else {
+            showMessage(result.message || "Login failed", "error");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign In";
+          }
+        } else {
+          const errorMsg = data.error?.json?.message || "Invalid username or password";
+          showMessage(errorMsg, "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Sign In";
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showMessage("Unable to connect to server. Please try again.", "error");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign In";
+      }
+    });
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = "message " + type;
+    }
+  </script>
+</body>
+</html>

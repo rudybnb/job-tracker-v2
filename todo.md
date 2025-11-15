@@ -451,3 +451,7 @@
 - [ ] Add route protection (require contractor login)
 - [ ] Test login with John's credentials (username: john, password: john123)
 - [ ] Save checkpoint and deliver login URL
+
+- [x] Simplify contractor login page - replace form with direct button onClick handler
+
+- [x] Create ultra-simple vanilla JavaScript login page (no React complexity) - available at /contractor-login-simple.html
