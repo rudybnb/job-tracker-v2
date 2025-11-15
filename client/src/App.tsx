@@ -19,6 +19,7 @@ import SendInvite from "./pages/SendInvite";
 import ContractorDetail from "./pages/ContractorDetail";
 import ContractorLogin from "./pages/ContractorLogin";
 import ContractorDashboard from "./pages/ContractorDashboard";
+import ContractorTasks from "./pages/ContractorTasks";
 
 function Router() {
   return (
@@ -105,6 +106,7 @@ function Router() {
       
       {/* Contractor dashboard (contractor auth required) */}
       <Route path={"/contractor-dashboard"} component={ContractorDashboard} />
+      <Route path={"/contractor-tasks"} component={ContractorTasks} />
       
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

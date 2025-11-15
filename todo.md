@@ -466,3 +466,8 @@
 - [x] Implement GPS geofencing for clock-in (10m radius from job site) - updated from 1000m to 10m
 
 - [x] Fix TypeError in ContractorDashboard - changed assignment.phases to assignment.selectedPhases with optional chaining
+
+- [ ] Review and implement missing contractor dashboard pages
+- [x] Create contractor task list page - view assigned tasks and mark complete
+- [ ] Create progress report submission page - upload photos and notes
+- [x] Add navigation between contractor pages - added "View My Tasks" button to dashboard header

@@ -12,7 +12,7 @@ import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { getDb } from "./db";
-import { workSessions, gpsCheckpoints, taskCompletions, jobAssignments, jobs, contractors } from "../drizzle/schema";
+import { workSessions, gpsCheckpoints, taskCompletions, jobAssignments, jobs, contractors, buildPhases } from "../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -967,6 +967,177 @@ export const mobileApiRouter = router({
         isVerified: task.isVerified === 1,
         verifiedAt: task.verifiedAt,
       }));
+    }),
+
+  /**
+   * Get task completions for contractor
+   * Returns all tasks completed by the logged-in contractor
+   */
+  getTaskCompletions: publicProcedure.query(async ({ ctx }) => {
+    let token = ctx.req.cookies?.contractor_token;
+    
+    if (!token) {
+      const authHeader = ctx.req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
+    if (!token) {
+      return [];
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret") as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const database = await getDb();
+      if (!database) {
+        return [];
+      }
+
+      const completions = await database
+        .select()
+        .from(taskCompletions)
+        .where(eq(taskCompletions.contractorId, decoded.contractorId))
+        .orderBy(desc(taskCompletions.completedAt));
+
+      return completions.map((task) => ({
+        id: task.id,
+        assignmentId: task.assignmentId,
+        phaseName: task.phaseName,
+        taskName: task.taskName,
+        completedAt: task.completedAt,
+        notes: task.notes,
+        photoUrls: task.photoUrls ? JSON.parse(task.photoUrls) : [],
+        isVerified: task.isVerified === 1,
+      }));
+    } catch (error) {
+      console.error('[getTaskCompletions] Error:', error);
+      return [];
+    }
+  }),
+
+  /**
+   * Mark task as complete (contractor version)
+   */
+  markTaskComplete: publicProcedure
+    .input(
+      z.object({
+        assignmentId: z.number(),
+        phaseName: z.string(),
+        taskName: z.string(),
+        notes: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret") as {
+          contractorId: number;
+          username: string;
+          type: string;
+        };
+
+        const database = await getDb();
+        if (!database) {
+          throw new Error("Database not available");
+        }
+
+        // Check if task already completed
+        const existing = await database
+          .select()
+          .from(taskCompletions)
+          .where(
+            and(
+              eq(taskCompletions.contractorId, decoded.contractorId),
+              eq(taskCompletions.assignmentId, input.assignmentId),
+              eq(taskCompletions.phaseName, input.phaseName),
+              eq(taskCompletions.taskName, input.taskName)
+            )
+          )
+          .limit(1);
+
+        if (existing.length > 0) {
+          throw new Error("Task already completed");
+        }
+
+        // Record task completion
+        await database.insert(taskCompletions).values({
+          assignmentId: input.assignmentId,
+          contractorId: decoded.contractorId,
+          phaseName: input.phaseName,
+          taskName: input.taskName,
+          completedAt: new Date(),
+          notes: input.notes || null,
+          photoUrls: input.photoUrls ? JSON.stringify(input.photoUrls) : null,
+          isVerified: 0,
+        });
+
+        return {
+          success: true,
+          message: "Task marked as complete",
+        };
+      } catch (error) {
+        console.error('[markTaskComplete] Error:', error);
+        throw error;
+      }
+    }),
+
+  /**
+   * Get phase with tasks
+   */
+  getPhaseWithTasks: publicProcedure
+    .input(
+      z.object({
+        jobId: z.number(),
+        phaseName: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const database = await getDb();
+      if (!database) {
+        return null;
+      }
+
+      const phase = await database
+        .select()
+        .from(buildPhases)
+        .where(
+          and(
+            eq(buildPhases.jobId, input.jobId),
+            eq(buildPhases.phaseName, input.phaseName)
+          )
+        )
+        .limit(1);
+
+      if (phase.length === 0) {
+        return null;
+      }
+
+      const phaseData = phase[0];
+      return {
+        id: phaseData.id,
+        phaseName: phaseData.phaseName,
+        status: phaseData.status,
+        tasks: phaseData.tasks ? JSON.parse(phaseData.tasks) : [],
+      };
     }),
 });
 

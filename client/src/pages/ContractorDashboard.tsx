@@ -75,14 +75,23 @@ export default function ContractorDashboard() {
               {contractor.type === "contractor" ? "Contractor" : "Subcontractor"} • {contractor.primaryTrade}
             </p>
           </div>
-          <Button
-            onClick={() => logoutMutation.mutate()}
-            variant="outline"
-            className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setLocation("/contractor-tasks")}
+              variant="outline"
+              className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
+            >
+              View My Tasks
+            </Button>
+            <Button
+              onClick={() => logoutMutation.mutate()}
+              variant="outline"
+              className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
 
