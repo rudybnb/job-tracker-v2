@@ -25,6 +25,7 @@ export default function JobAssignments() {
   const [endDate, setEndDate] = useState("");
   const [specialInstructions, setSpecialInstructions] = useState("");
 
+  const utils = trpc.useUtils();
   const { data: jobs, isLoading: jobsLoading } = trpc.jobs.list.useQuery();
   const { data: contractors, isLoading: contractorsLoading } = trpc.contractors.list.useQuery();
   const { data: assignments, isLoading: assignmentsLoading } = trpc.jobAssignments.list.useQuery();
@@ -38,6 +39,7 @@ export default function JobAssignments() {
   const createAssignment = trpc.jobAssignments.create.useMutation({
     onSuccess: () => {
       toast.success("Assignment created successfully");
+      utils.jobAssignments.list.invalidate(); // Refetch assignments list
       setShowCreateForm(false);
       resetForm();
     },

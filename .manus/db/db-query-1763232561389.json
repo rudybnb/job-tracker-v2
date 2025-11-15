@@ -1,0 +1,55 @@
+{
+  "query": "SELECT * FROM jobAssignments ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT * FROM jobAssignments ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "120003",
+      "jobId": "330001",
+      "contractorId": "90001",
+      "workLocation": "DA17 5DB,,,,,",
+      "selectedPhases": "[\"Carpentry\"]",
+      "startDate": "2025-11-17 00:00:00",
+      "endDate": "2025-11-20 00:00:00",
+      "specialInstructions": "NULL",
+      "status": "assigned",
+      "milestonePrice": "NULL",
+      "teamAssignment": "0",
+      "createdAt": "2025-11-15 18:48:34",
+      "updatedAt": "2025-11-15 18:48:34"
+    },
+    {
+      "id": "120002",
+      "jobId": "330001",
+      "contractorId": "90001",
+      "workLocation": "DA17 5DB,,,,,",
+      "selectedPhases": "[\"Carpentry\"]",
+      "startDate": "2025-11-17 00:00:00",
+      "endDate": "2025-11-20 00:00:00",
+      "specialInstructions": "NULL",
+      "status": "assigned",
+      "milestonePrice": "NULL",
+      "teamAssignment": "0",
+      "createdAt": "2025-11-15 18:43:46",
+      "updatedAt": "2025-11-15 18:43:46"
+    },
+    {
+      "id": "120001",
+      "jobId": "330001",
+      "contractorId": "90001",
+      "workLocation": "DA17 5DB,,,,,",
+      "selectedPhases": "[\"Carpentry\"]",
+      "startDate": "2025-11-17 00:00:00",
+      "endDate": "2025-11-20 00:00:00",
+      "specialInstructions": "NULL",
+      "status": "assigned",
+      "milestonePrice": "NULL",
+      "teamAssignment": "0",
+      "createdAt": "2025-11-15 18:43:01",
+      "updatedAt": "2025-11-15 18:43:01"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tcontractorId\tworkLocation\tselectedPhases\tstartDate\tendDate\tspecialInstructions\tstatus\tmilestonePrice\tteamAssignment\tcreatedAt\tupdatedAt\n120003\t330001\t90001\tDA17 5DB,,,,,\t[\"Carpentry\"]\t2025-11-17 00:00:00\t2025-11-20 00:00:00\tNULL\tassigned\tNULL\t0\t2025-11-15 18:48:34\t2025-11-15 18:48:34\n120002\t330001\t90001\tDA17 5DB,,,,,\t[\"Carpentry\"]\t2025-11-17 00:00:00\t2025-11-20 00:00:00\tNULL\tassigned\tNULL\t0\t2025-11-15 18:43:46\t2025-11-15 18:43:46\n120001\t330001\t90001\tDA17 5DB,,,,,\t[\"Carpentry\"]\t2025-11-17 00:00:00\t2025-11-20 00:00:00\tNULL\tassigned\tNULL\t0\t2025-11-15 18:43:01\t2025-11-15 18:43:01\n",
+  "stderr": "",
+  "execution_time_ms": 988
+}

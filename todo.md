@@ -325,3 +325,11 @@
 - [ ] Test on mobile devices with fingerprint sensors
 - [ ] Add "Remember Me" functionality
 - [ ] Add password reset flow
+
+## Fix Assignment Creation Bug
+- [x] Test assignment creation flow to reproduce the issue (confirmed: assignments save but don't display)
+- [x] Check if assignment is being saved to database (confirmed: 3 assignments exist in DB)
+- [x] Verify assignment query is fetching created assignments (issue: query not refetching after creation)
+- [x] Check if there's a data mismatch or filtering issue (root cause: missing query invalidation)
+- [x] Fix the bug preventing assignments from appearing in list (added utils.jobAssignments.list.invalidate())
+- [x] Test end-to-end assignment creation and display (working: assignments now appear immediately)
