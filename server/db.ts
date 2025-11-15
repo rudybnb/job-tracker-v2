@@ -500,3 +500,11 @@ export async function getContractorApplicationByContractorId(contractorId: numbe
 
   return results.length > 0 ? results[0] : undefined;
 }
+
+// Delete contractor
+export async function deleteContractor(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(contractors).where(eq(contractors.id, id));
+}

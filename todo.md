@@ -219,3 +219,11 @@
 - [x] Add Marius Andronache (General Builder, 6-10 years)
 - [x] Add Dalwayne Diedericks (General Builder, 6-10 years)
 - [x] Verify all contractors display correctly
+
+## Contractor Delete Functionality
+- [x] Add delete API endpoint to contractors router
+- [x] Add deleteContractor database function
+- [x] Add delete button to contractor detail page
+- [x] Implement confirmation dialog before deletion
+- [x] Handle navigation after successful deletion
+- [x] Test cascade deletion of related records

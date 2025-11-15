@@ -9,7 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Edit, Save, X, CheckCircle, User } from "lucide-react";
+import { ArrowLeft, Edit, Save, X, CheckCircle, User, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useLocation } from "wouter";
 
 export default function ContractorDetail() {
@@ -44,6 +55,20 @@ export default function ContractorDetail() {
       toast.error(`Failed to update: ${error.message}`);
     },
   });
+
+  const deleteMutation = trpc.contractors.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Contractor deleted successfully");
+      setLocation("/contractors");
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete: ${error.message}`);
+    },
+  });
+
+  const handleDelete = () => {
+    deleteMutation.mutate({ id: contractorId });
+  };
 
   if (isLoading) {
     return (
@@ -91,7 +116,7 @@ export default function ContractorDetail() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -100,6 +125,29 @@ export default function ContractorDetail() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Contractors
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Contractor
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete {contractor.firstName} {contractor.lastName} from the system.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <Badge
             variant={

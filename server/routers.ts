@@ -337,6 +337,13 @@ export const appRouter = router({
         await db.updateContractorAdminDetails(input);
         return { success: true };
       }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteContractor(input.id);
+        return { success: true };
+      }),
   }),
 
   // Job assignments
