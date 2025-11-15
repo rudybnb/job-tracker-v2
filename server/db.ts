@@ -7,6 +7,8 @@ import {
   InsertJob,
   buildPhases,
   InsertBuildPhase,
+  jobResources,
+  InsertJobResource,
   csvUploads,
   InsertCsvUpload,
   workSessions,
@@ -162,6 +164,20 @@ export async function updateJob(id: number, data: Partial<InsertJob>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(jobs).set(data).where(eq(jobs.id, id));
+}
+
+// Job resources operations
+export async function createJobResource(resource: InsertJobResource) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(jobResources).values(resource);
+  return result;
+}
+
+export async function getJobResources(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(jobResources).where(eq(jobResources.jobId, jobId));
 }
 
 export async function deleteJob(id: number) {

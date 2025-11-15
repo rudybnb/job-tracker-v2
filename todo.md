@@ -105,3 +105,15 @@
 - [x] Update CSV upload process to store uploadId when creating jobs
 - [x] Fix deleteUpload to cascade delete all jobs created from that upload
 - [x] Ensure all related data (phases, assignments, etc.) are also deleted
+
+## Major CSV & Job Assignment Restructuring
+- [x] Add jobResources table to store individual resource lines (labour/material)
+- [x] Add totalLabourCost and totalMaterialCost fields to jobs table
+- [x] Rewrite CSV processing to group by client (Name) instead of creating multiple jobs
+- [x] Calculate labour cost (sum of Labour type resources) and material cost (sum of Material type resources)
+- [x] Store postCode separately in jobs table for auto-fill
+- [x] Update Jobs page to show: Client Name, Address, Total Labour, Total Material (one line per client)
+- [x] Add contractor role/type badges in assignment UI (Contractor/Subcontractor)
+- [x] Auto-fill postcode when client/job is selected in assignment form
+- [ ] Add Team Assignment Mode notification about Telegram messages
+- [ ] Remove Start/End Date fields from assignment (phases only)

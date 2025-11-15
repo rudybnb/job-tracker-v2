@@ -140,9 +140,25 @@ export default function JobAssignments() {
                           onChange={() => toggleContractor(contractor.id)}
                           className="h-4 w-4"
                         />
-                        <span className="text-foreground">
-                          {contractor.firstName} {contractor.lastName} ({contractor.type}) - £{contractor.dailyRate ? (contractor.dailyRate / 100).toFixed(2) : '0.00'}/day
-                        </span>
+                        <div className="flex-1 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-foreground font-medium">
+                              {contractor.firstName} {contractor.lastName}
+                            </span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              contractor.type === 'contractor' 
+                                ? 'bg-blue-500/20 text-blue-400'
+                                : 'bg-purple-500/20 text-purple-400'
+                            }`}>
+                              {contractor.type === 'contractor' ? 'Contractor' : 'Subcontractor'}
+                            </span>
+                          </div>
+                          {contractor.dailyRate && contractor.dailyRate > 0 && (
+                            <span className="text-sm text-muted-foreground">
+                              £{(contractor.dailyRate / 100).toFixed(2)}/day
+                            </span>
+                          )}
+                        </div>
                       </label>
                     ))
                   ) : (
@@ -172,7 +188,15 @@ export default function JobAssignments() {
                 </Label>
                 <Select
                   value={selectedJobId?.toString() || ""}
-                  onValueChange={(value) => setSelectedJobId(parseInt(value))}
+                  onValueChange={(value) => {
+                    const jobId = parseInt(value);
+                    setSelectedJobId(jobId);
+                    // Auto-fill postcode from selected job
+                    const selectedJob = jobs?.find(j => j.id === jobId);
+                    if (selectedJob?.postCode) {
+                      setPostcode(selectedJob.postCode);
+                    }
+                  }}
                 >
                   <SelectTrigger className="bg-card border-input">
                     <SelectValue placeholder="Select HBXL job">

@@ -180,59 +180,127 @@ export const appRouter = router({
             trim: true,
           });
 
-          // Group rows by job name and collect phases
-          interface JobData {
-            address: string;
-            projectType: string;
-            phases: Set<string>;
+          // Helper function to extract cost from resource description
+          const extractCost = (description: string, quantity: number): number => {
+            if (!description) return 0;
+            // Match patterns like "£1.66/Each", "£22.50/Each", "£33.00/Hours"
+            const match = description.match(/£([\d,]+\.\d{2})/);
+            if (match) {
+              const price = parseFloat(match[1].replace(/,/g, ''));
+              return Math.round(price * quantity * 100); // Convert to pence
+            }
+            return 0;
+          };
+
+          // Group rows by client name
+          interface ResourceLine {
             orderDate: string;
+            dateRequired: string;
+            buildPhase: string;
+            typeOfResource: 'Material' | 'Labour';
+            resourceType: string;
+            supplier: string;
+            resourceDescription: string;
+            orderQuantity: number;
+            cost: number;
           }
-          const jobsMap = new Map<string, JobData>();
+          
+          interface ClientData {
+            address: string;
+            postCode: string;
+            projectType: string;
+            resources: ResourceLine[];
+            phases: Set<string>;
+            totalLabourCost: number;
+            totalMaterialCost: number;
+          }
+          
+          const clientsMap = new Map<string, ClientData>();
 
           for (const row of records) {
             const rowData = row as Record<string, string>;
-            const jobName = rowData['Name'] || rowData['Job Name'] || '';
+            const clientName = rowData['Name'] || '';
             const buildPhase = rowData['Build Phase'] || '';
-            const orderDate = rowData['Order Date'] || '';
+            const typeOfResource = rowData['Type of Resource'] || '';
+            const resourceDescription = rowData['Resource Description'] || '';
+            const orderQuantity = parseInt(rowData['Order Quantity'] || '1');
             
-            if (!jobName) continue;
+            if (!clientName || !typeOfResource) continue;
 
-            if (!jobsMap.has(jobName)) {
-              jobsMap.set(jobName, {
+            if (!clientsMap.has(clientName)) {
+              clientsMap.set(clientName, {
                 address: rowData['Address'] || '',
+                postCode: rowData['Post Code'] || '',
                 projectType: rowData['Project Type'] || '',
+                resources: [],
                 phases: new Set(),
-                orderDate: orderDate,
+                totalLabourCost: 0,
+                totalMaterialCost: 0,
               });
             }
 
+            const clientData = clientsMap.get(clientName)!;
+            const cost = extractCost(resourceDescription, orderQuantity);
+            
+            // Add resource line
+            clientData.resources.push({
+              orderDate: rowData['Order Date'] || '',
+              dateRequired: rowData['Date Required'] || '',
+              buildPhase,
+              typeOfResource: typeOfResource as 'Material' | 'Labour',
+              resourceType: rowData['Resource Type'] || '',
+              supplier: rowData['Supplier'] || '',
+              resourceDescription,
+              orderQuantity,
+              cost,
+            });
+
+            // Add phase
             if (buildPhase) {
-              jobsMap.get(jobName)!.phases.add(buildPhase);
+              clientData.phases.add(buildPhase);
+            }
+
+            // Sum costs
+            if (typeOfResource === 'Labour') {
+              clientData.totalLabourCost += cost;
+            } else if (typeOfResource === 'Material') {
+              clientData.totalMaterialCost += cost;
             }
           }
 
           let jobsCreated = 0;
 
-          // Create jobs with their phases
-          for (const [jobName, jobData] of Array.from(jobsMap.entries())) {
+          // Create one job per client with all resources
+          for (const [clientName, clientData] of Array.from(clientsMap.entries())) {
             const jobResult = await db.createJob({
-              title: `${jobName} (${jobData.orderDate})`,
-              address: jobData.address,
-              projectType: jobData.projectType,
-              uploadId: uploadId, // Track which upload created this job
+              title: clientName,
+              address: clientData.address,
+              postCode: clientData.postCode,
+              projectType: clientData.projectType,
+              totalLabourCost: clientData.totalLabourCost,
+              totalMaterialCost: clientData.totalMaterialCost,
+              uploadId: uploadId,
             });
 
             const jobId = Number((jobResult as any).insertId || 0);
             jobsCreated++;
 
             // Create phases for this job
-            const phasesArray = Array.from(jobData.phases);
+            const phasesArray = Array.from(clientData.phases);
             for (let j = 0; j < phasesArray.length; j++) {
               await db.createBuildPhase({
                 jobId,
                 phaseName: phasesArray[j],
                 tasks: '',
                 order: j,
+              });
+            }
+
+            // Create resource records
+            for (const resource of clientData.resources) {
+              await db.createJobResource({
+                jobId,
+                ...resource,
               });
             }
           }

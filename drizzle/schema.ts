@@ -24,10 +24,13 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const jobs = mysqlTable("jobs", {
   id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(), // Client name
   address: text("address"),
+  postCode: varchar("postCode", { length: 20 }),
   projectType: varchar("projectType", { length: 100 }),
   status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  totalLabourCost: int("totalLabourCost").default(0), // Sum of all labour resources
+  totalMaterialCost: int("totalMaterialCost").default(0), // Sum of all material resources  
   assignedContractorId: int("assignedContractorId"),
   uploadId: int("uploadId"), // Track which CSV upload created this job
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -53,6 +56,27 @@ export const buildPhases = mysqlTable("buildPhases", {
 
 export type BuildPhase = typeof buildPhases.$inferSelect;
 export type InsertBuildPhase = typeof buildPhases.$inferInsert;
+
+/**
+ * Job resources - individual resource lines from CSV (labour/material)
+ */
+export const jobResources = mysqlTable("jobResources", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  orderDate: varchar("orderDate", { length: 50 }),
+  dateRequired: varchar("dateRequired", { length: 50 }),
+  buildPhase: varchar("buildPhase", { length: 100 }),
+  typeOfResource: mysqlEnum("typeOfResource", ["Material", "Labour"]).notNull(),
+  resourceType: varchar("resourceType", { length: 100 }),
+  supplier: varchar("supplier", { length: 100 }),
+  resourceDescription: text("resourceDescription"), // Contains price info
+  orderQuantity: int("orderQuantity"),
+  cost: int("cost").default(0), // Extracted cost in pence
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type JobResource = typeof jobResources.$inferSelect;
+export type InsertJobResource = typeof jobResources.$inferInsert;
 
 /**
  * Contractors table - stores contractor/subcontractor information

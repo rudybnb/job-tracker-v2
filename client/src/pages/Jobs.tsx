@@ -134,9 +134,21 @@ export default function Jobs() {
                     </div>
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Created:</span>
-                    <span className="font-medium">
-                      {new Date(job.createdAt).toLocaleDateString()}
+                    <span className="text-muted-foreground">Labour Cost:</span>
+                    <span className="font-medium text-green-600">
+                      £{((job.totalLabourCost || 0) / 100).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Material Cost:</span>
+                    <span className="font-medium text-blue-600">
+                      £{((job.totalMaterialCost || 0) / 100).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-t pt-2">
+                    <span className="text-muted-foreground font-semibold">Total:</span>
+                    <span className="font-bold">
+                      £{(((job.totalLabourCost || 0) + (job.totalMaterialCost || 0)) / 100).toFixed(2)}
                     </span>
                   </div>
                 </div>
