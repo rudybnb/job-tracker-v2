@@ -7,6 +7,7 @@ import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import * as telegram from "./telegram";
 import { contractorAuthRouter } from "./contractorAuth";
+import { mobileApiRouter } from "./mobileApi";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -27,6 +28,7 @@ const contractorProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const appRouter = router({
   system: systemRouter,
   contractorAuth: contractorAuthRouter,
+  mobileApi: mobileApiRouter, // Mobile app endpoints for contractors
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

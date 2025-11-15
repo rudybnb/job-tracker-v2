@@ -399,3 +399,34 @@
 - Day-block system: any work under 8 hours = 1 full day, over 8 hours = round up to nearest full day
 - Example: 12 HBXL hours → 2 day-blocks → 2 days × 8 hours × £22/hr = £352
 - Payment types: "day_rate" (agency contractors) vs "price_work" (subcontractors with fixed milestone prices)
+
+## Mobile App Integration (Contractor GPS Time Tracker)
+- [x] Design database schema for GPS tracking and work sessions
+- [x] Add workSessions table (27 columns: clock-in/out times, GPS coordinates, geofencing, CIS calculations)
+- [x] Add gpsCheckpoints table (periodic location tracking during work)
+- [x] Add taskCompletions table (phase progress tracking with photo upload support)
+- [x] Push database schema changes (migration 0011_*.sql)
+- [x] Create API endpoints for contractor app to fetch active assignments
+- [x] Create getActiveAssignments endpoint (returns assigned jobs with phases, tasks, and job details)
+- [x] Create API endpoints for clock-in/out with GPS data
+- [x] Create clockIn endpoint (stores GPS location, validates 1km geofence, creates work session)
+- [x] Create clockOut endpoint (calculates hours worked, gross pay, CIS 20% deduction, net pay)
+- [x] Create recordGpsCheckpoint endpoint (periodic location tracking with distance validation)
+- [x] Create API endpoints for earnings/payment calculations
+- [x] Create getWeeklyEarnings endpoint (total hours, gross pay, CIS deduction, net pay for specific week)
+- [x] Create getPaymentHistory endpoint (all completed work sessions with job details)
+- [x] Create exportWeeklyPayroll endpoint (CSV export for accounting systems)
+- [x] Integrate day-block costing with payment calculations (hourly rate stored in workSessions)
+- [x] Create API endpoints for task progress updates
+- [x] Create completeTask endpoint (mark tasks complete with optional photos/notes)
+- [x] Create getTaskProgress endpoint (view completed tasks with verification status)
+- [x] Register mobile API router in main appRouter (accessible at /api/trpc/mobileApi.*)
+- [ ] Test complete integration workflow with mobile app
+- [ ] Save checkpoint
+
+**Mobile App Features to Support:**
+- GPS Time Tracker (clock-in/out with location validation)
+- Active Assignment Display (current job, phases, tasks)
+- Task Progress Tracking (phase completion with progress bars)
+- Earnings Dashboard (daily/hourly rate, CIS deductions, weekly earnings)
+- Payroll Export (CSV generation for accounting)

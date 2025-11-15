@@ -144,22 +144,48 @@ export type CsvUpload = typeof csvUploads.$inferSelect;
 export type InsertCsvUpload = typeof csvUploads.$inferInsert;
 
 /**
- * Work sessions for time tracking
+ * Work sessions for time tracking with GPS validation
+ * Stores clock-in/out data, GPS location, and payment calculations
  */
 export const workSessions = mysqlTable("workSessions", {
   id: int("id").autoincrement().primaryKey(),
   jobId: int("jobId").notNull(),
   contractorId: int("contractorId").notNull(),
+  assignmentId: int("assignmentId"), // Link to job assignment (optional for backward compatibility)
+  
+  // Clock-in data
   startTime: timestamp("startTime").notNull(),
-  endTime: timestamp("endTime"),
   clockInLatitude: varchar("clockInLatitude", { length: 50 }),
   clockInLongitude: varchar("clockInLongitude", { length: 50 }),
+  clockInAccuracy: varchar("clockInAccuracy", { length: 50 }), // GPS accuracy in meters
+  
+  // Clock-out data
+  endTime: timestamp("endTime"),
   clockOutLatitude: varchar("clockOutLatitude", { length: 50 }),
   clockOutLongitude: varchar("clockOutLongitude", { length: 50 }),
-  hoursWorked: int("hoursWorked"), // in minutes
-  amountEarned: int("amountEarned"), // in cents, auto-calculated
+  clockOutAccuracy: varchar("clockOutAccuracy", { length: 50 }),
+  
+  // Work site validation
+  workSitePostcode: varchar("workSitePostcode", { length: 20 }),
+  workSiteLatitude: varchar("workSiteLatitude", { length: 50 }),
+  workSiteLongitude: varchar("workSiteLongitude", { length: 50 }),
+  distanceFromSite: int("distanceFromSite"), // Distance in meters
+  isWithinGeofence: int("isWithinGeofence").default(0), // 1 = within 1km, 0 = outside
+  
+  // Payment calculation
+  hoursWorked: int("hoursWorked"), // Total hours in minutes
+  hourlyRate: int("hourlyRate"), // Contractor's rate in pence at time of work
+  amountEarned: int("amountEarned"), // Gross pay in pence (backward compat)
+  grossPay: int("grossPay"), // Hours × hourly rate in pence
+  cisDeduction: int("cisDeduction"), // CIS tax deduction in pence (20% or 30%)
+  netPay: int("netPay"), // Gross - CIS in pence
+  
+  // Status
+  status: mysqlEnum("status", ["active", "completed", "invalid"]).default("active"),
   notes: text("notes"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });
 
 export type WorkSession = typeof workSessions.$inferSelect;
@@ -322,3 +348,56 @@ export const phaseCompletions = mysqlTable("phaseCompletions", {
 
 export type PhaseCompletion = typeof phaseCompletions.$inferSelect;
 export type InsertPhaseCompletion = typeof phaseCompletions.$inferInsert;
+
+/**
+ * GPS checkpoints - Periodic location tracking during work sessions
+ * Stores GPS pings every X minutes to verify contractor stays on site
+ */
+export const gpsCheckpoints = mysqlTable("gpsCheckpoints", {
+  id: int("id").autoincrement().primaryKey(),
+  workSessionId: int("workSessionId").notNull(),
+  contractorId: int("contractorId").notNull(),
+  
+  // GPS data
+  timestamp: timestamp("timestamp").notNull(),
+  latitude: varchar("latitude", { length: 50 }).notNull(),
+  longitude: varchar("longitude", { length: 50 }).notNull(),
+  accuracy: varchar("accuracy", { length: 50 }), // GPS accuracy in meters
+  
+  // Validation
+  distanceFromSite: int("distanceFromSite"), // Distance from work site in meters
+  isWithinGeofence: int("isWithinGeofence").default(1), // 1 = within 1km, 0 = outside
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GpsCheckpoint = typeof gpsCheckpoints.$inferSelect;
+export type InsertGpsCheckpoint = typeof gpsCheckpoints.$inferInsert;
+
+/**
+ * Task completions - Track progress on individual tasks within phases
+ * Contractors mark tasks complete as they work through phases
+ */
+export const taskCompletions = mysqlTable("taskCompletions", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignmentId").notNull(),
+  contractorId: int("contractorId").notNull(),
+  phaseName: varchar("phaseName", { length: 100 }).notNull(),
+  taskName: varchar("taskName", { length: 200 }).notNull(),
+  
+  // Completion data
+  completedAt: timestamp("completedAt").notNull(),
+  notes: text("notes"),
+  photoUrls: text("photoUrls"), // JSON array of S3 URLs for completion photos
+  
+  // Quality check
+  isVerified: int("isVerified").default(0), // Admin verification: 1 = approved, 0 = pending
+  verifiedBy: int("verifiedBy"), // Admin user ID who verified
+  verifiedAt: timestamp("verifiedAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TaskCompletion = typeof taskCompletions.$inferSelect;
+export type InsertTaskCompletion = typeof taskCompletions.$inferInsert;
