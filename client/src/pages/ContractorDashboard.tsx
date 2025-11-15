@@ -46,12 +46,7 @@ export default function ContractorDashboard() {
     },
   });
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !contractor) {
-      setLocation("/contractor-login");
-    }
-  }, [contractor, isLoading, setLocation]);
+  // Authentication is now handled by localStorage check in the first useEffect
 
   if (isLoading) {
     return (

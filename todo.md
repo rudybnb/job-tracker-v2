@@ -459,3 +459,5 @@
 - [x] Fix redirect after successful login - changed to window.location.replace()
 
 - [x] Fix ContractorDashboard to accept localStorage token authentication - updated dashboard, mobileApi.me endpoint, and tRPC client
+
+- [x] Debug persistent redirect issue - removed duplicate useEffect that was causing redirect loop
