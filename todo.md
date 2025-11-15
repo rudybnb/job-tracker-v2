@@ -461,3 +461,6 @@
 - [x] Fix ContractorDashboard to accept localStorage token authentication - updated dashboard, mobileApi.me endpoint, and tRPC client
 
 - [x] Debug persistent redirect issue - removed duplicate useEffect that was causing redirect loop
+
+- [x] Debug why John's assignment isn't showing on contractor dashboard - fixed getMyAssignments to decode JWT token
+- [x] Implement GPS geofencing for clock-in (10m radius from job site) - updated from 1000m to 10m

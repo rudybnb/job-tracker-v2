@@ -196,25 +196,34 @@ export const mobileApiRouter = router({
    * Get contractor's active assignments
    * Returns all assignments for the logged-in contractor
    */
-  getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
-    const database = await getDb();
-    if (!database) {
-      throw new Error("Database not available");
+  getMyAssignments: publicProcedure.query(async ({ ctx }) => {
+    // Get contractor token from cookie or Authorization header
+    let token = ctx.req.cookies?.contractor_token;
+    
+    if (!token) {
+      const authHeader = ctx.req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
     }
-
-    // Get contractor by user's open ID
-    // Users table links to contractors via openId
-    const contractor = await database
-      .select()
-      .from(contractors)
-      .where(eq(contractors.id, ctx.user.id)) // Contractors are also users
-      .limit(1);
-
-    if (contractor.length === 0) {
+    
+    if (!token) {
       return [];
     }
 
-    const contractorId = contractor[0].id;
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret") as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const database = await getDb();
+      if (!database) {
+        return [];
+      }
+
+      const contractorId = decoded.contractorId;
 
     // Get all assignments for this contractor
     const assignments = await database
@@ -242,6 +251,10 @@ export const mobileApiRouter = router({
       status: row.assignment.status,
       teamAssignment: row.assignment.teamAssignment === 1,
     }));
+    } catch (error) {
+      console.error('[getMyAssignments] Error:', error);
+      return [];
+    }
   }),
 
   /**
@@ -441,7 +454,7 @@ export const mobileApiRouter = router({
         parseFloat(workSiteLongitude)
       );
 
-      const isWithinGeofence = distance <= 1000; // 1km = 1000 meters
+      const isWithinGeofence = distance <= 10; // 10 meters geofence radius
 
       // Create work session
       await database.insert(workSessions).values({
@@ -483,7 +496,7 @@ export const mobileApiRouter = router({
         distanceFromSite: Math.round(distance),
         message: isWithinGeofence
           ? "Clocked in successfully"
-          : `Warning: You are ${Math.round(distance)}m from the work site (should be within 1km)`,
+          : `Warning: You are ${Math.round(distance)}m from the work site (must be within 10m)`,
       };
     }),
 
@@ -642,7 +655,7 @@ export const mobileApiRouter = router({
         parseFloat(activeSession.workSiteLongitude || "0")
       );
 
-      const isWithinGeofence = distance <= 1000;
+      const isWithinGeofence = distance <= 10; // 10 meters geofence radius
 
       // Add checkpoint
       await database.insert(gpsCheckpoints).values({
