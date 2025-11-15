@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,26 +8,17 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 export default function ContractorLogin() {
+  console.log('ContractorLogin component rendered');
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<"requesting" | "enabled" | "disabled">("requesting");
 
-  const loginMutation = trpc.mobileApi.login.useMutation({
-    onSuccess: (data) => {
-      console.log('Login success:', data);
-      toast.success("Login successful!");
-      setLocation("/contractor-dashboard");
-    },
-    onError: (error: any) => {
-      console.error('Login error:', error);
-      toast.error(error.message || "Login failed");
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   // Request GPS permission on mount
-  useState(() => {
+  useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         () => setGpsStatus("enabled"),
@@ -36,17 +27,47 @@ export default function ContractorLogin() {
     } else {
       setGpsStatus("disabled");
     }
-  });
+  }, []); // Run only once on mount
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    alert('handleLogin called!');
     console.log('handleLogin called', { username, password: '***' });
+    
     if (!username || !password) {
       toast.error("Please enter username and password");
       return;
     }
-    console.log('Calling loginMutation.mutate');
-    loginMutation.mutate({ username, password });
+
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/trpc/mobileApi.login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ json: { username, password } }),
+      });
+      
+      const data = await response.json();
+      console.log('Login response:', data);
+      
+      if (response.ok && data.result?.data) {
+        toast.success("Login successful!");
+        // Store the token
+        localStorage.setItem('contractor_token', data.result.data.token);
+        localStorage.setItem('contractor_id', data.result.data.contractor.id);
+        setLocation("/contractor-dashboard");
+      } else {
+        toast.error(data.error?.message || "Login failed");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error("Unable to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBiometricLogin = async () => {
@@ -158,10 +179,10 @@ export default function ContractorLogin() {
             {/* Sign In button */}
             <Button
               type="submit"
-              disabled={loginMutation.isPending}
+              disabled={isLoading}
               className="w-full h-14 bg-gradient-to-r from-[#D97706] to-[#F59E0B] hover:from-[#B45309] hover:to-[#D97706] text-white text-lg font-semibold rounded-xl shadow-lg"
             >
-              {loginMutation.isPending ? "Signing In..." : "Sign In"}
+              {isLoading ? "Signing In..." : "Sign In"}
             </Button>
 
             {/* Biometric login */}

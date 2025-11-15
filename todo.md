@@ -317,7 +317,7 @@
 - [x] Add username/passwordHash fields to contractors table
 - [x] Create contractor dashboard page
 - [x] Set up test contractor credentials (mohamed/mohamed123, marius/marius123)
-- [ ] Debug login form submission issue
+- [ ] Debug login form submission issue (BACKEND VERIFIED WORKING - frontend form onSubmit not triggering, needs investigation)
 - [ ] Add session management for contractors
 - [ ] Implement WebAuthn for biometric authentication
 - [ ] Add fingerprint registration flow
