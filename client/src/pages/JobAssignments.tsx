@@ -17,7 +17,7 @@ import { Loader2, Plus } from "lucide-react";
 
 export default function JobAssignments() {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedContractors, setSelectedContractors] = useState<number[]>([]);
+  const [selectedContractor, setSelectedContractor] = useState<number | null>(null);
   const [postcode, setPostcode] = useState("");
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [selectedPhases, setSelectedPhases] = useState<string[]>([]);
@@ -47,7 +47,7 @@ export default function JobAssignments() {
   });
 
   const resetForm = () => {
-    setSelectedContractors([]);
+    setSelectedContractor(null);
     setPostcode("");
     setSelectedJobId(null);
     setSelectedPhases([]);
@@ -57,8 +57,8 @@ export default function JobAssignments() {
   };
 
   const handleCreateAssignment = () => {
-    if (selectedContractors.length === 0) {
-      toast.error("Please select at least one contractor");
+    if (!selectedContractor) {
+      toast.error("Please select a contractor");
       return;
     }
     if (!selectedJobId) {
@@ -72,7 +72,7 @@ export default function JobAssignments() {
 
     createAssignment.mutate({
       jobId: selectedJobId,
-      contractorIds: selectedContractors,
+      contractorIds: [selectedContractor],
       workLocation: postcode,
       selectedPhases: selectedPhases,
       startDate: new Date(startDate),
@@ -81,13 +81,7 @@ export default function JobAssignments() {
     });
   };
 
-  const toggleContractor = (contractorId: number) => {
-    setSelectedContractors((prev) =>
-      prev.includes(contractorId)
-        ? prev.filter((id) => id !== contractorId)
-        : [...prev, contractorId]
-    );
-  };
+
 
   if (jobsLoading || contractorsLoading || assignmentsLoading) {
     return (
@@ -119,32 +113,24 @@ export default function JobAssignments() {
               <CardTitle className="text-yellow">Create New Job Assignment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Select Contractors */}
+              {/* Select Contractor */}
               <div>
-                <Label className="text-yellow">
-                  Select Contractors <span className="text-red-500">*</span>
+                <Label htmlFor="contractor" className="text-yellow">
+                  Select Contractor <span className="text-red-500">*</span>
                 </Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  (Can select multiple for team work)
-                </p>
-                <div className="border border-input rounded-md p-3 bg-card max-h-48 overflow-y-auto">
-                  {contractors && contractors.length > 0 ? (
-                    contractors.map((contractor) => (
-                      <label
-                        key={contractor.id}
-                        className="flex items-center space-x-2 py-2 cursor-pointer hover:bg-accent rounded px-2"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedContractors.includes(contractor.id)}
-                          onChange={() => toggleContractor(contractor.id)}
-                          className="h-4 w-4"
-                        />
-                        <div className="flex-1 flex items-center justify-between">
+                <Select
+                  value={selectedContractor?.toString() || ""}
+                  onValueChange={(value) => setSelectedContractor(parseInt(value))}
+                >
+                  <SelectTrigger className="bg-card border-input">
+                    <SelectValue placeholder="Select contractor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {contractors && contractors.length > 0 ? (
+                      contractors.map((contractor) => (
+                        <SelectItem key={contractor.id} value={contractor.id.toString()}>
                           <div className="flex items-center gap-2">
-                            <span className="text-foreground font-medium">
-                              {contractor.firstName} {contractor.lastName}
-                            </span>
+                            <span>{contractor.firstName} {contractor.lastName}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               contractor.type === 'contractor' 
                                 ? 'bg-blue-500/20 text-blue-400'
@@ -153,18 +139,15 @@ export default function JobAssignments() {
                               {contractor.type === 'contractor' ? 'Contractor' : 'Subcontractor'}
                             </span>
                           </div>
-                          {contractor.dailyRate && contractor.dailyRate > 0 && (
-                            <span className="text-sm text-muted-foreground">
-                              £{(contractor.dailyRate / 100).toFixed(2)}/day
-                            </span>
-                          )}
-                        </div>
-                      </label>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No contractors available</p>
-                  )}
-                </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-contractors" disabled>
+                        No contractors available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Work Location */}

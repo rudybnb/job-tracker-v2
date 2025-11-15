@@ -227,3 +227,9 @@
 - [x] Implement confirmation dialog before deletion
 - [x] Handle navigation after successful deletion
 - [x] Test cascade deletion of related records
+
+## Job Assignment UI Updates
+- [x] Change contractor selection from checkboxes to dropdown
+- [x] Remove daily rate display from contractor selection
+- [x] Filter dropdown to show only assigned contractors
+- [x] Test assignment creation with new dropdown interface
