@@ -1,0 +1,154 @@
+{
+  "query": "DESCRIBE contractors;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute DESCRIBE contractors;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "userId",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "firstName",
+      "Type": "varchar(100)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lastName",
+      "Type": "varchar(100)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "email",
+      "Type": "varchar(320)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "phone",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "type",
+      "Type": "enum('contractor','subcontractor')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "primaryTrade",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "dailyRate",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('pending','approved','rejected')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "cisVerified",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "adminNotes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "username",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "UNI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "passwordHash",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "paymentType",
+      "Type": "enum('day_rate','price_work')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "day_rate",
+      "Extra": ""
+    },
+    {
+      "Field": "hourlyRate",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nuserId\tint(11)\tYES\t\tNULL\t\nfirstName\tvarchar(100)\tNO\t\tNULL\t\nlastName\tvarchar(100)\tNO\t\tNULL\t\nemail\tvarchar(320)\tNO\t\tNULL\t\nphone\tvarchar(50)\tYES\t\tNULL\t\ntype\tenum('contractor','subcontractor')\tNO\t\tNULL\t\nprimaryTrade\tvarchar(100)\tYES\t\tNULL\t\ndailyRate\tint(11)\tYES\t\tNULL\t\nstatus\tenum('pending','approved','rejected')\tNO\t\tpending\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\ncisVerified\ttinyint(1)\tYES\t\t0\t\nadminNotes\ttext\tYES\t\tNULL\t\nusername\tvarchar(100)\tYES\tUNI\tNULL\t\npasswordHash\tvarchar(255)\tYES\t\tNULL\t\npaymentType\tenum('day_rate','price_work')\tNO\t\tday_rate\t\nhourlyRate\tint(11)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 138
+}

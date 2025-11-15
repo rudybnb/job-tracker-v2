@@ -430,3 +430,24 @@
 - Task Progress Tracking (phase completion with progress bars)
 - Earnings Dashboard (daily/hourly rate, CIS deductions, weekly earnings)
 - Payroll Export (CSV generation for accounting)
+
+## Test Contractor Account Creation
+- [x] Create test contractor "John" with username/password for mobile app testing
+- [x] Set username: john
+- [x] Set password: john123 (hashed with bcrypt)
+- [x] Assign trade and hourly rate for day-block testing (General Builder, £19/hr)
+- [x] Provide login credentials to user
+
+## Contractor Web Dashboard (Testing Interface)
+- [ ] Create contractor authentication endpoints (login with username/password)
+- [ ] Create contractor session management (JWT or cookie-based)
+- [ ] Create contractor login page UI (/contractor-login)
+- [ ] Create contractor dashboard page (/contractor-dashboard)
+- [ ] Display active assignments with job details
+- [ ] Add GPS clock-in button with location capture
+- [ ] Add GPS clock-out button with payment calculation display
+- [ ] Show weekly earnings summary
+- [ ] Show task progress with completion buttons
+- [ ] Add route protection (require contractor login)
+- [ ] Test login with John's credentials (username: john, password: john123)
+- [ ] Save checkpoint and deliver login URL

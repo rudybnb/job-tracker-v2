@@ -14,12 +14,14 @@ export default function ContractorLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<"requesting" | "enabled" | "disabled">("requesting");
 
-  const loginMutation = trpc.contractorAuth.login.useMutation({
-    onSuccess: () => {
+  const loginMutation = trpc.mobileApi.login.useMutation({
+    onSuccess: (data) => {
+      console.log('Login success:', data);
       toast.success("Login successful!");
       setLocation("/contractor-dashboard");
     },
     onError: (error: any) => {
+      console.error('Login error:', error);
       toast.error(error.message || "Login failed");
     },
   });
@@ -38,10 +40,12 @@ export default function ContractorLogin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleLogin called', { username, password: '***' });
     if (!username || !password) {
       toast.error("Please enter username and password");
       return;
     }
+    console.log('Calling loginMutation.mutate');
     loginMutation.mutate({ username, password });
   };
 

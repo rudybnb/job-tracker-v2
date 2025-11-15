@@ -9,11 +9,14 @@
  */
 
 import { z } from "zod";
-import { router, protectedProcedure } from "./_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { getDb } from "./db";
 import { workSessions, gpsCheckpoints, taskCompletions, jobAssignments, jobs, contractors } from "../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { ENV } from "./_core/env";
 
 /**
  * Calculate distance between two GPS coordinates using Haversine formula
@@ -40,6 +43,146 @@ function calculateDistance(
 }
 
 export const mobileApiRouter = router({
+  /**
+   * Contractor login with username and password
+   * Returns JWT token for authentication
+   */
+  login: publicProcedure
+    .input(
+      z.object({
+        username: z.string(),
+        password: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const database = await getDb();
+      if (!database) {
+        throw new Error("Database not available");
+      }
+
+      // Find contractor by username
+      const contractor = await database
+        .select()
+        .from(contractors)
+        .where(eq(contractors.username, input.username))
+        .limit(1);
+
+      if (contractor.length === 0) {
+        throw new Error("Invalid username or password");
+      }
+
+      const contractorData = contractor[0];
+
+      // Verify password
+      if (!contractorData.passwordHash) {
+        throw new Error("Invalid username or password");
+      }
+
+      const passwordMatch = await bcrypt.compare(
+        input.password,
+        contractorData.passwordHash
+      );
+
+      if (!passwordMatch) {
+        throw new Error("Invalid username or password");
+      }
+
+      // Check if contractor is approved
+      if (contractorData.status !== "approved") {
+        throw new Error("Account not approved yet");
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          contractorId: contractorData.id,
+          username: contractorData.username,
+          type: "contractor",
+        },
+        process.env.JWT_SECRET || "fallback-secret",
+        { expiresIn: "30d" }
+      );
+
+      // Set cookie
+      ctx.res.cookie("contractor_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+
+      return {
+        success: true,
+        contractor: {
+          id: contractorData.id,
+          username: contractorData.username,
+          firstName: contractorData.firstName,
+          lastName: contractorData.lastName,
+          email: contractorData.email,
+          primaryTrade: contractorData.primaryTrade,
+          hourlyRate: contractorData.hourlyRate,
+        },
+        token,
+      };
+    }),
+
+  /**
+   * Contractor logout
+   * Clears authentication cookie
+   */
+  logout: publicProcedure.mutation(({ ctx }) => {
+    ctx.res.clearCookie("contractor_token");
+    return { success: true };
+  }),
+
+  /**
+   * Get current contractor from JWT token
+   * Returns contractor info if logged in, null otherwise
+   */
+  me: publicProcedure.query(async ({ ctx }) => {
+    const token = ctx.req.cookies?.contractor_token;
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret") as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const database = await getDb();
+      if (!database) {
+        return null;
+      }
+
+      const contractor = await database
+        .select()
+        .from(contractors)
+        .where(eq(contractors.id, decoded.contractorId))
+        .limit(1);
+
+      if (contractor.length === 0) {
+        return null;
+      }
+
+      const contractorData = contractor[0];
+      return {
+        id: contractorData.id,
+        username: contractorData.username,
+        firstName: contractorData.firstName,
+        lastName: contractorData.lastName,
+        email: contractorData.email,
+        type: contractorData.type,
+        primaryTrade: contractorData.primaryTrade,
+        hourlyRate: contractorData.hourlyRate,
+        paymentType: contractorData.paymentType,
+      };
+    } catch (error) {
+      return null;
+    }
+  }),
   /**
    * Get contractor's active assignments
    * Returns all assignments for the logged-in contractor

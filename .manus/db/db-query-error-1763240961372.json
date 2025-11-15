@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO contractors (firstName, lastName, email, phoneNumber, username, passwordHash, type, primaryTrade, hourlyRate, paymentType, status, createdAt, updatedAt) VALUES ('John', 'Smith', 'john.smith@test.com', '+44 7700 900000', 'john', '$2b$10$P.CFbbgWJ8iKt9cDNgfts.8hY7tvsvHeMAS8rytOlWN1gXPHzGZ5W', 'contractor', 'General Builder', 1900, 'day_rate', 'approved', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute INSERT INTO contractors (firstName, lastName, email, phoneNumber, username, passwordHash, type, primaryTrade, hourlyRate, paymentType, status, createdAt, updatedAt) VALUES ('John', 'Smith', 'john.smith@test.com', '+44 7700 900000', 'john', '$2b$10$P.CFbbgWJ8iKt9cDNgfts.8hY7tvsvHeMAS8rytOlWN1gXPHzGZ5W', 'contractor', 'General Builder', 1900, 'day_rate', 'approved', NOW(), NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'phoneNumber' in 'field list'"
+  ]
+}
