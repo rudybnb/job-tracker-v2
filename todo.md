@@ -233,3 +233,12 @@
 - [x] Remove daily rate display from contractor selection
 - [x] Filter dropdown to show only assigned contractors
 - [x] Test assignment creation with new dropdown interface
+
+## Phase Cost Breakdown for Milestone Payments
+- [x] Create API endpoint to calculate labour/material costs per phase
+- [x] Query jobResources table grouped by buildPhase
+- [x] Sum labour costs (resourceType = 'Labour') per phase
+- [x] Sum material costs (resourceType = 'Material') per phase
+- [x] Build job detail page showing phase breakdown
+- [x] Display each phase with: phase name, labour cost, material cost, total cost
+- [x] Test with real job data to verify milestone payment amounts

@@ -105,6 +105,20 @@ export const appRouter = router({
         await db.assignJobToContractor(input.jobId, input.contractorId);
         return { success: true };
       }),
+
+    getPhaseCosts: protectedProcedure
+      .input(z.object({ jobId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // Verify access to job first
+        const job = await db.getJobById(input.jobId);
+        if (!job) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+        }
+        if (ctx.user.role === "contractor" && job.assignedContractorId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        return await db.getJobPhaseCosts(input.jobId);
+      }),
   }),
 
   // Build phases

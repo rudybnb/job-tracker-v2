@@ -14,7 +14,7 @@ export default function JobDetail({ jobId }: JobDetailProps) {
   const [, setLocation] = useLocation();
 
   const { data: job, isLoading } = trpc.jobs.getById.useQuery({ id: jobId });
-  const { data: phases } = trpc.phases.listByJob.useQuery({ jobId });
+  const { data: phaseCosts, isLoading: loadingCosts } = trpc.jobs.getPhaseCosts.useQuery({ jobId });
 
   if (isLoading) {
     return (
@@ -34,6 +34,10 @@ export default function JobDetail({ jobId }: JobDetailProps) {
       </div>
     );
   }
+
+  const formatCurrency = (pence: number) => {
+    return `£${(pence / 100).toFixed(2)}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -63,6 +67,12 @@ export default function JobDetail({ jobId }: JobDetailProps) {
                 <p className="font-medium">{job.projectType}</p>
               </div>
             )}
+            {job.postCode && (
+              <div>
+                <span className="text-sm text-muted-foreground">Postcode</span>
+                <p className="font-medium">{job.postCode}</p>
+              </div>
+            )}
             <div>
               <span className="text-sm text-muted-foreground">Created</span>
               <p className="font-medium">{new Date(job.createdAt).toLocaleString()}</p>
@@ -72,40 +82,101 @@ export default function JobDetail({ jobId }: JobDetailProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Build Phases</CardTitle>
-            <CardDescription>{phases?.length || 0} phases</CardDescription>
+            <CardTitle>Total Costs</CardTitle>
           </CardHeader>
-          <CardContent>
-            {phases && phases.length > 0 ? (
-              <div className="space-y-3">
-                {phases.map(phase => (
-                  <div key={phase.id} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">{phase.phaseName}</h4>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          phase.status === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : phase.status === "in_progress"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {phase.status.replace("_", " ")}
-                      </span>
-                    </div>
-                    {phase.tasks && (
-                      <p className="text-sm text-muted-foreground mt-2">{phase.tasks}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-4">No phases yet</p>
-            )}
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Labour Cost:</span>
+              <span className="font-medium text-green-600">
+                {formatCurrency(job.totalLabourCost || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Material Cost:</span>
+              <span className="font-medium text-blue-600">
+                {formatCurrency(job.totalMaterialCost || 0)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t pt-3">
+              <span className="font-semibold">Total:</span>
+              <span className="font-bold text-lg">
+                {formatCurrency((job.totalLabourCost || 0) + (job.totalMaterialCost || 0))}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Phase Cost Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Phase Cost Breakdown</CardTitle>
+          <CardDescription>
+            Labour and material costs per phase for milestone payment tracking
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loadingCosts ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : phaseCosts && phaseCosts.length > 0 ? (
+            <div className="space-y-4">
+              {phaseCosts.map((phase, index) => (
+                <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <h4 className="font-semibold text-lg mb-3">{phase.phaseName}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <span className="text-sm text-muted-foreground">Labour Cost</span>
+                      <p className="text-lg font-medium text-green-600">
+                        {formatCurrency(phase.labourCost)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-sm text-muted-foreground">Material Cost</span>
+                      <p className="text-lg font-medium text-blue-600">
+                        {formatCurrency(phase.materialCost)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-sm text-muted-foreground">Total Phase Cost</span>
+                      <p className="text-lg font-bold">
+                        {formatCurrency(phase.totalCost)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Summary */}
+              <div className="border-t-2 pt-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-muted/50 p-4 rounded-lg">
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Total Labour</span>
+                    <p className="text-xl font-bold text-green-600">
+                      {formatCurrency(phaseCosts.reduce((sum, p) => sum + p.labourCost, 0))}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Total Material</span>
+                    <p className="text-xl font-bold text-blue-600">
+                      {formatCurrency(phaseCosts.reduce((sum, p) => sum + p.materialCost, 0))}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-muted-foreground">Grand Total</span>
+                    <p className="text-xl font-bold">
+                      {formatCurrency(phaseCosts.reduce((sum, p) => sum + p.totalCost, 0))}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center py-8">No phase cost data available</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -508,3 +508,41 @@ export async function deleteContractor(id: number) {
 
   await db.delete(contractors).where(eq(contractors.id, id));
 }
+
+// Get phase cost breakdown for a job
+export async function getJobPhaseCosts(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const resources = await db
+    .select()
+    .from(jobResources)
+    .where(eq(jobResources.jobId, jobId));
+
+  // Group by buildPhase and calculate labour/material costs
+  const phaseMap = new Map<string, { labourCost: number; materialCost: number }>();
+
+  for (const resource of resources) {
+    const phase = resource.buildPhase || "Unknown Phase";
+    
+    if (!phaseMap.has(phase)) {
+      phaseMap.set(phase, { labourCost: 0, materialCost: 0 });
+    }
+
+    const phaseCosts = phaseMap.get(phase)!;
+    
+    if (resource.typeOfResource === "Labour") {
+      phaseCosts.labourCost += resource.cost || 0;
+    } else if (resource.typeOfResource === "Material") {
+      phaseCosts.materialCost += resource.cost || 0;
+    }
+  }
+
+  // Convert map to array with totals
+  return Array.from(phaseMap.entries()).map(([phaseName, costs]) => ({
+    phaseName,
+    labourCost: costs.labourCost,
+    materialCost: costs.materialCost,
+    totalCost: costs.labourCost + costs.materialCost,
+  }));
+}
