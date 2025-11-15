@@ -455,3 +455,5 @@
 - [x] Simplify contractor login page - replace form with direct button onClick handler
 
 - [x] Create ultra-simple vanilla JavaScript login page (no React complexity) - available at /contractor-login-simple.html
+
+- [x] Fix redirect after successful login - changed to window.location.replace()

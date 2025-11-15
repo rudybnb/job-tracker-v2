@@ -316,7 +316,7 @@
             
             // Redirect to dashboard after short delay
             setTimeout(() => {
-              window.location.href = '/contractor-dashboard';
+              window.location.replace('/contractor-dashboard');
             }, 1000);
           } else {
             showMessage(result.message || "Login failed", "error");
