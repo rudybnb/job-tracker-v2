@@ -464,3 +464,5 @@
 
 - [x] Debug why John's assignment isn't showing on contractor dashboard - fixed getMyAssignments to decode JWT token
 - [x] Implement GPS geofencing for clock-in (10m radius from job site) - updated from 1000m to 10m
+
+- [x] Fix TypeError in ContractorDashboard - changed assignment.phases to assignment.selectedPhases with optional chaining

@@ -180,7 +180,7 @@ export default function ContractorDashboard() {
                     <div className="mb-3">
                       <p className="text-sm text-gray-400 mb-2">Assigned Phases:</p>
                       <div className="flex flex-wrap gap-2">
-                        {assignment.phases.map((phase: string, idx: number) => (
+                        {assignment.selectedPhases?.map((phase: string, idx: number) => (
                           <Badge
                             key={idx}
                             variant="outline"
