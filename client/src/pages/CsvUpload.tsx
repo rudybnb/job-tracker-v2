@@ -6,11 +6,39 @@ import { Upload, FileText, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+interface DetectedJob {
+  name: string;
+  address: string;
+  postCode: string;
+  projectType: string;
+  phases: string[];
+  totalLabourCost: number;
+  totalMaterialCost: number;
+  resourceCount: number;
+}
+
 export default function CsvUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [detecting, setDetecting] = useState(false);
+  const [detectedJobs, setDetectedJobs] = useState<DetectedJob[] | null>(null);
+  const [csvContent, setCsvContent] = useState<string>('');
+  const [filename, setFilename] = useState<string>('');
 
   const utils = trpc.useUtils();
+  
+  const detectMutation = trpc.csv.detectJobs.useMutation({
+    onSuccess: (data) => {
+      setDetectedJobs(data.jobs);
+      setDetecting(false);
+      toast.success(`Detected ${data.totalJobs} job(s) from CSV`);
+    },
+    onError: (error) => {
+      setDetecting(false);
+      toast.error(`Detection failed: ${error.message}`);
+    },
+  });
+
   const uploadMutation = trpc.csv.upload.useMutation({
     onSuccess: (data) => {
       toast.success(`Successfully created ${data.jobsCreated} jobs!`);
@@ -51,21 +79,47 @@ export default function CsvUpload() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleDetect = async () => {
     if (!file) return;
+
+    setDetecting(true);
+    try {
+      const content = await file.text();
+      setCsvContent(content);
+      setFilename(file.name);
+      await detectMutation.mutateAsync({ content });
+    } catch (error) {
+      // Error handled by mutation
+      setDetecting(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!csvContent || !filename) return;
 
     setUploading(true);
     try {
-      const content = await file.text();
       await uploadMutation.mutateAsync({
-        filename: file.name,
-        content,
+        filename,
+        content: csvContent,
       });
+      // Reset state
+      setDetectedJobs(null);
+      setCsvContent('');
+      setFilename('');
+      setFile(null);
     } catch (error) {
       // Error handled by mutation
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setDetectedJobs(null);
+    setCsvContent('');
+    setFilename('');
+    setFile(null);
   };
 
   return (
@@ -127,16 +181,16 @@ export default function CsvUpload() {
               )}
             </div>
 
-            {file && (
+            {file && !detectedJobs && (
               <Button
-                className="w-full"
-                onClick={handleUpload}
-                disabled={uploading}
+                className="w-full bg-yellow"
+                onClick={handleDetect}
+                disabled={detecting}
               >
-                {uploading ? (
+                {detecting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
+                    Detecting Jobs...
                   </>
                 ) : (
                   <>
@@ -148,6 +202,109 @@ export default function CsvUpload() {
             )}
           </CardContent>
         </Card>
+
+        {/* Preview Dialog */}
+        {detectedJobs && detectedJobs.length > 0 && (
+          <Card className="border-2 border-yellow">
+            <CardHeader className="bg-yellow/10">
+              <CardTitle className="text-yellow">Upload & Detect Job Info</CardTitle>
+              <CardDescription>Review detected jobs before creating them</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <h3 className="font-semibold mb-4">Detected Job Information ({detectedJobs.length} {detectedJobs.length === 1 ? 'job' : 'jobs'})</h3>
+                  
+                  <div className="space-y-4">
+                    {detectedJobs.map((job, index) => (
+                      <div key={index} className="p-4 bg-background border rounded-lg space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <span className="text-sm text-muted-foreground">📋 Name:</span>
+                            <p className="font-medium">{job.name}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">📍 Postcode:</span>
+                            <p className="font-medium">{job.postCode || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">🏗️ Project Type:</span>
+                            <p className="font-medium">{job.projectType || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">📍 Address:</span>
+                            <p className="font-medium">{job.address || 'N/A'}</p>
+                          </div>
+                        </div>
+
+                        {job.phases.length > 0 && (
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-2">Extracted HBXL Work Phases ({job.phases.length})</p>
+                            <div className="flex flex-wrap gap-2">
+                              {job.phases.map((phase, phaseIndex) => (
+                                <span key={phaseIndex} className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
+                                  {phase}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-3 gap-3 pt-2 border-t">
+                          <div>
+                            <span className="text-sm text-muted-foreground">💼 Labour Cost:</span>
+                            <p className="font-medium text-green-500">£{(job.totalLabourCost / 100).toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">🔧 Material Cost:</span>
+                            <p className="font-medium text-blue-500">£{(job.totalMaterialCost / 100).toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">💰 Total Cost:</span>
+                            <p className="font-bold">£{((job.totalLabourCost + job.totalMaterialCost) / 100).toFixed(2)}</p>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground">{job.resourceCount} resource line(s)</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleCancel}
+                    disabled={uploading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    onClick={handleApprove}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Jobs...
+                      </>
+                    ) : (
+                      <>
+                        ✓ Approve & Create Jobs
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  These real work phases will be available for time tracking once the job is approved and goes live.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

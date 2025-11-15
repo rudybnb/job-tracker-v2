@@ -153,6 +153,107 @@ export const appRouter = router({
 
   // CSV upload
   csv: router({
+    // Detect and preview jobs from CSV without creating them
+    detectJobs: adminProcedure
+      .input(
+        z.object({
+          content: z.string(), // CSV content as string
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const { parse } = await import('csv-parse/sync');
+          const records = parse(input.content, {
+            columns: true,
+            skip_empty_lines: true,
+            trim: true,
+          });
+
+          // Helper function to extract cost
+          const extractCost = (description: string, quantity: number): number => {
+            if (!description) return 0;
+            const match = description.match(/£([\d,]+(?:\.\d{1,2})?)/);
+            if (match) {
+              const priceStr = match[1].replace(/,/g, '');
+              const price = parseFloat(priceStr);
+              if (!isNaN(price)) {
+                return Math.round(price * quantity * 100);
+              }
+            }
+            return 0;
+          };
+
+          // Group by client
+          interface DetectedJob {
+            name: string;
+            address: string;
+            postCode: string;
+            projectType: string;
+            phases: string[];
+            totalLabourCost: number;
+            totalMaterialCost: number;
+            resourceCount: number;
+          }
+
+          const jobsMap = new Map<string, DetectedJob>();
+
+          for (const row of records) {
+            const rowData = row as Record<string, string>;
+            const clientName = (rowData['Name'] || '').trim();
+            const buildPhase = (rowData['Build Phase'] || '').trim();
+            const typeOfResource = (rowData['Type of Resource'] || '').trim();
+            const resourceDescription = (rowData['Resource Description'] || '').trim();
+            const orderQuantity = parseInt(rowData['Order Quantity'] || '1') || 1;
+
+            if (!clientName) continue;
+            if (!typeOfResource || (typeOfResource !== 'Material' && typeOfResource !== 'Labour')) continue;
+
+            if (!jobsMap.has(clientName)) {
+              jobsMap.set(clientName, {
+                name: clientName,
+                address: (rowData['Address'] || '').trim(),
+                postCode: (rowData['Post Code'] || '').trim(),
+                projectType: (rowData['Project Type'] || '').trim(),
+                phases: [],
+                totalLabourCost: 0,
+                totalMaterialCost: 0,
+                resourceCount: 0,
+              });
+            }
+
+            const job = jobsMap.get(clientName)!;
+            const cost = extractCost(resourceDescription, orderQuantity);
+
+            if (typeOfResource === 'Labour') {
+              job.totalLabourCost += cost;
+            } else {
+              job.totalMaterialCost += cost;
+            }
+
+            if (buildPhase && !job.phases.includes(buildPhase)) {
+              job.phases.push(buildPhase);
+            }
+
+            job.resourceCount++;
+          }
+
+          const detectedJobs = Array.from(jobsMap.values());
+          console.log(`[CSV] Detected ${detectedJobs.length} jobs`);
+
+          return {
+            success: true,
+            jobs: detectedJobs,
+            totalJobs: detectedJobs.length,
+          };
+        } catch (error) {
+          console.error('[CSV] Detection error:', error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to parse CSV file',
+          });
+        }
+      }),
+
     upload: adminProcedure
       .input(
         z.object({
@@ -181,14 +282,21 @@ export const appRouter = router({
           });
 
           // Helper function to extract cost from resource description
-          const extractCost = (description: string, quantity: number): number => {
+          const extractCost = (description: string, quantity: number, rowIndex: number): number => {
             if (!description) return 0;
-            // Match patterns like "£1.66/Each", "£22.50/Each", "£33.00/Hours"
-            const match = description.match(/£([\d,]+\.\d{2})/);
+            // Match patterns: £1.66/Each, £22.50/Each, £33.00/Hours, £1,010.00/Each
+            const match = description.match(/£([\d,]+(?:\.\d{1,2})?)/);
             if (match) {
-              const price = parseFloat(match[1].replace(/,/g, ''));
-              return Math.round(price * quantity * 100); // Convert to pence
+              const priceStr = match[1].replace(/,/g, '');
+              const price = parseFloat(priceStr);
+              if (isNaN(price)) {
+                console.log(`[CSV] Row ${rowIndex}: Invalid price in "${description}"`);
+                return 0;
+              }
+              const totalCost = Math.round(price * quantity * 100); // Convert to pence
+              return totalCost;
             }
+            console.log(`[CSV] Row ${rowIndex}: No price found in "${description}"`);
             return 0;
           };
 
@@ -240,7 +348,7 @@ export const appRouter = router({
             }
 
             const clientData = clientsMap.get(clientName)!;
-            const cost = extractCost(resourceDescription, orderQuantity);
+            const cost = extractCost(resourceDescription, orderQuantity, 1);
             
             // Add resource line
             clientData.resources.push({
@@ -269,9 +377,11 @@ export const appRouter = router({
           }
 
           let jobsCreated = 0;
+          console.log(`[CSV] Processing ${clientsMap.size} clients`);
 
           // Create one job per client with all resources
           for (const [clientName, clientData] of Array.from(clientsMap.entries())) {
+            console.log(`[CSV] Creating job for client: ${clientName}, phases: ${clientData.phases.size}, resources: ${clientData.resources.length}`);
             const jobResult = await db.createJob({
               title: clientName,
               address: clientData.address,
@@ -283,6 +393,7 @@ export const appRouter = router({
             });
 
             const jobId = Number((jobResult as any).insertId || 0);
+            console.log(`[CSV] Job created with ID: ${jobId}`);
             jobsCreated++;
 
             // Create phases for this job
@@ -306,6 +417,7 @@ export const appRouter = router({
           }
 
           // Update upload status
+          console.log(`[CSV] Completed processing. Jobs created: ${jobsCreated}`);
           await db.updateCsvUpload(uploadId, {
             status: "completed",
             jobsCreated,
@@ -314,6 +426,7 @@ export const appRouter = router({
           return { success: true, jobsCreated, uploadId };
         } catch (error) {
           // Update upload status with error
+          console.error('[CSV] Processing error:', error);
           await db.updateCsvUpload(uploadId, {
             status: "failed",
             errorMessage: error instanceof Error ? error.message : "Unknown error",

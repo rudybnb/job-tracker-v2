@@ -117,3 +117,10 @@
 - [x] Auto-fill postcode when client/job is selected in assignment form
 - [ ] Add Team Assignment Mode notification about Telegram messages
 - [ ] Remove Start/End Date fields from assignment (phases only)
+
+## CSV Upload Preview Feature
+- [x] Add CSV detection/preview endpoint that parses without creating jobs
+- [x] Create preview UI showing: detected jobs, phases, labour/material costs
+- [x] Add "Approve & Create Jobs" button to confirm and create
+- [x] Add "Cancel" button to discard preview
+- [ ] Test complete two-step workflow
