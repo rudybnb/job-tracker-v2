@@ -475,3 +475,5 @@
 - [x] Fix ContractorTasks authentication redirect - changed to check contractor_id instead of contractor_data
 
 - [x] Add sample tasks to buildPhases for Freddy Jacson job (Internal Decoration: 3 tasks, Plastering: 4 tasks, Carpentry: 3 tasks)
+
+- [ ] Test contractor task completion flow - login, view tasks, mark complete
