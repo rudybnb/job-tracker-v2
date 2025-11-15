@@ -270,7 +270,7 @@ export const appRouter = router({
           status: "processing",
         });
 
-        const uploadId = Number((uploadResult as any).insertId || 0);
+        const uploadId = uploadResult.insertId;
 
         try {
           // Parse CSV with proper handling of quoted fields
@@ -392,7 +392,7 @@ export const appRouter = router({
               uploadId: uploadId,
             });
 
-            const jobId = Number((jobResult as any).insertId || 0);
+            const jobId = jobResult.insertId;
             console.log(`[CSV] Job created with ID: ${jobId}`);
             jobsCreated++;
 

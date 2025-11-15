@@ -134,7 +134,9 @@ export async function createJob(job: InsertJob) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(jobs).values(job);
-  return result;
+  // For MySQL/TiDB, the insertId is in result[0].insertId
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
 }
 
 export async function getAllJobs() {
@@ -171,7 +173,8 @@ export async function createJobResource(resource: InsertJobResource) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(jobResources).values(resource);
-  return result;
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
 }
 
 export async function getJobResources(jobId: number) {
@@ -204,7 +207,8 @@ export async function createBuildPhase(phase: InsertBuildPhase) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(buildPhases).values(phase);
-  return result;
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
 }
 
 export async function getPhasesByJobId(jobId: number) {
@@ -224,7 +228,8 @@ export async function createCsvUpload(upload: InsertCsvUpload) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(csvUploads).values(upload);
-  return result;
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
 }
 
 export async function updateCsvUpload(id: number, data: Partial<InsertCsvUpload>) {

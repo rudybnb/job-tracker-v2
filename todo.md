@@ -124,3 +124,6 @@
 - [x] Add "Approve & Create Jobs" button to confirm and create
 - [x] Add "Cancel" button to discard preview
 - [ ] Test complete two-step workflow
+
+## Upload Button Bug
+- [ ] Fix upload button not appearing when CSV file is selected
