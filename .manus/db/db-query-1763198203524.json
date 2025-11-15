@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, firstName, lastName, status, cisRate, approvedAt FROM contractor_applications LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, lastName, status, cisRate, approvedAt FROM contractor_applications LIMIT 5",
+  "rows": [
+    {
+      "id": "1",
+      "firstName": "Rudy",
+      "lastName": "Diedericks",
+      "status": "approved",
+      "cisRate": "20",
+      "approvedAt": "2025-11-15 09:15:54"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\tstatus\tcisRate\tapprovedAt\n1\tRudy\tDiedericks\tapproved\t20\t2025-11-15 09:15:54\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

@@ -139,3 +139,16 @@
 - [x] Investigate which phases are missing (External Decoration, Internal Preparation)
 - [x] Fix parser to capture all phases correctly (implemented forward-fill logic)
 - [x] Verified all 10 phases now extracted correctly
+
+## Telegram Contractor Registration System
+- [ ] Update database schema for contractor applications (6-step form data)
+- [ ] Add contractorApplications table with all form fields
+- [ ] Add status field (pending/approved/rejected) and approval workflow
+- [ ] Build Telegram bot integration for sending registration forms
+- [ ] Create webhook endpoint to receive Telegram form submissions
+- [ ] Implement file upload handling for passport photos (S3 storage)
+- [ ] Build admin review interface with tabs (Pending/Approved/Rejected)
+- [ ] Add approve/reject buttons with admin notes and CIS rate setting
+- [ ] Create "Send Form" interface for admins to invite new contractors
+- [ ] Test complete workflow: send form → contractor fills → admin reviews → approval
+- [ ] Upon approval, automatically create contractor record in contractors table

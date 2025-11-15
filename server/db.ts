@@ -25,6 +25,8 @@ import {
   InsertContractor,
   jobAssignments,
   InsertJobAssignment,
+  contractorApplications,
+  InsertContractorApplication,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -119,7 +121,8 @@ export async function createContractor(contractor: InsertContractor) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(contractors).values(contractor);
-  return result;
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
 }
 
 export async function getContractorById(id: number) {
@@ -391,4 +394,77 @@ export async function getJobAssignmentsByContractor(contractorId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(jobAssignments).where(eq(jobAssignments.contractorId, contractorId)).orderBy(desc(jobAssignments.createdAt));
+}
+
+// Contractor Application operations
+export async function createContractorApplication(application: InsertContractorApplication) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(contractorApplications).values(application);
+  const insertId = Number(result[0]?.insertId || 0);
+  return { insertId };
+}
+
+export async function getAllContractorApplications() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(contractorApplications).orderBy(contractorApplications.createdAt);
+}
+
+export async function getContractorApplicationById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(contractorApplications).where(eq(contractorApplications.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function getContractorApplicationsByStatus(status: "pending" | "approved" | "rejected") {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(contractorApplications)
+    .where(eq(contractorApplications.status, status))
+    .orderBy(contractorApplications.createdAt);
+}
+
+export async function updateContractorApplicationStatus(
+  id: number,
+  status: "pending" | "approved" | "rejected",
+  adminNotes?: string,
+  cisRate?: number,
+  approvedBy?: number,
+  contractorId?: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = {
+    status,
+    approvedAt: new Date(),
+  };
+  
+  if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
+  if (cisRate !== undefined) updateData.cisRate = cisRate;
+  if (approvedBy !== undefined) updateData.approvedBy = approvedBy;
+  if (contractorId !== undefined) updateData.contractorId = contractorId;
+  
+  await db.update(contractorApplications)
+    .set(updateData)
+    .where(eq(contractorApplications.id, id));
+}
+
+export async function getContractorApplicationStats() {
+  const db = await getDb();
+  if (!db) return { pending: 0, approved: 0, rejected: 0 };
+  
+  const allApplications = await db.select().from(contractorApplications);
+  
+  return {
+    pending: allApplications.filter(a => a.status === "pending").length,
+    approved: allApplications.filter(a => a.status === "approved").length,
+    rejected: allApplications.filter(a => a.status === "rejected").length,
+  };
 }

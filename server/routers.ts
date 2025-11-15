@@ -543,6 +543,128 @@ export const appRouter = router({
         });
       }),
   }),
+
+  // Contractor Applications
+  contractorApplications: router({
+    // Public endpoint for Telegram bot to submit applications
+    submit: publicProcedure
+      .input(
+        z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          email: z.string().email(),
+          phone: z.string(),
+          telegramId: z.string().optional(),
+          fullAddress: z.string(),
+          city: z.string(),
+          postcode: z.string(),
+          hasRightToWork: z.boolean(),
+          passportNumber: z.string().optional(),
+          passportPhotoUrl: z.string().optional(),
+          hasPublicLiability: z.boolean().optional(),
+          cisRegistrationStatus: z.enum(["registered", "not_registered"]),
+          cisNumber: z.string().optional(),
+          utrNumber: z.string().optional(),
+          hasValidCscsCard: z.boolean().optional(),
+          bankName: z.string(),
+          accountHolderName: z.string(),
+          sortCode: z.string(),
+          accountNumber: z.string(),
+          emergencyContactName: z.string(),
+          emergencyContactPhone: z.string(),
+          emergencyContactRelationship: z.string(),
+          primaryTrade: z.string(),
+          yearsOfExperience: z.string(),
+          hasOwnTools: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await db.createContractorApplication(input);
+        return { success: true, applicationId: result.insertId };
+      }),
+
+    // Admin: List all applications
+    list: adminProcedure.query(async () => {
+      return await db.getAllContractorApplications();
+    }),
+
+    // Admin: List by status
+    listByStatus: adminProcedure
+      .input(z.object({ status: z.enum(["pending", "approved", "rejected"]) }))
+      .query(async ({ input }) => {
+        return await db.getContractorApplicationsByStatus(input.status);
+      }),
+
+    // Admin: Get statistics
+    stats: adminProcedure.query(async () => {
+      return await db.getContractorApplicationStats();
+    }),
+
+    // Admin: Get single application
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getContractorApplicationById(input.id);
+      }),
+
+    // Admin: Approve application
+    approve: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          cisRate: z.number().optional(),
+          adminNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const application = await db.getContractorApplicationById(input.id);
+        if (!application) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
+        }
+
+        // Create contractor record
+        const contractorResult = await db.createContractor({
+          firstName: application.firstName,
+          lastName: application.lastName,
+          email: application.email,
+          phone: application.phone,
+          type: "contractor",
+          primaryTrade: application.primaryTrade,
+          status: "approved",
+        });
+
+        // Update application status
+        await db.updateContractorApplicationStatus(
+          input.id,
+          "approved",
+          input.adminNotes,
+          input.cisRate,
+          ctx.user.id,
+          contractorResult.insertId
+        );
+
+        return { success: true, contractorId: contractorResult.insertId };
+      }),
+
+    // Admin: Reject application
+    reject: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          adminNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.updateContractorApplicationStatus(
+          input.id,
+          "rejected",
+          input.adminNotes,
+          undefined,
+          ctx.user.id
+        );
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Briefcase, ClipboardList, DollarSign, FileUp, LayoutDashboard, LogOut, PanelLeft, Timer, Users } from "lucide-react";
+import { Briefcase, ClipboardList, DollarSign, FileUp, LayoutDashboard, LogOut, PanelLeft, Timer, Users, UserCheck } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -32,6 +32,7 @@ const menuItems = [
   { icon: Briefcase, label: "Jobs", path: "/jobs" },
   { icon: FileUp, label: "Upload CSV", path: "/upload" },
   { icon: Users, label: "Contractors", path: "/contractors" },
+  { icon: UserCheck, label: "Applications", path: "/contractor-applications" },
   { icon: ClipboardList, label: "Job Assignments", path: "/assignments" },
   { icon: DollarSign, label: "Budget Tracking", path: "/budgets" },
   { icon: Timer, label: "Work Sessions", path: "/sessions" },

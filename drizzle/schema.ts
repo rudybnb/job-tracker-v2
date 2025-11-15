@@ -224,3 +224,62 @@ export const expenses = mysqlTable("expenses", {
 
 export type Expense = typeof expenses.$inferSelect;
 export type InsertExpense = typeof expenses.$inferInsert;
+
+/**
+ * Contractor applications - stores registration form submissions from Telegram
+ */
+export const contractorApplications = mysqlTable("contractor_applications", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Personal Information (Step 1)
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  telegramId: varchar("telegramId", { length: 100 }), // Optional
+  fullAddress: text("fullAddress").notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  postcode: varchar("postcode", { length: 20 }).notNull(),
+  
+  // Right to Work & Documentation (Step 2)
+  hasRightToWork: boolean("hasRightToWork").notNull(),
+  passportNumber: varchar("passportNumber", { length: 50 }),
+  passportPhotoUrl: text("passportPhotoUrl"), // S3 URL
+  hasPublicLiability: boolean("hasPublicLiability").default(false),
+  
+  // CIS & Tax Information (Step 3)
+  cisRegistrationStatus: mysqlEnum("cisRegistrationStatus", ["registered", "not_registered"]).notNull(),
+  cisNumber: varchar("cisNumber", { length: 50 }),
+  utrNumber: varchar("utrNumber", { length: 50 }),
+  hasValidCscsCard: boolean("hasValidCscsCard").default(false),
+  
+  // Banking Details (Step 4)
+  bankName: varchar("bankName", { length: 100 }).notNull(),
+  accountHolderName: varchar("accountHolderName", { length: 100 }).notNull(),
+  sortCode: varchar("sortCode", { length: 20 }).notNull(),
+  accountNumber: varchar("accountNumber", { length: 20 }).notNull(),
+  
+  // Emergency Contact (Step 5)
+  emergencyContactName: varchar("emergencyContactName", { length: 100 }).notNull(),
+  emergencyContactPhone: varchar("emergencyContactPhone", { length: 50 }).notNull(),
+  emergencyContactRelationship: varchar("emergencyContactRelationship", { length: 50 }).notNull(),
+  
+  // Trade & Tools (Step 6)
+  primaryTrade: varchar("primaryTrade", { length: 100 }).notNull(),
+  yearsOfExperience: varchar("yearsOfExperience", { length: 50 }).notNull(),
+  hasOwnTools: boolean("hasOwnTools").default(false),
+  
+  // Application Status & Admin Fields
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  cisRate: int("cisRate"), // 20 or 30 (percentage)
+  approvedBy: int("approvedBy"), // User ID of admin who approved/rejected
+  approvedAt: timestamp("approvedAt"),
+  contractorId: int("contractorId"), // Link to created contractor record after approval
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContractorApplication = typeof contractorApplications.$inferSelect;
+export type InsertContractorApplication = typeof contractorApplications.$inferInsert;
