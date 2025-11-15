@@ -422,6 +422,12 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getJobAssignmentsByContractor(input.contractorId);
       }),
+
+    getAssignmentCosts: adminProcedure
+      .input(z.object({ jobId: z.number(), selectedPhases: z.array(z.string()) }))
+      .query(async ({ input }) => {
+        return await db.getAssignmentPhaseCosts(input.jobId, input.selectedPhases);
+      }),
   }),
 
   // Work sessions

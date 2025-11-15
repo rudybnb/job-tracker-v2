@@ -252,3 +252,11 @@
 - [x] Display each material with: description, quantity, unit cost, total cost
 - [x] Test expansion with real phase data (Masonry Shell, Plumbing 1st Fix)
 - [ ] Consider future feature: track purchased vs. needed materials
+
+## Assignment Cost Display in Active Assignments
+- [x] Calculate labour cost for assigned phases in each assignment
+- [x] Calculate material cost for assigned phases in each assignment
+- [x] Update Job Assignments page to display labour and material costs per assignment
+- [x] Show total cost (labour + material) for each assignment
+- [x] Test with assignments that have multiple phases
+- [x] Verify costs match the phase breakdown in job detail page

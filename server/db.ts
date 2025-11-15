@@ -566,3 +566,36 @@ export async function getPhaseMaterials(jobId: number, phaseName: string) {
       resource.typeOfResource === "Material"
   );
 }
+
+// Get labour and material costs for specific phases of a job
+export async function getAssignmentPhaseCosts(jobId: number, phaseNames: string[]) {
+  const db = await getDb();
+  if (!db) return { labourCost: 0, materialCost: 0, totalCost: 0 };
+
+  // Get all resources for this job
+  const resources = await db
+    .select()
+    .from(jobResources)
+    .where(eq(jobResources.jobId, jobId));
+
+  // Filter resources by selected phases and sum costs
+  let labourCost = 0;
+  let materialCost = 0;
+
+  resources.forEach(resource => {
+    if (phaseNames.includes(resource.buildPhase || '')) {
+      const cost = resource.cost || 0;
+      if (resource.typeOfResource === 'Labour') {
+        labourCost += cost;
+      } else if (resource.typeOfResource === 'Material') {
+        materialCost += cost;
+      }
+    }
+  });
+
+  return {
+    labourCost,
+    materialCost,
+    totalCost: labourCost + materialCost,
+  };
+}

@@ -56,17 +56,11 @@ export default function JobAssignments() {
     setSpecialInstructions("");
   };
 
-  const handleCreateAssignment = () => {
-    if (!selectedContractor) {
-      toast.error("Please select a contractor");
-      return;
-    }
-    if (!selectedJobId) {
-      toast.error("Please select a job");
-      return;
-    }
-    if (!startDate || !endDate) {
-      toast.error("Please select start and end dates");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedContractor || !selectedJobId || !postcode || !startDate || !endDate) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -74,32 +68,32 @@ export default function JobAssignments() {
       jobId: selectedJobId,
       contractorIds: [selectedContractor],
       workLocation: postcode,
-      selectedPhases: selectedPhases,
+      selectedPhases: selectedPhases.length > 0 ? selectedPhases : undefined,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      specialInstructions,
+      specialInstructions: specialInstructions || undefined,
     });
   };
 
+  const formatCurrency = (pence: number) => {
+    return `£${(pence / 100).toFixed(2)}`;
+  };
 
-
-  if (jobsLoading || contractorsLoading || assignmentsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Filter contractors to show only approved ones
+  const approvedContractors = contractors?.filter(c => c.status === 'approved') || [];
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-yellow">Job Assignments</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-yellow">Job Assignments</h1>
+            <p className="text-muted-foreground mt-1">Assign contractors to jobs and phases</p>
+          </div>
           <Button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-info hover:bg-info/90"
+            className="bg-yellow text-black hover:bg-yellow/90"
           >
             <Plus className="h-4 w-4 mr-2" />
             Create Assignment
@@ -108,232 +102,240 @@ export default function JobAssignments() {
 
         {/* Create Assignment Form */}
         {showCreateForm && (
-          <Card className="mb-6 bg-card border-border">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-yellow">Create New Job Assignment</CardTitle>
+              <CardTitle className="text-yellow">New Assignment</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Select Contractor */}
-              <div>
-                <Label htmlFor="contractor" className="text-yellow">
-                  Select Contractor <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={selectedContractor?.toString() || ""}
-                  onValueChange={(value) => setSelectedContractor(parseInt(value))}
-                >
-                  <SelectTrigger className="bg-card border-input">
-                    <SelectValue placeholder="Select contractor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {contractors && contractors.length > 0 ? (
-                      contractors.map((contractor) => (
-                        <SelectItem key={contractor.id} value={contractor.id.toString()}>
-                          <div className="flex items-center gap-2">
-                            <span>{contractor.firstName} {contractor.lastName}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              contractor.type === 'contractor' 
-                                ? 'bg-blue-500/20 text-blue-400'
-                                : 'bg-purple-500/20 text-purple-400'
-                            }`}>
-                              {contractor.type === 'contractor' ? 'Contractor' : 'Subcontractor'}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-contractors" disabled>
-                        No contractors available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Work Location */}
-              <div>
-                <Label htmlFor="postcode" className="text-yellow">
-                  Work Location (Postcode) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="postcode"
-                  placeholder="Enter postcode"
-                  value={postcode}
-                  onChange={(e) => setPostcode(e.target.value)}
-                  className="bg-card border-input"
-                />
-              </div>
-
-              {/* HBXL Job */}
-              <div>
-                <Label htmlFor="job" className="text-yellow">
-                  HBXL Job <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={selectedJobId?.toString() || ""}
-                  onValueChange={(value) => {
-                    const jobId = parseInt(value);
-                    setSelectedJobId(jobId);
-                    // Auto-fill postcode from selected job
-                    const selectedJob = jobs?.find(j => j.id === jobId);
-                    if (selectedJob?.postCode) {
-                      setPostcode(selectedJob.postCode);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="bg-card border-input">
-                    <SelectValue placeholder="Select HBXL job">
-                      {selectedJobId && jobs && phases ? (
-                        `${jobs.find(j => j.id === selectedJobId)?.title} (${phases.length} phases)`
-                      ) : selectedJobId && jobs ? (
-                        jobs.find(j => j.id === selectedJobId)?.title
-                      ) : (
-                        "Select HBXL job"
-                      )}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jobs && jobs.length > 0 ? (
-                      jobs.map((job) => {
-                        // We'll show phase count in the dropdown once phases are loaded
-                        return (
-                          <SelectItem key={job.id} value={job.id.toString()}>
-                            {job.title}
-                          </SelectItem>
-                        );
-                      })
-                    ) : (
-                      <SelectItem value="no-jobs" disabled>
-                        No jobs available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                {jobs && jobs.length > 0 && (
-                  <p className="text-sm text-green-500 mt-1">
-                    ✓ {jobs.length} job(s) loaded from CSV uploads
-                  </p>
-                )}
-              </div>
-
-              {/* Build Phases */}
-              {selectedJobId && phases && phases.length > 0 && (
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Contractor Selection */}
                 <div>
-                  <Label className="text-yellow mb-2 block">Build Phases</Label>
-                  <div className="flex gap-2 mb-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedPhases(phases.map((p) => p.phaseName))}
-                      className="text-yellow border-yellow hover:bg-yellow/10"
-                    >
-                      Select All
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedPhases([])}
-                      className="text-yellow border-yellow hover:bg-yellow/10"
-                    >
-                      Clear All
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {phases.map((phase) => (
-                      <label
-                        key={phase.id}
-                        className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-card/50"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPhases.includes(phase.phaseName)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedPhases([...selectedPhases, phase.phaseName]);
-                            } else {
-                              setSelectedPhases(selectedPhases.filter((p) => p !== phase.phaseName));
-                            }
-                          }}
-                          className="w-4 h-4 rounded border-input"
-                        />
-                        <span className="text-sm text-foreground">{phase.phaseName}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Selected: {selectedPhases.length} of {phases.length} phases from {jobs?.find(j => j.id === selectedJobId)?.title}
-                  </p>
+                  <Label htmlFor="contractor" className="text-yellow">
+                    Select contractor <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={selectedContractor?.toString() || ""}
+                    onValueChange={(value) => setSelectedContractor(parseInt(value))}
+                  >
+                    <SelectTrigger className="bg-card border-input">
+                      <SelectValue placeholder="Select contractor">
+                        {selectedContractor && approvedContractors.length > 0 ? (
+                          (() => {
+                            const contractor = approvedContractors.find(c => c.id === selectedContractor);
+                            return contractor ? `${contractor.firstName} ${contractor.lastName} - ${contractor.type}` : "Select contractor";
+                          })()
+                        ) : (
+                          "Select contractor"
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {approvedContractors.length > 0 ? (
+                        approvedContractors.map((contractor) => (
+                          <SelectItem key={contractor.id} value={contractor.id.toString()}>
+                            <div className="flex items-center gap-2">
+                              <span>{contractor.firstName} {contractor.lastName}</span>
+                              <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                                {contractor.type}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-contractors" disabled>
+                          No approved contractors available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
 
-              {/* Start Date */}
-              <div>
-                <Label htmlFor="startDate" className="text-yellow">
-                  Start Date
-                </Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-card border-input"
-                />
-              </div>
+                {/* Work Location */}
+                <div>
+                  <Label htmlFor="postcode" className="text-yellow">
+                    Work Location (Postcode) <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="postcode"
+                    placeholder="Enter postcode"
+                    value={postcode}
+                    onChange={(e) => setPostcode(e.target.value)}
+                    className="bg-card border-input"
+                  />
+                </div>
 
-              {/* End Date */}
-              <div>
-                <Label htmlFor="endDate" className="text-yellow">
-                  End Date
-                </Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-card border-input"
-                />
-              </div>
-
-              {/* Special Instructions */}
-              <div>
-                <Label htmlFor="instructions" className="text-yellow">
-                  Special Instructions
-                </Label>
-                <Textarea
-                  id="instructions"
-                  placeholder="Any special instructions for the contractor..."
-                  value={specialInstructions}
-                  onChange={(e) => setSpecialInstructions(e.target.value)}
-                  className="bg-card border-input min-h-[120px]"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={() => setShowCreateForm(false)}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateAssignment}
-                  disabled={createAssignment.isPending}
-                  className="flex-1 bg-green hover:bg-green/90"
-                >
-                  {createAssignment.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Assignment"
+                {/* HBXL Job */}
+                <div>
+                  <Label htmlFor="job" className="text-yellow">
+                    HBXL Job <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={selectedJobId?.toString() || ""}
+                    onValueChange={(value) => {
+                      const jobId = parseInt(value);
+                      setSelectedJobId(jobId);
+                      // Auto-fill postcode from selected job
+                      const selectedJob = jobs?.find(j => j.id === jobId);
+                      if (selectedJob?.postCode) {
+                        setPostcode(selectedJob.postCode);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="bg-card border-input">
+                      <SelectValue placeholder="Select HBXL job">
+                        {selectedJobId && jobs && phases ? (
+                          `${jobs.find(j => j.id === selectedJobId)?.title} (${phases.length} phases)`
+                        ) : selectedJobId && jobs ? (
+                          jobs.find(j => j.id === selectedJobId)?.title
+                        ) : (
+                          "Select HBXL job"
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {jobs && jobs.length > 0 ? (
+                        jobs.map((job) => {
+                          // We'll show phase count in the dropdown once phases are loaded
+                          return (
+                            <SelectItem key={job.id} value={job.id.toString()}>
+                              {job.title}
+                            </SelectItem>
+                          );
+                        })
+                      ) : (
+                        <SelectItem value="no-jobs" disabled>
+                          No jobs available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {jobs && jobs.length > 0 && (
+                    <p className="text-sm text-green-500 mt-1">
+                      ✓ {jobs.length} job(s) loaded from CSV uploads
+                    </p>
                   )}
-                </Button>
-              </div>
+                </div>
+
+                {/* Build Phases */}
+                {selectedJobId && phases && phases.length > 0 && (
+                  <div>
+                    <Label className="text-yellow mb-2 block">Build Phases</Label>
+                    <div className="flex gap-2 mb-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedPhases(phases.map((p) => p.phaseName))}
+                        className="text-yellow border-yellow hover:bg-yellow/10"
+                      >
+                        Select All
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedPhases([])}
+                        className="text-yellow border-yellow hover:bg-yellow/10"
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {phases.map((phase) => (
+                        <label
+                          key={phase.id}
+                          className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-card/50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPhases.includes(phase.phaseName)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedPhases([...selectedPhases, phase.phaseName]);
+                              } else {
+                                setSelectedPhases(selectedPhases.filter((p) => p !== phase.phaseName));
+                              }
+                            }}
+                            className="rounded border-yellow text-yellow focus:ring-yellow"
+                          />
+                          <span className="text-sm text-foreground">{phase.phaseName}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Date Range */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate" className="text-yellow">
+                      Start Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="bg-card border-input"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endDate" className="text-yellow">
+                      End Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="bg-card border-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Special Instructions */}
+                <div>
+                  <Label htmlFor="instructions" className="text-yellow">
+                    Special Instructions
+                  </Label>
+                  <Textarea
+                    id="instructions"
+                    placeholder="Enter any special instructions..."
+                    value={specialInstructions}
+                    onChange={(e) => setSpecialInstructions(e.target.value)}
+                    className="bg-card border-input min-h-[100px]"
+                  />
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      resetForm();
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createAssignment.isPending}
+                    className="flex-1 bg-yellow text-black hover:bg-yellow/90"
+                  >
+                    {createAssignment.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      "Create Assignment"
+                    )}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         )}
@@ -341,36 +343,20 @@ export default function JobAssignments() {
         {/* Assignments List */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-yellow">Active Assignments</h2>
-          {assignments && assignments.length > 0 ? (
+          {assignmentsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : assignments && assignments.length > 0 ? (
             <div className="grid gap-4">
               {assignments.map((assignment: any) => (
-                <Card key={assignment.id} className="bg-card border-border">
-                  <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-sm text-yellow font-medium">Job</p>
-                        <p className="text-foreground">Job #{assignment.jobId}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-yellow font-medium">Contractor</p>
-                        <p className="text-foreground">Contractor #{assignment.contractorId}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-yellow font-medium">Dates</p>
-                        <p className="text-foreground text-sm">
-                          {new Date(assignment.startDate).toLocaleDateString()} -{" "}
-                          {new Date(assignment.endDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    {assignment.specialInstructions && (
-                      <div className="mt-4">
-                        <p className="text-sm text-yellow font-medium">Instructions</p>
-                        <p className="text-muted-foreground text-sm">{assignment.specialInstructions}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <AssignmentCard
+                  key={assignment.id}
+                  assignment={assignment}
+                  jobs={jobs}
+                  contractors={contractors}
+                  formatCurrency={formatCurrency}
+                />
               ))}
             </div>
           ) : (
@@ -383,5 +369,124 @@ export default function JobAssignments() {
         </div>
       </div>
     </div>
+  );
+}
+
+interface AssignmentCardProps {
+  assignment: any;
+  jobs: any[] | undefined;
+  contractors: any[] | undefined;
+  formatCurrency: (pence: number) => string;
+}
+
+function AssignmentCard({ assignment, jobs, contractors, formatCurrency }: AssignmentCardProps) {
+  const job = jobs?.find(j => j.id === assignment.jobId);
+  const contractor = contractors?.find(c => c.id === assignment.contractorId);
+  
+  // Parse selected phases
+  const selectedPhases = assignment.selectedPhases 
+    ? JSON.parse(assignment.selectedPhases) 
+    : [];
+
+  // Fetch costs for this assignment's phases
+  const { data: costs, isLoading: costsLoading } = trpc.jobAssignments.getAssignmentCosts.useQuery(
+    { 
+      jobId: assignment.jobId, 
+      selectedPhases: selectedPhases 
+    },
+    { enabled: selectedPhases.length > 0 }
+  );
+
+  return (
+    <Card className="bg-card border-border">
+      <CardContent className="pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <p className="text-sm text-yellow font-medium">Job</p>
+            <p className="text-foreground">
+              {job ? `${job.title} (#${assignment.jobId})` : `Job #${assignment.jobId}`}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-yellow font-medium">Contractor</p>
+            <p className="text-foreground">
+              {contractor 
+                ? `${contractor.firstName} ${contractor.lastName}` 
+                : `Contractor #${assignment.contractorId}`}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-yellow font-medium">Dates</p>
+            <p className="text-foreground text-sm">
+              {new Date(assignment.startDate).toLocaleDateString()} -{" "}
+              {new Date(assignment.endDate).toLocaleDateString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-yellow font-medium">Phases</p>
+            <p className="text-foreground text-sm">
+              {selectedPhases.length > 0 
+                ? `${selectedPhases.length} phase(s)` 
+                : "All phases"}
+            </p>
+          </div>
+        </div>
+
+        {/* Cost Breakdown */}
+        {selectedPhases.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-border">
+            {costsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading costs...
+              </div>
+            ) : costs ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Labour Cost</p>
+                  <p className="text-lg font-semibold text-green-600">
+                    {formatCurrency(costs.labourCost)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Material Cost</p>
+                  <p className="text-lg font-semibold text-blue-600">
+                    {formatCurrency(costs.materialCost)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Cost</p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(costs.totalCost)}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+            
+            {/* Show phase names */}
+            <div className="mt-3">
+              <p className="text-xs text-muted-foreground mb-2">Assigned Phases:</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedPhases.map((phase: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="text-xs px-2 py-1 rounded bg-yellow/20 text-yellow"
+                  >
+                    {phase}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {assignment.specialInstructions && (
+          <div className="mt-4">
+            <p className="text-sm text-yellow font-medium">Instructions</p>
+            <p className="text-muted-foreground text-sm">{assignment.specialInstructions}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
