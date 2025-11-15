@@ -599,3 +599,70 @@ export async function getAssignmentPhaseCosts(jobId: number, phaseNames: string[
     totalCost: labourCost + materialCost,
   };
 }
+
+// Calculate labour time validation for assignment
+export async function getAssignmentTimeValidation(
+  jobId: number, 
+  phaseNames: string[], 
+  startDate: Date, 
+  endDate: Date
+) {
+  const db = await getDb();
+  if (!db) return { 
+    requiredDays: 0, 
+    availableDays: 0, 
+    status: 'unknown' as const,
+    message: 'Database not available'
+  };
+
+  // Get all labour resources for this job and selected phases
+  const resources = await db
+    .select()
+    .from(jobResources)
+    .where(eq(jobResources.jobId, jobId));
+
+  // Sum up labour quantities (hours/days) for selected phases
+  let totalLabourQuantity = 0;
+  resources.forEach(resource => {
+    if (
+      resource.typeOfResource === 'Labour' && 
+      phaseNames.includes(resource.buildPhase || '')
+    ) {
+      totalLabourQuantity += resource.orderQuantity || 0;
+    }
+  });
+
+  // Calculate available working days (excluding weekends optionally)
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const timeDiff = endDate.getTime() - startDate.getTime();
+  const availableDays = Math.ceil(timeDiff / millisecondsPerDay) + 1; // +1 to include both start and end dates
+
+  // Assume labour quantity is in days (you may need to adjust if it's in hours)
+  const requiredDays = totalLabourQuantity;
+
+  // Determine status
+  let status: 'ok' | 'warning' | 'exceeded';
+  let message: string;
+
+  if (requiredDays === 0) {
+    status = 'ok';
+    message = 'No labour time data available';
+  } else if (requiredDays <= availableDays) {
+    status = 'ok';
+    message = `✓ Time allocation OK (${requiredDays} days needed, ${availableDays} days allocated)`;
+  } else if (requiredDays <= availableDays * 1.2) {
+    // Within 20% over
+    status = 'warning';
+    message = `⚠️ Tight schedule (${requiredDays} days needed, ${availableDays} days allocated)`;
+  } else {
+    status = 'exceeded';
+    message = `❌ Insufficient time (${requiredDays} days needed, only ${availableDays} days allocated)`;
+  }
+
+  return {
+    requiredDays,
+    availableDays,
+    status,
+    message,
+  };
+}

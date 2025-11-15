@@ -428,6 +428,22 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getAssignmentPhaseCosts(input.jobId, input.selectedPhases);
       }),
+
+    getTimeValidation: adminProcedure
+      .input(z.object({ 
+        jobId: z.number(), 
+        selectedPhases: z.array(z.string()),
+        startDate: z.date(),
+        endDate: z.date()
+      }))
+      .query(async ({ input }) => {
+        return await db.getAssignmentTimeValidation(
+          input.jobId, 
+          input.selectedPhases, 
+          input.startDate, 
+          input.endDate
+        );
+      }),
   }),
 
   // Work sessions

@@ -397,6 +397,17 @@ function AssignmentCard({ assignment, jobs, contractors, formatCurrency }: Assig
     { enabled: selectedPhases.length > 0 }
   );
 
+  // Fetch time validation for this assignment
+  const { data: timeValidation, isLoading: timeValidationLoading } = trpc.jobAssignments.getTimeValidation.useQuery(
+    {
+      jobId: assignment.jobId,
+      selectedPhases: selectedPhases,
+      startDate: new Date(assignment.startDate),
+      endDate: new Date(assignment.endDate)
+    },
+    { enabled: selectedPhases.length > 0 }
+  );
+
   return (
     <Card className="bg-card border-border">
       <CardContent className="pt-6">
@@ -463,6 +474,33 @@ function AssignmentCard({ assignment, jobs, contractors, formatCurrency }: Assig
               </div>
             ) : null}
             
+            {/* Time Validation */}
+            {timeValidation && (
+              <div className="mt-3">
+                <div className={
+                  `p-3 rounded-lg ${
+                    timeValidation.status === 'ok' 
+                      ? 'bg-green-500/10 border border-green-500/20' 
+                      : timeValidation.status === 'warning'
+                      ? 'bg-yellow-500/10 border border-yellow-500/20'
+                      : 'bg-red-500/10 border border-red-500/20'
+                  }`
+                }>
+                  <p className={
+                    `text-sm font-medium ${
+                      timeValidation.status === 'ok' 
+                        ? 'text-green-600' 
+                        : timeValidation.status === 'warning'
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                    }`
+                  }>
+                    {timeValidation.message}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Show phase names */}
             <div className="mt-3">
               <p className="text-xs text-muted-foreground mb-2">Assigned Phases:</p>

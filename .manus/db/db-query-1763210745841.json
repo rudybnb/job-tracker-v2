@@ -1,0 +1,70 @@
+{
+  "query": "SELECT buildPhase, resourceDescription, orderQuantity, cost FROM jobResources WHERE typeOfResource = 'Labour' AND jobId = 240003 LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT buildPhase, resourceDescription, orderQuantity, cost FROM jobResources WHERE typeOfResource = 'Labour' AND jobId = 240003 LIMIT 10",
+  "rows": [
+    {
+      "buildPhase": "Masonry Shell",
+      "resourceDescription": "Bricklayer £33.00/Hours",
+      "orderQuantity": "2",
+      "cost": "6600"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Joiner £33.00/Hours",
+      "orderQuantity": "4",
+      "cost": "13200"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Joiner & Mate £55.00/Hours",
+      "orderQuantity": "11",
+      "cost": "60500"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Joiner's Mate £22.00/Hours",
+      "orderQuantity": "7",
+      "cost": "15400"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Partition Installer £24.00/Hours",
+      "orderQuantity": "15",
+      "cost": "36000"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Electrician £38.00/Hours",
+      "orderQuantity": "1",
+      "cost": "3800"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "resourceDescription": "Electrician & Mate £63.00/Hours",
+      "orderQuantity": "16",
+      "cost": "100800"
+    },
+    {
+      "buildPhase": "Electrical 2nd Fix",
+      "resourceDescription": "Electrician £38.00/Hours",
+      "orderQuantity": "11",
+      "cost": "41800"
+    },
+    {
+      "buildPhase": "External Decoration",
+      "resourceDescription": "Decorator £29.00/Hours",
+      "orderQuantity": "57",
+      "cost": "165300"
+    },
+    {
+      "buildPhase": "Internal Fitting Out",
+      "resourceDescription": "Joiner £33.00/Hours",
+      "orderQuantity": "10",
+      "cost": "33000"
+    }
+  ],
+  "messages": [],
+  "stdout": "buildPhase\tresourceDescription\torderQuantity\tcost\nMasonry Shell\tBricklayer £33.00/Hours\t2\t6600\nJoinery 1st Fix\tJoiner £33.00/Hours\t4\t13200\nJoinery 1st Fix\tJoiner & Mate £55.00/Hours\t11\t60500\nJoinery 1st Fix\tJoiner's Mate £22.00/Hours\t7\t15400\nJoinery 1st Fix\tPartition Installer £24.00/Hours\t15\t36000\nJoinery 1st Fix\tElectrician £38.00/Hours\t1\t3800\nJoinery 1st Fix\tElectrician & Mate £63.00/Hours\t16\t100800\nElectrical 2nd Fix\tElectrician £38.00/Hours\t11\t41800\nExternal Decoration\tDecorator £29.00/Hours\t57\t165300\nInternal Fitting Out\tJoiner £33.00/Hours\t10\t33000\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

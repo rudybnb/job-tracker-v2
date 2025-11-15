@@ -260,3 +260,12 @@
 - [x] Show total cost (labour + material) for each assignment
 - [x] Test with assignments that have multiple phases
 - [x] Verify costs match the phase breakdown in job detail page
+
+## Labour Time Validation for Assignments
+- [x] Extract labour hours/quantity data from jobResources for assigned phases
+- [x] Calculate total labour days required (sum of labour quantities for all assigned phases)
+- [x] Calculate available working days from assignment start/end dates
+- [x] Compare required vs available time and determine if allocation is sufficient
+- [x] Display validation status on assignment cards (OK, Warning, or Exceeded)
+- [x] Show detailed breakdown: "X days required, Y days allocated"
+- [x] Test with real assignments to verify accuracy
