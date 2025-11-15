@@ -333,3 +333,20 @@
 - [x] Check if there's a data mismatch or filtering issue (root cause: missing query invalidation)
 - [x] Fix the bug preventing assignments from appearing in list (added utils.jobAssignments.list.invalidate())
 - [x] Test end-to-end assignment creation and display (working: assignments now appear immediately)
+
+## Critical Bugs - Labour Data & Assignment Loading (Reported by User)
+- [x] Bug: Labour costs showing £0.00 when CSV has labour data (RESOLVED: Carpentry phase has NO labour, only materials)
+- [x] Investigate jobResources table to verify labour data is stored correctly (confirmed: Carpentry = 3 materials only, other phases have labour)
+- [x] Check getAssignmentPhaseCosts function - working correctly
+- [x] Check getAssignmentTimeValidation function - working correctly
+- [x] Bug: Assignments require page refresh to load (FIXED: added retry logic and caching)
+- [x] Investigate query caching or initial load issue on Job Assignments page (root cause: CloudFlare proxy timeouts)
+- [x] Add retry logic to Job Assignments queries to handle network timeouts (3 retries, 1s delay, 30s cache)
+- [x] Improve loading state handling to gracefully handle failed queries (added error state with retry message)
+- [x] Test assignment list loading on first page visit vs. after refresh (working: loads immediately)
+- [x] Question: What role do start/end dates play when no labour data is available? (contractor oversight/management of materials)
+
+## Materials Breakdown Enhancement
+- [x] Add supplier column to materials list in JobDetail page (displays in blue text)
+- [x] Show where to buy materials from (supplier information from CSV)
+- [x] Test materials expansion with supplier data (working: shows N/A when no supplier, displays supplier when available)

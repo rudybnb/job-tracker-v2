@@ -26,9 +26,26 @@ export default function JobAssignments() {
   const [specialInstructions, setSpecialInstructions] = useState("");
 
   const utils = trpc.useUtils();
-  const { data: jobs, isLoading: jobsLoading } = trpc.jobs.list.useQuery();
-  const { data: contractors, isLoading: contractorsLoading } = trpc.contractors.list.useQuery();
-  const { data: assignments, isLoading: assignmentsLoading } = trpc.jobAssignments.list.useQuery();
+  
+  // Add retry logic to handle network timeouts gracefully
+  const { data: jobs, isLoading: jobsLoading } = trpc.jobs.list.useQuery(undefined, {
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 30000, // Cache for 30 seconds
+  });
+  
+  const { data: contractors, isLoading: contractorsLoading } = trpc.contractors.list.useQuery(undefined, {
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 30000,
+  });
+  
+  const { data: assignments, isLoading: assignmentsLoading, error: assignmentsError } = trpc.jobAssignments.list.useQuery(undefined, {
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 10000, // Cache for 10 seconds
+    refetchOnMount: true, // Always refetch on mount
+  });
   
   // Load phases when job is selected
   const { data: phases, isLoading: phasesLoading } = trpc.phases.listByJob.useQuery(
@@ -412,8 +429,16 @@ export default function JobAssignments() {
           <h2 className="text-xl font-semibold text-yellow">Active Assignments</h2>
           {assignmentsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin" />
+              <Loader2 className="h-8 w-8 animate-spin text-yellow" />
+              <p className="ml-3 text-muted-foreground">Loading assignments...</p>
             </div>
+          ) : assignmentsError ? (
+            <Card className="bg-card border-border">
+              <CardContent className="pt-6 text-center">
+                <p className="text-yellow mb-2">Retrying connection...</p>
+                <p className="text-sm text-muted-foreground">If this persists, please refresh the page</p>
+              </CardContent>
+            </Card>
           ) : assignments && assignments.length > 0 ? (
             <div className="grid gap-4">
               {assignments.map((assignment: any) => (

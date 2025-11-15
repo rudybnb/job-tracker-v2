@@ -1,0 +1,8 @@
+{
+  "query": "SELECT buildPhase, resourceType, description, orderQuantity, cost \nFROM jobResources \nWHERE jobId = 330001 AND buildPhase = 'Carpentry' \nORDER BY resourceType, description \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT buildPhase, resourceType, description, orderQuantity, cost \nFROM jobResources \nWHERE jobId = 330001 AND buildPhase = 'Carpentry' \nORDER BY resourceType, description \nLIMIT 20;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'description' in 'field list'"
+  ]
+}

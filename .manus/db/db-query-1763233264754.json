@@ -1,0 +1,34 @@
+{
+  "query": "SELECT buildPhase, typeOfResource, resourceType, resourceDescription, orderQuantity, cost \nFROM jobResources \nWHERE jobId = 330001 AND buildPhase = 'Carpentry' \nORDER BY typeOfResource, resourceType \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT buildPhase, typeOfResource, resourceType, resourceDescription, orderQuantity, cost \nFROM jobResources \nWHERE jobId = 330001 AND buildPhase = 'Carpentry' \nORDER BY typeOfResource, resourceType \nLIMIT 20;",
+  "rows": [
+    {
+      "buildPhase": "Carpentry",
+      "typeOfResource": "Material",
+      "resourceType": "",
+      "resourceDescription": "Plasterboard Tape 50mm x 90m £6.25/Each",
+      "orderQuantity": "11",
+      "cost": "6875"
+    },
+    {
+      "buildPhase": "Carpentry",
+      "typeOfResource": "Material",
+      "resourceType": "",
+      "resourceDescription": "Gyproc Drywall Screws 42mm (Pack of 1000) £11.70/Each",
+      "orderQuantity": "6",
+      "cost": "7020"
+    },
+    {
+      "buildPhase": "Carpentry",
+      "typeOfResource": "Material",
+      "resourceType": "",
+      "resourceDescription": "Plasterboard Square Edge 1200 x 2400 x 12.5mm £9.40/Each",
+      "orderQuantity": "66",
+      "cost": "62040"
+    }
+  ],
+  "messages": [],
+  "stdout": "buildPhase\ttypeOfResource\tresourceType\tresourceDescription\torderQuantity\tcost\nCarpentry\tMaterial\t\tPlasterboard Tape 50mm x 90m £6.25/Each\t11\t6875\nCarpentry\tMaterial\t\tGyproc Drywall Screws 42mm (Pack of 1000) £11.70/Each\t6\t7020\nCarpentry\tMaterial\t\tPlasterboard Square Edge 1200 x 2400 x 12.5mm £9.40/Each\t66\t62040\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

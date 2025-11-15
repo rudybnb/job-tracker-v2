@@ -246,15 +246,19 @@ function PhaseCard({ phase, jobId, isExpanded, onToggle, formatCurrency }: Phase
               ) : materials && materials.length > 0 ? (
                 <div className="space-y-2">
                   <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground pb-2 border-b">
-                    <div className="col-span-5">Description</div>
+                    <div className="col-span-4">Description</div>
+                    <div className="col-span-2">Supplier</div>
                     <div className="col-span-2 text-center">Qty</div>
                     <div className="col-span-2 text-right">Unit Cost</div>
-                    <div className="col-span-3 text-right">Total</div>
+                    <div className="col-span-2 text-right">Total</div>
                   </div>
                   {materials.map((material, idx) => (
                     <div key={idx} className="grid grid-cols-12 gap-2 text-sm py-2 hover:bg-muted/50 rounded px-2">
-                      <div className="col-span-5 truncate" title={material.resourceDescription || material.resourceType || "N/A"}>
+                      <div className="col-span-4 truncate" title={material.resourceDescription || material.resourceType || "N/A"}>
                         {material.resourceDescription || material.resourceType || "N/A"}
+                      </div>
+                      <div className="col-span-2 truncate text-blue-400" title={material.supplier || "N/A"}>
+                        {material.supplier || "N/A"}
                       </div>
                       <div className="col-span-2 text-center">
                         {material.orderQuantity || 0}
@@ -264,7 +268,7 @@ function PhaseCard({ phase, jobId, isExpanded, onToggle, formatCurrency }: Phase
                           ? formatCurrency(Math.floor(material.cost / material.orderQuantity))
                           : "-"}
                       </div>
-                      <div className="col-span-3 text-right font-medium">
+                      <div className="col-span-2 text-right font-medium">
                         {formatCurrency(material.cost || 0)}
                       </div>
                     </div>

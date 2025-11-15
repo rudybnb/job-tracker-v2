@@ -1,0 +1,64 @@
+{
+  "query": "SELECT buildPhase, typeOfResource, COUNT(*) as count, SUM(cost) as totalCost\nFROM jobResources \nWHERE jobId = 330001\nGROUP BY buildPhase, typeOfResource\nORDER BY buildPhase, typeOfResource;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT buildPhase, typeOfResource, COUNT(*) as count, SUM(cost) as totalCost\nFROM jobResources \nWHERE jobId = 330001\nGROUP BY buildPhase, typeOfResource\nORDER BY buildPhase, typeOfResource;",
+  "rows": [
+    {
+      "buildPhase": "Carpentry",
+      "typeOfResource": "Material",
+      "count": "3",
+      "totalCost": "75935"
+    },
+    {
+      "buildPhase": "Internal Decoration",
+      "typeOfResource": "Material",
+      "count": "2",
+      "totalCost": "74100"
+    },
+    {
+      "buildPhase": "Internal Decoration",
+      "typeOfResource": "Labour",
+      "count": "1",
+      "totalCost": "29000"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "typeOfResource": "Material",
+      "count": "1",
+      "totalCost": "3000"
+    },
+    {
+      "buildPhase": "Joinery 1st Fix",
+      "typeOfResource": "Labour",
+      "count": "1",
+      "totalCost": "108000"
+    },
+    {
+      "buildPhase": "Plastering",
+      "typeOfResource": "Material",
+      "count": "2",
+      "totalCost": "109255"
+    },
+    {
+      "buildPhase": "Plastering",
+      "typeOfResource": "Labour",
+      "count": "2",
+      "totalCost": "743000"
+    },
+    {
+      "buildPhase": "Roofing",
+      "typeOfResource": "Material",
+      "count": "3",
+      "totalCost": "104705"
+    },
+    {
+      "buildPhase": "Roofing",
+      "typeOfResource": "Labour",
+      "count": "1",
+      "totalCost": "39600"
+    }
+  ],
+  "messages": [],
+  "stdout": "buildPhase\ttypeOfResource\tcount\ttotalCost\nCarpentry\tMaterial\t3\t75935\nInternal Decoration\tMaterial\t2\t74100\nInternal Decoration\tLabour\t1\t29000\nJoinery 1st Fix\tMaterial\t1\t3000\nJoinery 1st Fix\tLabour\t1\t108000\nPlastering\tMaterial\t2\t109255\nPlastering\tLabour\t2\t743000\nRoofing\tMaterial\t3\t104705\nRoofing\tLabour\t1\t39600\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}
