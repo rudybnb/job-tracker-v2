@@ -152,3 +152,41 @@
 - [ ] Create "Send Form" interface for admins to invite new contractors
 - [ ] Test complete workflow: send form → contractor fills → admin reviews → approval
 - [ ] Upon approval, automatically create contractor record in contractors table
+
+## Contractor Application Statistics Bug
+- [x] Fixed statistics refresh bug - counts now update correctly after approval/rejection
+- [x] Added separate stats query endpoint (returns pending/approved/rejected counts)
+- [x] Updated mutations to invalidate both listByStatus and stats queries
+
+## Telegram Bot Integration - Public Form
+- [ ] Create public contractor registration form page (no login required)
+- [ ] Add route /contractor-form with URL parameters (id, name, telegram_id)
+- [ ] Build 6-step form UI matching Telegram bot workflow
+- [ ] Add file upload for passport photos (S3 storage)
+- [ ] Pre-fill name from URL parameter
+- [ ] Submit to existing contractorApplications.submit endpoint
+- [ ] Show success message with "Form submitted" confirmation
+
+## Telegram Bot Integration - Admin Interface
+- [ ] Create "Send Invite" page for admins
+- [ ] Add form fields: contractor name, phone/telegram username
+- [ ] Generate unique form link with contractor ID
+- [ ] Create API endpoint to trigger Telegram bot message
+- [ ] Display generated link for manual sharing (fallback)
+- [ ] Add invite history/tracking
+
+## Telegram Bot API Documentation
+- [ ] Document POST endpoint for bot to submit applications
+- [ ] Document webhook format for form submissions
+- [ ] Create example request/response for bot integration
+- [ ] Add authentication method for bot API calls
+
+## Telegram Bot Integration - Complete Implementation
+- [x] Create Telegram service module (server/telegram.ts)
+- [x] Add TELEGRAM_BOT_TOKEN to environment variables (needs to be configured)
+- [x] Build sendContractorInvite function
+- [x] Create public contractor form page (/contractor-form)
+- [ ] Add file upload support for passport photos (form ready, S3 integration pending)
+- [x] Build admin Send Invite interface
+- [x] Add API endpoint to trigger bot messages
+- [x] Test complete workflow end-to-end

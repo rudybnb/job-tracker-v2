@@ -14,6 +14,8 @@ import BudgetTracking from "./pages/BudgetTracking";
 import WorkSessions from "./pages/WorkSessions";
 import JobAssignments from "./pages/JobAssignments";
 import ContractorApplications from "./pages/ContractorApplications";
+import ContractorForm from "./pages/ContractorForm";
+import SendInvite from "./pages/SendInvite";
 
 function Router() {
   return (
@@ -64,6 +66,12 @@ function Router() {
         </DashboardLayout>
       </Route>
       
+      <Route path={"/send-invite"}>
+        <DashboardLayout>
+          <SendInvite />
+        </DashboardLayout>
+      </Route>
+      
       <Route path={"/assignments"}>
         <DashboardLayout>
           <JobAssignments />
@@ -81,6 +89,9 @@ function Router() {
           <WorkSessions />
         </DashboardLayout>
       </Route>
+      
+      {/* Public contractor registration form (no auth required) */}
+      <Route path={"/contractor-form"} component={ContractorForm} />
       
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

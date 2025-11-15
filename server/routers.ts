@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import * as telegram from "./telegram";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -664,6 +665,64 @@ export const appRouter = router({
         );
         return { success: true };
       }),
+  }),
+
+  // Telegram Bot Integration
+  telegram: router({
+    // Admin: Send contractor invite
+    sendInvite: adminProcedure
+      .input(
+        z.object({
+          contractorName: z.string(),
+          telegramId: z.string(),
+          applicationId: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const formUrl = `${process.env.VITE_APP_URL || 'http://localhost:3000'}/contractor-form?id=${input.applicationId}&name=${encodeURIComponent(input.contractorName)}&telegram_id=${input.telegramId}`;
+
+        const success = await telegram.sendContractorInvite({
+          contractorName: input.contractorName,
+          telegramId: input.telegramId,
+          formUrl,
+        });
+
+        if (!success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to send Telegram message",
+          });
+        }
+
+        return { success: true, formUrl };
+      }),
+
+    // Admin: Send custom message
+    sendCustomMessage: adminProcedure
+      .input(
+        z.object({
+          chatId: z.string(),
+          message: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const success = await telegram.sendCustomMessage(input.chatId, input.message);
+
+        if (!success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to send Telegram message",
+          });
+        }
+
+        return { success: true };
+      }),
+
+    // Public: Verify bot status
+    verifyBot: publicProcedure.query(async () => {
+      const isValid = await telegram.verifyBotToken();
+      return { isValid, configured: !!process.env.TELEGRAM_BOT_TOKEN };
+    }),
   }),
 });
 
