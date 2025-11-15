@@ -17,6 +17,8 @@ import ContractorApplications from "./pages/ContractorApplications";
 import ContractorForm from "./pages/ContractorForm";
 import SendInvite from "./pages/SendInvite";
 import ContractorDetail from "./pages/ContractorDetail";
+import ContractorLogin from "./pages/ContractorLogin";
+import ContractorDashboard from "./pages/ContractorDashboard";
 
 function Router() {
   return (
@@ -97,6 +99,12 @@ function Router() {
       
       {/* Public contractor registration form (no auth required) */}
       <Route path={"/contractor-form"} component={ContractorForm} />
+      
+      {/* Contractor login (no auth required) */}
+      <Route path={"/contractor-login"} component={ContractorLogin} />
+      
+      {/* Contractor dashboard (contractor auth required) */}
+      <Route path={"/contractor-dashboard"} component={ContractorDashboard} />
       
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

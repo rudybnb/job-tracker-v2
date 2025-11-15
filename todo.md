@@ -301,3 +301,27 @@
 - [x] Show phase budget (CSV labour + material costs) for comparison
 - [x] Add budget vs actual indicator (green if within budget, red if over)
 - [x] Test with real contractor rates and date ranges
+
+## Custom Login Page
+- [x] Create custom login page UI matching Sculpt Projects design
+- [x] Add "Sculpt Projects" branding with orange checkmark logo
+- [x] Add "GPS Time Tracking & Job Management" subtitle
+- [x] Implement username input field
+- [x] Implement password input field with show/hide toggle
+- [x] Add GPS Status indicator ("Requesting" / "Enabled" / "Disabled")
+- [x] Style with dark navy background and dot pattern
+- [x] Add orange "Sign In" button
+- [x] Implement username/password authentication backend
+- [x] Add password hashing (bcrypt) for security
+- [x] Create login API endpoint
+- [x] Add username/passwordHash fields to contractors table
+- [x] Create contractor dashboard page
+- [x] Set up test contractor credentials (mohamed/mohamed123, marius/marius123)
+- [ ] Debug login form submission issue
+- [ ] Add session management for contractors
+- [ ] Implement WebAuthn for biometric authentication
+- [ ] Add fingerprint registration flow
+- [ ] Add fingerprint login option
+- [ ] Test on mobile devices with fingerprint sensors
+- [ ] Add "Remember Me" functionality
+- [ ] Add password reset flow

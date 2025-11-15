@@ -88,6 +88,8 @@ export const contractors = mysqlTable("contractors", {
   lastName: varchar("lastName", { length: 100 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   phone: varchar("phone", { length: 50 }),
+  username: varchar("username", { length: 100 }).unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }),
   type: mysqlEnum("type", ["contractor", "subcontractor"]).notNull(),
   primaryTrade: varchar("primaryTrade", { length: 100 }),
   dailyRate: int("dailyRate"), // in pence, for contractors
