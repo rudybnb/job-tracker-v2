@@ -242,3 +242,13 @@
 - [x] Build job detail page showing phase breakdown
 - [x] Display each phase with: phase name, labour cost, material cost, total cost
 - [x] Test with real job data to verify milestone payment amounts
+
+## Expandable Materials List for Phase Breakdown
+- [x] Create API endpoint to fetch material resources by job ID and phase name
+- [x] Query jobResources table filtered by typeOfResource = 'Material' and buildPhase
+- [x] Return material details: description, quantity, cost, supplier
+- [x] Update JobDetail page to make Material Cost clickable/expandable
+- [x] Add collapsible UI component to show/hide materials list
+- [x] Display each material with: description, quantity, unit cost, total cost
+- [x] Test expansion with real phase data (Masonry Shell, Plumbing 1st Fix)
+- [ ] Consider future feature: track purchased vs. needed materials

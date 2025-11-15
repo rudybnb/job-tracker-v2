@@ -1,8 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
 interface JobDetailProps {
@@ -12,9 +14,22 @@ interface JobDetailProps {
 export default function JobDetail({ jobId }: JobDetailProps) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set());
 
   const { data: job, isLoading } = trpc.jobs.getById.useQuery({ id: jobId });
   const { data: phaseCosts, isLoading: loadingCosts } = trpc.jobs.getPhaseCosts.useQuery({ jobId });
+
+  const togglePhase = (phaseName: string) => {
+    setExpandedPhases(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(phaseName)) {
+        newSet.delete(phaseName);
+      } else {
+        newSet.add(phaseName);
+      }
+      return newSet;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -112,7 +127,7 @@ export default function JobDetail({ jobId }: JobDetailProps) {
         <CardHeader>
           <CardTitle>Phase Cost Breakdown</CardTitle>
           <CardDescription>
-            Labour and material costs per phase for milestone payment tracking
+            Labour and material costs per phase for milestone payment tracking. Click on Material Cost to see detailed materials list.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,29 +138,14 @@ export default function JobDetail({ jobId }: JobDetailProps) {
           ) : phaseCosts && phaseCosts.length > 0 ? (
             <div className="space-y-4">
               {phaseCosts.map((phase, index) => (
-                <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <h4 className="font-semibold text-lg mb-3">{phase.phaseName}</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                      <span className="text-sm text-muted-foreground">Labour Cost</span>
-                      <p className="text-lg font-medium text-green-600">
-                        {formatCurrency(phase.labourCost)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-sm text-muted-foreground">Material Cost</span>
-                      <p className="text-lg font-medium text-blue-600">
-                        {formatCurrency(phase.materialCost)}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-sm text-muted-foreground">Total Phase Cost</span>
-                      <p className="text-lg font-bold">
-                        {formatCurrency(phase.totalCost)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <PhaseCard
+                  key={index}
+                  phase={phase}
+                  jobId={jobId}
+                  isExpanded={expandedPhases.has(phase.phaseName)}
+                  onToggle={() => togglePhase(phase.phaseName)}
+                  formatCurrency={formatCurrency}
+                />
               ))}
               
               {/* Summary */}
@@ -177,6 +177,106 @@ export default function JobDetail({ jobId }: JobDetailProps) {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+interface PhaseCardProps {
+  phase: {
+    phaseName: string;
+    labourCost: number;
+    materialCost: number;
+    totalCost: number;
+  };
+  jobId: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  formatCurrency: (pence: number) => string;
+}
+
+function PhaseCard({ phase, jobId, isExpanded, onToggle, formatCurrency }: PhaseCardProps) {
+  const { data: materials, isLoading: loadingMaterials } = trpc.jobs.getPhaseMaterials.useQuery(
+    { jobId, phaseName: phase.phaseName },
+    { enabled: isExpanded }
+  );
+
+  return (
+    <div className="border rounded-lg hover:shadow-md transition-shadow">
+      <div className="p-4">
+        <h4 className="font-semibold text-lg mb-3">{phase.phaseName}</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <span className="text-sm text-muted-foreground">Labour Cost</span>
+            <p className="text-lg font-medium text-green-600">
+              {formatCurrency(phase.labourCost)}
+            </p>
+          </div>
+          <Collapsible open={isExpanded} onOpenChange={onToggle}>
+            <div className="space-y-1">
+              <span className="text-sm text-muted-foreground">Material Cost</span>
+              <CollapsibleTrigger asChild>
+                <button className="flex items-center gap-2 text-lg font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  {formatCurrency(phase.materialCost)}
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+            </div>
+          </Collapsible>
+          <div className="space-y-1">
+            <span className="text-sm text-muted-foreground">Total Phase Cost</span>
+            <p className="text-lg font-bold">
+              {formatCurrency(phase.totalCost)}
+            </p>
+          </div>
+        </div>
+
+        {/* Expandable Materials List */}
+        <Collapsible open={isExpanded}>
+          <CollapsibleContent>
+            <div className="mt-4 pt-4 border-t">
+              <h5 className="font-medium text-sm text-muted-foreground mb-3">Materials Breakdown:</h5>
+              {loadingMaterials ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                </div>
+              ) : materials && materials.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground pb-2 border-b">
+                    <div className="col-span-5">Description</div>
+                    <div className="col-span-2 text-center">Qty</div>
+                    <div className="col-span-2 text-right">Unit Cost</div>
+                    <div className="col-span-3 text-right">Total</div>
+                  </div>
+                  {materials.map((material, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 text-sm py-2 hover:bg-muted/50 rounded px-2">
+                      <div className="col-span-5 truncate" title={material.resourceDescription || material.resourceType || "N/A"}>
+                        {material.resourceDescription || material.resourceType || "N/A"}
+                      </div>
+                      <div className="col-span-2 text-center">
+                        {material.orderQuantity || 0}
+                      </div>
+                      <div className="col-span-2 text-right">
+                        {material.orderQuantity && material.orderQuantity > 0 && material.cost
+                          ? formatCurrency(Math.floor(material.cost / material.orderQuantity))
+                          : "-"}
+                      </div>
+                      <div className="col-span-3 text-right font-medium">
+                        {formatCurrency(material.cost || 0)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No materials found for this phase</p>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
     </div>
   );
 }
