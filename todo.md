@@ -190,3 +190,7 @@
 - [x] Build admin Send Invite interface
 - [x] Add API endpoint to trigger bot messages
 - [x] Test complete workflow end-to-end
+
+## Telegram Bot URL Bug
+- [x] Fix Telegram form link to use public URL instead of localhost
+- [x] Test form access from Telegram message on mobile device

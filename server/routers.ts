@@ -678,8 +678,12 @@ export const appRouter = router({
           applicationId: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
-        const formUrl = `${process.env.VITE_APP_URL || 'http://localhost:3000'}/contractor-form?id=${input.applicationId}&name=${encodeURIComponent(input.contractorName)}&telegram_id=${input.telegramId}`;
+      .mutation(async ({ input, ctx }) => {
+        // Use the request host to generate the form URL (works in dev and production)
+        const protocol = ctx.req.headers['x-forwarded-proto'] || 'https';
+        const host = ctx.req.headers['x-forwarded-host'] || ctx.req.headers.host || 'localhost:3000';
+        const baseUrl = `${protocol}://${host}`;
+        const formUrl = `${baseUrl}/contractor-form?id=${input.applicationId}&name=${encodeURIComponent(input.contractorName)}&telegram_id=${input.telegramId}`;
 
         const success = await telegram.sendContractorInvite({
           contractorName: input.contractorName,
