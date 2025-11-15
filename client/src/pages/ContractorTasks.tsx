@@ -15,14 +15,15 @@ export default function ContractorTasks() {
   // Check authentication
   useEffect(() => {
     const token = localStorage.getItem("contractor_token");
-    const contractorData = localStorage.getItem("contractor_data");
+    const contractorId = localStorage.getItem("contractor_id");
     
-    if (!token || !contractorData) {
+    if (!token || !contractorId) {
       setLocation("/contractor-login");
       return;
     }
     
-    setContractor(JSON.parse(contractorData));
+    // Set a placeholder contractor object - actual data will be fetched via tRPC
+    setContractor({ id: contractorId });
   }, [setLocation]);
 
   // Fetch contractor's assignments

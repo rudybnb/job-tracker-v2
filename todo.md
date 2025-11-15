@@ -471,3 +471,5 @@
 - [x] Create contractor task list page - view assigned tasks and mark complete
 - [ ] Create progress report submission page - upload photos and notes
 - [x] Add navigation between contractor pages - added "View My Tasks" button to dashboard header
+
+- [x] Fix ContractorTasks authentication redirect - changed to check contractor_id instead of contractor_data
