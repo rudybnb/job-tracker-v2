@@ -446,6 +446,20 @@ export const appRouter = router({
           input.contractorCount || 1
         );
       }),
+
+    getContractorPayment: adminProcedure
+      .input(z.object({
+        contractorId: z.number(),
+        startDate: z.date(),
+        endDate: z.date()
+      }))
+      .query(async ({ input }) => {
+        return await db.getContractorPayment(
+          input.contractorId,
+          input.startDate,
+          input.endDate
+        );
+      }),
   }),
 
   // Work sessions

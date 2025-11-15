@@ -479,6 +479,15 @@ function AssignmentCard({ assignment, jobs, contractors, assignments, formatCurr
     return overlappingAssignments.length || 1;
   }, [assignments, assignment.jobId, selectedPhases]);
 
+  // Fetch contractor payment calculation
+  const { data: contractorPayment, isLoading: paymentLoading } = trpc.jobAssignments.getContractorPayment.useQuery(
+    {
+      contractorId: assignment.contractorId,
+      startDate: new Date(assignment.startDate),
+      endDate: new Date(assignment.endDate)
+    }
+  );
+
   // Fetch time validation for this assignment
   const { data: timeValidation, isLoading: timeValidationLoading } = trpc.jobAssignments.getTimeValidation.useQuery(
     {
@@ -526,9 +535,34 @@ function AssignmentCard({ assignment, jobs, contractors, assignments, formatCurr
           </div>
         </div>
 
-        {/* Cost Breakdown */}
+        {/* Contractor Payment */}
+        <div className="mt-4 pt-4 border-t border-border">
+          {paymentLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Calculating payment...
+            </div>
+          ) : contractorPayment ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-yellow">Contractor Payment</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(contractorPayment.dailyRate)}/day × {contractorPayment.workingDays} days
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-orange-500">
+                  {formatCurrency(contractorPayment.totalPayment)}
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Phase Budget Breakdown */}
         {selectedPhases.length > 0 && (
           <div className="mt-4 pt-4 border-t border-border">
+            <p className="text-sm font-medium text-yellow mb-3">Phase Budget (from CSV)</p>
             {costsLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -537,13 +571,13 @@ function AssignmentCard({ assignment, jobs, contractors, assignments, formatCurr
             ) : costs ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Labour Cost</p>
+                  <p className="text-xs text-muted-foreground">Labour Budget</p>
                   <p className="text-lg font-semibold text-green-600">
                     {formatCurrency(costs.labourCost)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Material Cost</p>
+                  <p className="text-xs text-muted-foreground">Material Budget</p>
                   <p className="text-lg font-semibold text-blue-600">
                     {formatCurrency(costs.materialCost)}
                   </p>

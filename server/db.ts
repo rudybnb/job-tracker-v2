@@ -752,3 +752,53 @@ export async function getJobPhaseCompletions(jobId: number) {
 
   return completions;
 }
+
+// Calculate contractor payment for assignment (daily rate × working days)
+export async function getContractorPayment(
+  contractorId: number,
+  startDate: Date,
+  endDate: Date
+) {
+  const db = await getDb();
+  if (!db) return {
+    dailyRate: 0,
+    workingDays: 0,
+    totalPayment: 0,
+    contractorName: 'Unknown'
+  };
+
+  // Get contractor's daily rate
+  const contractor = await db
+    .select()
+    .from(contractors)
+    .where(eq(contractors.id, contractorId))
+    .limit(1);
+
+  if (contractor.length === 0) {
+    return {
+      dailyRate: 0,
+      workingDays: 0,
+      totalPayment: 0,
+      contractorName: 'Unknown'
+    };
+  }
+
+  const dailyRate = contractor[0].dailyRate || 0; // in pence
+  const contractorName = `${contractor[0].firstName} ${contractor[0].lastName}`;
+
+  // Calculate working days (inclusive of start and end dates)
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const workingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+
+  // Calculate total payment
+  const totalPayment = dailyRate * workingDays;
+
+  return {
+    dailyRate,
+    workingDays,
+    totalPayment,
+    contractorName
+  };
+}

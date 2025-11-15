@@ -292,3 +292,12 @@
 - [ ] Display historical efficiency data on assignment cards
 - [ ] Use efficiency multiplier to adjust future time estimates
 - [ ] Build performance history per contractor
+
+## Contractor Payment Calculation
+- [x] Calculate contractor payment as: daily rate × (end date - start date)
+- [x] Fetch contractor's daily rate from contractors table
+- [x] Calculate working days between assignment start and end dates
+- [x] Display contractor payment separately from phase budget
+- [x] Show phase budget (CSV labour + material costs) for comparison
+- [x] Add budget vs actual indicator (green if within budget, red if over)
+- [x] Test with real contractor rates and date ranges
