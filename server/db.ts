@@ -468,3 +468,35 @@ export async function getContractorApplicationStats() {
     rejected: allApplications.filter(a => a.status === "rejected").length,
   };
 }
+
+// Update contractor admin details
+export async function updateContractorAdminDetails(data: {
+  id: number;
+  dailyRate?: number;
+  cisVerified?: boolean;
+  adminNotes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = {};
+  if (data.dailyRate !== undefined) updateData.dailyRate = data.dailyRate;
+  if (data.cisVerified !== undefined) updateData.cisVerified = data.cisVerified;
+  if (data.adminNotes !== undefined) updateData.adminNotes = data.adminNotes;
+
+  await db.update(contractors).set(updateData).where(eq(contractors.id, data.id));
+}
+
+// Get contractor application by contractor ID
+export async function getContractorApplicationByContractorId(contractorId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const results = await db
+    .select()
+    .from(contractorApplications)
+    .where(eq(contractorApplications.contractorId, contractorId))
+    .limit(1);
+
+  return results.length > 0 ? results[0] : undefined;
+}

@@ -323,6 +323,20 @@ export const appRouter = router({
         }
         return contractor;
       }),
+
+    updateAdminDetails: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          dailyRate: z.number().optional(),
+          cisVerified: z.boolean().optional(),
+          adminNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await db.updateContractorAdminDetails(input);
+        return { success: true };
+      }),
   }),
 
   // Job assignments
@@ -691,6 +705,13 @@ export const appRouter = router({
           ctx.user.id
         );
         return { success: true };
+      }),
+
+    // Admin: Get application by contractor ID
+    getByContractorId: adminProcedure
+      .input(z.object({ contractorId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getContractorApplicationByContractorId(input.contractorId);
       }),
   }),
 

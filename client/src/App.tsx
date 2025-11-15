@@ -16,6 +16,7 @@ import JobAssignments from "./pages/JobAssignments";
 import ContractorApplications from "./pages/ContractorApplications";
 import ContractorForm from "./pages/ContractorForm";
 import SendInvite from "./pages/SendInvite";
+import ContractorDetail from "./pages/ContractorDetail";
 
 function Router() {
   return (
@@ -58,6 +59,10 @@ function Router() {
         <DashboardLayout>
           <Contractors />
         </DashboardLayout>
+      </Route>
+      
+      <Route path={"/contractors/:id"}>
+        <ContractorDetail />
       </Route>
       
       <Route path={"/contractor-applications"}>

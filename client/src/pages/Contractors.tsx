@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
+import { ChevronRight } from "lucide-react";
 
 export default function Contractors() {
   const { data: contractors } = trpc.contractors.list.useQuery();
+  const [, setLocation] = useLocation();
 
   return (
     <div className="space-y-6">
@@ -14,10 +17,19 @@ export default function Contractors() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {contractors && contractors.length > 0 ? (
           contractors.map(contractor => (
-            <Card key={contractor.id}>
+            <Card
+              key={contractor.id}
+              className="cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => setLocation(`/contractors/${contractor.id}`)}
+            >
               <CardHeader>
-                <CardTitle>{contractor.firstName} {contractor.lastName}</CardTitle>
-                <CardDescription>{contractor.email}</CardDescription>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle>{contractor.firstName} {contractor.lastName}</CardTitle>
+                    <CardDescription>{contractor.email}</CardDescription>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </div>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">

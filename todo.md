@@ -203,3 +203,19 @@
 - [x] Implement file validation (image types, size limits)
 - [x] Show upload progress and preview
 - [x] Test complete upload workflow
+
+## Contractor Detail Page with Admin Controls
+- [x] Create ContractorDetail.tsx page component
+- [x] Design layout with sections: Personal Info, Tax & CIS, Banking, Work Details, Admin Details
+- [x] Add editable Admin Details section (CIS status, daily rate, notes)
+- [x] Create API endpoint to update contractor admin fields
+- [x] Add route for /contractors/:id
+- [x] Update Contractors list to link to detail page
+- [x] Test editing admin details and saving
+
+## Real Contractor Data
+- [x] Delete existing test contractor records
+- [x] Add Mohamed Guizeni (Plumber, 11-15 years)
+- [x] Add Marius Andronache (General Builder, 6-10 years)
+- [x] Add Dalwayne Diedericks (General Builder, 6-10 years)
+- [x] Verify all contractors display correctly
