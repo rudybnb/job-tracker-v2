@@ -1,0 +1,94 @@
+{
+  "query": "SELECT id, jobId, phaseName, `order` FROM buildPhases ORDER BY jobId, `order`",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, jobId, phaseName, `order` FROM buildPhases ORDER BY jobId, `order`",
+  "rows": [
+    {
+      "id": "120001",
+      "jobId": "0",
+      "phaseName": "Foundation",
+      "order": "0"
+    },
+    {
+      "id": "120002",
+      "jobId": "0",
+      "phaseName": "Framing",
+      "order": "0"
+    },
+    {
+      "id": "180001",
+      "jobId": "240001",
+      "phaseName": "Masonry Shell",
+      "order": "0"
+    },
+    {
+      "id": "180002",
+      "jobId": "240001",
+      "phaseName": "Joinery 1st Fix",
+      "order": "1"
+    },
+    {
+      "id": "180003",
+      "jobId": "240001",
+      "phaseName": "Electrical 2nd Fix",
+      "order": "2"
+    },
+    {
+      "id": "180004",
+      "jobId": "240001",
+      "phaseName": "Internal Fitting Out",
+      "order": "3"
+    },
+    {
+      "id": "180005",
+      "jobId": "240001",
+      "phaseName": "Joinery 2nd Fix",
+      "order": "4"
+    },
+    {
+      "id": "180006",
+      "jobId": "240001",
+      "phaseName": "Plastering",
+      "order": "5"
+    },
+    {
+      "id": "180007",
+      "jobId": "240001",
+      "phaseName": "Plumbing 1st Fix",
+      "order": "6"
+    },
+    {
+      "id": "180008",
+      "jobId": "240001",
+      "phaseName": "Plumbing 2nd Fix",
+      "order": "7"
+    },
+    {
+      "id": "180009",
+      "jobId": "240002",
+      "phaseName": "Internal Decoration",
+      "order": "0"
+    },
+    {
+      "id": "180010",
+      "jobId": "240002",
+      "phaseName": "Roofing",
+      "order": "1"
+    },
+    {
+      "id": "180011",
+      "jobId": "240002",
+      "phaseName": "Plastering",
+      "order": "2"
+    },
+    {
+      "id": "180012",
+      "jobId": "240002",
+      "phaseName": "Carpentry",
+      "order": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tphaseName\torder\n120001\t0\tFoundation\t0\n120002\t0\tFraming\t0\n180001\t240001\tMasonry Shell\t0\n180002\t240001\tJoinery 1st Fix\t1\n180003\t240001\tElectrical 2nd Fix\t2\n180004\t240001\tInternal Fitting Out\t3\n180005\t240001\tJoinery 2nd Fix\t4\n180006\t240001\tPlastering\t5\n180007\t240001\tPlumbing 1st Fix\t6\n180008\t240001\tPlumbing 2nd Fix\t7\n180009\t240002\tInternal Decoration\t0\n180010\t240002\tRoofing\t1\n180011\t240002\tPlastering\t2\n180012\t240002\tCarpentry\t3\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

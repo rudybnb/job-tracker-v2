@@ -1,0 +1,52 @@
+{
+  "query": "SELECT phaseName FROM buildPhases ORDER BY `order`",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT phaseName FROM buildPhases ORDER BY `order`",
+  "rows": [
+    {
+      "phaseName": "Internal Decoration"
+    },
+    {
+      "phaseName": "Framing"
+    },
+    {
+      "phaseName": "Masonry Shell"
+    },
+    {
+      "phaseName": "Foundation"
+    },
+    {
+      "phaseName": "Joinery 1st Fix"
+    },
+    {
+      "phaseName": "Roofing"
+    },
+    {
+      "phaseName": "Electrical 2nd Fix"
+    },
+    {
+      "phaseName": "Plastering"
+    },
+    {
+      "phaseName": "Internal Fitting Out"
+    },
+    {
+      "phaseName": "Carpentry"
+    },
+    {
+      "phaseName": "Joinery 2nd Fix"
+    },
+    {
+      "phaseName": "Plastering"
+    },
+    {
+      "phaseName": "Plumbing 1st Fix"
+    },
+    {
+      "phaseName": "Plumbing 2nd Fix"
+    }
+  ],
+  "messages": [],
+  "stdout": "phaseName\nInternal Decoration\nFraming\nMasonry Shell\nFoundation\nJoinery 1st Fix\nRoofing\nElectrical 2nd Fix\nPlastering\nInternal Fitting Out\nCarpentry\nJoinery 2nd Fix\nPlastering\nPlumbing 1st Fix\nPlumbing 2nd Fix\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

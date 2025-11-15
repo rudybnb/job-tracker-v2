@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as phase_count FROM buildPhases WHERE jobId = (SELECT MAX(id) FROM jobs)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT COUNT(*) as phase_count FROM buildPhases WHERE jobId = (SELECT MAX(id) FROM jobs)",
+  "rows": [
+    {
+      "phase_count": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "phase_count\n10\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

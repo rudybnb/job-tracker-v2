@@ -133,3 +133,9 @@
 - [x] Created csvProcessorNew.ts with parseSmartScheduleCSV function
 - [x] Updated detectJobs and upload mutations to use new parser
 - [x] Successfully tested with real Smart Schedule Export file (121 resources, 8 phases, £25,635.23 total)
+
+## Phase Extraction Bug
+- [x] CSV parser not extracting all build phases from Smart Schedule Export
+- [x] Investigate which phases are missing (External Decoration, Internal Preparation)
+- [x] Fix parser to capture all phases correctly (implemented forward-fill logic)
+- [x] Verified all 10 phases now extracted correctly

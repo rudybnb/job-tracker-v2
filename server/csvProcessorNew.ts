@@ -107,14 +107,24 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
   const phasesSet = new Set<string>();
   let totalLabourCost = 0;
   let totalMaterialCost = 0;
+  let currentPhase = ''; // Track the current phase for forward-fill
 
   for (const record of records) {
     const row = record as Record<string, string>;
     
     const typeOfResource = (row['Type of Resource'] || '').trim();
-    const buildPhase = (row['Build Phase'] || '').trim();
+    let buildPhase = (row['Build Phase'] || '').trim();
     const resourceDescription = (row['Resource Description'] || '').trim();
     const orderQuantity = parseInt(row['Order Quantity'] || '0');
+    
+    // Update current phase if this row has a phase name
+    if (buildPhase) {
+      currentPhase = buildPhase;
+      phasesSet.add(buildPhase);
+    } else if (currentPhase) {
+      // Forward-fill: use the last seen phase
+      buildPhase = currentPhase;
+    }
     
     // Skip invalid rows
     if (!typeOfResource || (typeOfResource !== 'Material' && typeOfResource !== 'Labour')) {
@@ -133,10 +143,6 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
       orderQuantity,
       cost,
     });
-
-    if (buildPhase) {
-      phasesSet.add(buildPhase);
-    }
 
     if (typeOfResource === 'Labour') {
       totalLabourCost += cost;
