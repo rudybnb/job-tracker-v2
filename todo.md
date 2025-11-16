@@ -527,3 +527,10 @@
 - [x] Test assignment workflow with valid UK postcodes
 - [x] Verify GPS coordinates are saved correctly for geofencing
 - [x] Test clock-in with newly geocoded job coordinates
+
+## GPS Clock-In Bug Fix
+- [x] Investigate 'contractor not found' error when John tries to clock in
+- [x] Check contractor data in database (contractors table vs users table)
+- [x] Verify clockIn API endpoint contractor lookup logic
+- [x] Fix contractor ID mapping between users and contractors tables
+- [x] Test GPS clock-in with John's credentials and verify success

@@ -326,24 +326,34 @@ export const mobileApiRouter = router({
   /**
    * Get contractor's current work session (if clocked in)
    */
-  getCurrentSession: protectedProcedure.query(async ({ ctx }) => {
-    const database = await getDb();
-    if (!database) {
-      throw new Error("Database not available");
+  getCurrentSession: publicProcedure.query(async ({ ctx }) => {
+    // Extract contractor ID from JWT token
+    let token = ctx.req.cookies?.contractor_token;
+    
+    if (!token) {
+      const authHeader = ctx.req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
     }
-
-    // Get contractor by user ID
-    const contractor = await database
-      .select()
-      .from(contractors)
-      .where(eq(contractors.id, ctx.user.id))
-      .limit(1);
-
-    if (contractor.length === 0) {
+    
+    if (!token) {
       return null;
     }
 
-    const contractorId = contractor[0].id;
+    try {
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
+      const database = await getDb();
+      if (!database) {
+        return null;
+      }
 
     // Get active session (not clocked out)
     const session = await database
@@ -373,13 +383,17 @@ export const mobileApiRouter = router({
       isWithinGeofence: session[0].isWithinGeofence === 1,
       distanceFromSite: session[0].distanceFromSite,
     };
+    } catch (err) {
+      console.error('[getCurrentSession] Error:', err);
+      return null;
+    }
   }),
 
   /**
    * Clock in - Start work session with GPS validation
    * Validates contractor is within 1km of work site
    */
-  clockIn: protectedProcedure
+  clockIn: publicProcedure
     .input(
       z.object({
         assignmentId: z.number(),
@@ -389,23 +403,43 @@ export const mobileApiRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
       const database = await getDb();
       if (!database) {
         throw new Error("Database not available");
       }
 
-      // Get contractor ID
+      // Get contractor details
       const contractor = await database
         .select()
         .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
+        .where(eq(contractors.id, contractorId))
         .limit(1);
 
       if (contractor.length === 0) {
         throw new Error("Contractor not found");
       }
-
-      const contractorId = contractor[0].id;
 
       // Check if already clocked in
       const existingSession = await database
@@ -508,7 +542,7 @@ export const mobileApiRouter = router({
    * Clock out - End work session and calculate payment
    * Calculates hours worked, gross pay, CIS deduction, and net pay
    */
-  clockOut: protectedProcedure
+  clockOut: publicProcedure
     .input(
       z.object({
         latitude: z.string(),
@@ -518,23 +552,43 @@ export const mobileApiRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
       const database = await getDb();
       if (!database) {
         throw new Error("Database not available");
       }
 
-      // Get contractor ID
+      // Get contractor details
       const contractor = await database
         .select()
         .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
+        .where(eq(contractors.id, contractorId))
         .limit(1);
 
       if (contractor.length === 0) {
         throw new Error("Contractor not found");
       }
-
-      const contractorId = contractor[0].id;
 
       // Get active session
       const session = await database
@@ -605,7 +659,7 @@ export const mobileApiRouter = router({
    * Add GPS checkpoint during active session
    * Tracks contractor location periodically to verify they stay on site
    */
-  addGpsCheckpoint: protectedProcedure
+  addGpsCheckpoint: publicProcedure
     .input(
       z.object({
         latitude: z.string(),
@@ -614,23 +668,32 @@ export const mobileApiRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
       const database = await getDb();
       if (!database) {
         throw new Error("Database not available");
       }
-
-      // Get contractor ID
-      const contractor = await database
-        .select()
-        .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
-        .limit(1);
-
-      if (contractor.length === 0) {
-        throw new Error("Contractor not found");
-      }
-
-      const contractorId = contractor[0].id;
 
       // Get active session
       const session = await database
@@ -684,30 +747,51 @@ export const mobileApiRouter = router({
    * Get contractor's earnings for a specific week
    * Returns total hours, gross pay, CIS deduction, and net pay
    */
-  getWeeklyEarnings: protectedProcedure
+  getWeeklyEarnings: publicProcedure
     .input(
       z.object({
         weekEnding: z.string(), // ISO date string for end of week (e.g., "2025-11-21")
       })
     )
     .query(async ({ input, ctx }) => {
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
       const database = await getDb();
       if (!database) {
         throw new Error("Database not available");
       }
 
-      // Get contractor ID
+      // Get contractor details for rates
       const contractor = await database
         .select()
         .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
+        .where(eq(contractors.id, contractorId))
         .limit(1);
 
       if (contractor.length === 0) {
         throw new Error("Contractor not found");
       }
 
-      const contractorId = contractor[0].id;
       const weekEnd = new Date(input.weekEnding);
       const weekStart = new Date(weekEnd);
       weekStart.setDate(weekStart.getDate() - 6); // 7 days including end date
@@ -750,7 +834,7 @@ export const mobileApiRouter = router({
    * Get contractor's payment history
    * Returns all completed work sessions with payment details
    */
-  getPaymentHistory: protectedProcedure
+  getPaymentHistory: publicProcedure
     .input(
       z.object({
         limit: z.number().optional().default(50),
@@ -758,23 +842,33 @@ export const mobileApiRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const database = await getDb();
-      if (!database) {
-        throw new Error("Database not available");
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
       }
-
-      // Get contractor ID
-      const contractor = await database
-        .select()
-        .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
-        .limit(1);
-
-      if (contractor.length === 0) {
+      
+      if (!token) {
         return [];
       }
 
-      const contractorId = contractor[0].id;
+      try {
+        const decoded = jwt.verify(token, ENV.cookieSecret) as {
+          contractorId: number;
+          username: string;
+          type: string;
+        };
+
+        const contractorId = decoded.contractorId;
+
+        const database = await getDb();
+        if (!database) {
+          return [];
+        }
 
       // Get completed sessions with job details
       const sessions = await database
@@ -808,6 +902,10 @@ export const mobileApiRouter = router({
         isWithinGeofence: row.session.isWithinGeofence === 1,
         notes: row.session.notes,
       }));
+      } catch (err) {
+        console.error('[getPaymentHistory] Error:', err);
+        return [];
+      }
     }),
 
   /**
@@ -891,7 +989,7 @@ export const mobileApiRouter = router({
    * Mark a task as complete
    * Records task completion with optional notes and photos
    */
-  completeTask: protectedProcedure
+  completeTask: publicProcedure
     .input(
       z.object({
         assignmentId: z.number(),
@@ -902,23 +1000,32 @@ export const mobileApiRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Extract contractor ID from JWT token
+      let token = ctx.req.cookies?.contractor_token;
+      
+      if (!token) {
+        const authHeader = ctx.req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      const contractorId = decoded.contractorId;
+
       const database = await getDb();
       if (!database) {
         throw new Error("Database not available");
       }
-
-      // Get contractor ID
-      const contractor = await database
-        .select()
-        .from(contractors)
-        .where(eq(contractors.id, ctx.user.id))
-        .limit(1);
-
-      if (contractor.length === 0) {
-        throw new Error("Contractor not found");
-      }
-
-      const contractorId = contractor[0].id;
 
       // Record task completion
       await database.insert(taskCompletions).values({
