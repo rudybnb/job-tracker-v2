@@ -10,7 +10,8 @@ export type NotificationType =
   | "milestone_completed"
   | "work_session_reminder"
   | "admin_announcement"
-  | "progress_report_reminder";
+  | "progress_report_reminder"
+  | "morning_checkin";
 
 export type TelegramNotification = {
   chatId: string;

@@ -20,6 +20,37 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 /**
+ * Reminder logs - track all reminders sent to contractors
+ */
+export const reminderLogs = mysqlTable("reminderLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  contractorId: int("contractorId").notNull(),
+  reminderType: mysqlEnum("reminderType", ["morning_checkin", "daily_report"]).notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  responded: boolean("responded").default(false),
+  respondedAt: timestamp("respondedAt"),
+  response: text("response"), // Reason why they can't work, or confirmation
+});
+
+export type ReminderLog = typeof reminderLogs.$inferSelect;
+export type InsertReminderLog = typeof reminderLogs.$inferInsert;
+
+/**
+ * Check-ins - track when contractors log in or submit reports
+ */
+export const checkIns = mysqlTable("checkIns", {
+  id: int("id").autoincrement().primaryKey(),
+  contractorId: int("contractorId").notNull(),
+  checkInTime: timestamp("checkInTime").defaultNow().notNull(),
+  checkInType: mysqlEnum("checkInType", ["login", "progress_report", "voice_message", "telegram_response", "telegram_confirm"]).notNull(),
+  location: text("location"), // Optional GPS location
+  notes: text("notes"),
+});
+
+export type CheckIn = typeof checkIns.$inferSelect;
+export type InsertCheckIn = typeof checkIns.$inferInsert;
+
+/**
  * Jobs table - stores all construction jobs
  */
 export const jobs = mysqlTable("jobs", {

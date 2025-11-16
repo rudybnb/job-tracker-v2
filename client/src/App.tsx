@@ -22,6 +22,7 @@ import ContractorDashboard from "./pages/ContractorDashboard";
 import ContractorTasks from "./pages/ContractorTasks";
 import ContractorProgressReport from "./pages/ContractorProgressReport";
 import ProgressReports from "./pages/ProgressReports";
+import ReminderLogs from "./pages/ReminderLogs";
 
 function Router() {
   return (
@@ -100,9 +101,15 @@ function Router() {
         </DashboardLayout>
       </Route>
       
-      <Route path={"/progress-reports"}>
+      <Route path="/progress-reports">
         <DashboardLayout>
           <ProgressReports />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/reminder-logs">
+        <DashboardLayout>
+          <ReminderLogs />
         </DashboardLayout>
       </Route>
       

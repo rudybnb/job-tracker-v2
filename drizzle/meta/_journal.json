@@ -113,6 +113,20 @@
       "when": 1763318407747,
       "tag": "0015_purple_ken_ellis",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1763335045627,
+      "tag": "0016_fair_puff_adder",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1763335632509,
+      "tag": "0017_deep_terrax",
+      "breakpoints": true
     }
   ]
 }

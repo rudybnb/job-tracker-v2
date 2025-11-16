@@ -1,0 +1,1 @@
+ALTER TABLE `checkIns` MODIFY COLUMN `checkInType` enum('login','progress_report','voice_message','telegram_response','telegram_confirm') NOT NULL;

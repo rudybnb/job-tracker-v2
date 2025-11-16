@@ -666,3 +666,14 @@
 - [x] Add configurable reminder time (default: 5 PM)
 - [ ] Add admin settings page for reminder configuration
 - [x] Test reminder delivery at scheduled time
+
+
+## Admin Reminder Dashboard & Morning Check-in
+- [ ] Create reminderLogs table in database schema
+- [ ] Build admin dashboard page to view reminder history
+- [ ] Show which contractors received reminders and their response status
+- [ ] Add morning check-in reminder at 8:15 AM
+- [ ] Create check-in tracking system (log when contractors log in or submit reports)
+- [ ] Add reason tracking when contractors don't check in by 8:15 AM
+- [ ] Create bot command for contractors to report why they can't work today
+- [ ] Display check-in status and reasons in admin dashboard
