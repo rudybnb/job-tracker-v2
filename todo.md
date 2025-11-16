@@ -516,3 +516,14 @@
 - [x] Display active session timer and clock-out button when clocked in
 - [x] Test GPS geofencing with different locations (within 10m, outside 10m)
 - [x] Verify work session data persists correctly in database
+
+## Automatic Postcode Geocoding Feature
+- [x] Research and choose geocoding API (Google Maps Geocoding API or UK Postcode API)
+- [x] Implement geocodePostcode helper function in backend
+- [x] Update job assignment endpoint to geocode postcode automatically
+- [x] Save latitude/longitude to job record when assigning contractor
+- [x] Handle geocoding errors gracefully (invalid postcode, API failure)
+- [x] Add loading state to assignment UI during geocoding
+- [x] Test assignment workflow with valid UK postcodes
+- [x] Verify GPS coordinates are saved correctly for geofencing
+- [x] Test clock-in with newly geocoded job coordinates

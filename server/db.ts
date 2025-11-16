@@ -205,7 +205,30 @@ export async function deleteJob(id: number) {
 export async function assignJobToContractor(jobId: number, contractorId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(jobs).set({ assignedContractorId: contractorId }).where(eq(jobs.id, jobId));
+  
+  // Get job details to check for postcode
+  const job = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+  if (job.length === 0) {
+    throw new Error("Job not found");
+  }
+  
+  const updateData: any = { assignedContractorId: contractorId };
+  
+  // If job has a postcode but no GPS coordinates, geocode it
+  if (job[0].postCode && (!job[0].latitude || !job[0].longitude)) {
+    try {
+      const { geocodePostcode } = await import("./geocoding");
+      const geocodeResult = await geocodePostcode(job[0].postCode);
+      updateData.latitude = geocodeResult.latitude;
+      updateData.longitude = geocodeResult.longitude;
+      console.log(`Geocoded ${job[0].postCode} to ${geocodeResult.latitude}, ${geocodeResult.longitude}`);
+    } catch (error) {
+      console.error(`Failed to geocode postcode ${job[0].postCode}:`, error);
+      // Continue with assignment even if geocoding fails
+    }
+  }
+  
+  await db.update(jobs).set(updateData).where(eq(jobs.id, jobId));
 }
 
 // Build phase operations
