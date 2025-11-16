@@ -870,38 +870,38 @@ export const mobileApiRouter = router({
           return [];
         }
 
-      // Get completed sessions with job details
-      const sessions = await database
-        .select({
-          session: workSessions,
-          job: jobs,
-        })
-        .from(workSessions)
-        .leftJoin(jobs, eq(workSessions.jobId, jobs.id))
-        .where(
-          and(
-            eq(workSessions.contractorId, contractorId),
-            eq(workSessions.status, "completed")
+        // Get completed sessions with job details
+        const sessions = await database
+          .select({
+            session: workSessions,
+            job: jobs,
+          })
+          .from(workSessions)
+          .leftJoin(jobs, eq(workSessions.jobId, jobs.id))
+          .where(
+            and(
+              eq(workSessions.contractorId, contractorId),
+              eq(workSessions.status, "completed")
+            )
           )
-        )
-        .orderBy(desc(workSessions.startTime))
-        .limit(input.limit)
-        .offset(input.offset);
+          .orderBy(desc(workSessions.startTime))
+          .limit(input.limit)
+          .offset(input.offset);
 
-      return sessions.map((row) => ({
-        id: row.session.id,
-        jobId: row.session.jobId,
-        jobName: row.job?.title || "Unknown",
-        jobPostcode: row.session.workSitePostcode,
-        startTime: row.session.startTime,
-        endTime: row.session.endTime,
-        hoursWorked: row.session.hoursWorked ? (row.session.hoursWorked / 60).toFixed(2) : "0.00",
-        grossPay: row.session.grossPay ? (row.session.grossPay / 100).toFixed(2) : "0.00",
-        cisDeduction: row.session.cisDeduction ? (row.session.cisDeduction / 100).toFixed(2) : "0.00",
-        netPay: row.session.netPay ? (row.session.netPay / 100).toFixed(2) : "0.00",
-        isWithinGeofence: row.session.isWithinGeofence === 1,
-        notes: row.session.notes,
-      }));
+        return sessions.map((row) => ({
+          id: row.session.id,
+          jobId: row.session.jobId,
+          jobName: row.job?.title || "Unknown",
+          jobPostcode: row.session.workSitePostcode,
+          startTime: row.session.startTime,
+          endTime: row.session.endTime,
+          hoursWorked: row.session.hoursWorked ? (row.session.hoursWorked / 60).toFixed(2) : "0.00",
+          grossPay: row.session.grossPay ? (row.session.grossPay / 100).toFixed(2) : "0.00",
+          cisDeduction: row.session.cisDeduction ? (row.session.cisDeduction / 100).toFixed(2) : "0.00",
+          netPay: row.session.netPay ? (row.session.netPay / 100).toFixed(2) : "0.00",
+          isWithinGeofence: row.session.isWithinGeofence === 1,
+          notes: row.session.notes,
+        }));
       } catch (err) {
         console.error('[getPaymentHistory] Error:', err);
         return [];

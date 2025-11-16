@@ -4,6 +4,7 @@
  */
 import express from "express";
 import { transcribeAudio } from "./_core/voiceTranscription";
+import { ENV } from "./_core/env";
 
 const router = express.Router();
 
@@ -148,7 +149,7 @@ router.post("/process-voice", async (req, res) => {
     }
 
     // Get bot token from environment
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = ENV.telegramBotToken;
     if (!botToken) {
       return res.status(500).json({
         success: false,
