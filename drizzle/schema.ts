@@ -424,6 +424,12 @@ export const progressReports = mysqlTable("progressReports", {
   notes: text("notes"),
   photoUrls: text("photoUrls"), // JSON array of S3 URLs for progress photos
   
+  // Voice transcription (multi-language support)
+  audioUrl: text("audioUrl"), // S3 URL to voice recording
+  originalLanguage: varchar("originalLanguage", { length: 10 }), // ISO language code (e.g., 'af', 'zu', 'pt')
+  transcribedText: text("transcribedText"), // English transcription from voice
+  transcriptionDuration: int("transcriptionDuration"), // Audio duration in seconds
+  
   // Status
   status: mysqlEnum("status", ["submitted", "reviewed", "approved"]).default("submitted").notNull(),
   reviewedBy: int("reviewedBy"), // Admin user ID who reviewed

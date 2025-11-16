@@ -576,3 +576,33 @@
 - [x] Test complete workflow: Telegram message → n8n → Job Tracker API → GPT-4 → Telegram response
 - [ ] Add admin UI to set contractor Telegram chat IDs
 - [ ] Document API endpoints for n8n integration
+
+## n8n Workflow Bug Fix
+- [x] Fix Parse Intent node error: "Cannot read properties of undefined (reading 'worker_type')"
+- [x] Update Parse Intent JavaScript code to correctly access Get Worker Type response data
+- [ ] Test updated workflow in n8n
+
+## Production n8n Workflow
+- [x] Generate n8n workflow with production URL (https://jobtrackr-7pdspyd4.manus.space/)
+- [x] Test production API endpoints are accessible
+- [x] Deliver production-ready workflow file to user
+
+## Link Contractor Telegram Accounts
+- [ ] Update Rudy Diedericks with telegramChatId: 7617462316
+- [ ] Update Hamza Aouichaoui with telegramChatId: 8108393007
+- [ ] Update Marius Andronache with telegramChatId: 8006717361
+- [ ] Update Dalwayne Diedericks with telegramChatId: 8016744652
+- [ ] Test bot with each contractor's Telegram account
+
+## Voice Transcription & Progress Reports (Multi-Language)
+- [x] Add progressReports table to database schema (contractorId, jobId, reportText, originalLanguage, audioUrl, photoUrls, timestamp)
+- [x] Create POST /api/telegram/transcribe-voice endpoint (receives audio file URL, returns transcribed English text)
+- [x] Create POST /api/telegram/progress-report endpoint (saves progress report with transcription)
+- [x] Add voice transcription fields to progressReports table (audioUrl, originalLanguage, transcribedText, transcriptionDuration)
+- [x] Create documentation for voice transcription setup (VOICE_TRANSCRIPTION_SETUP.md)
+- [ ] Update n8n workflow to detect voice messages
+- [ ] Add voice message handling flow in n8n (download audio → transcribe → save report → confirm to contractor)
+- [ ] Add photo upload handling for progress reports
+- [ ] Test voice transcription with Afrikaans, Zulu, Portuguese, French
+- [ ] Add admin view for progress reports in dashboard
+- [ ] Update company name from HBXL to Sculpt Projects in bot responses

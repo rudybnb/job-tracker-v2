@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, firstName, lastName, email, telegramChatId FROM contractors LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, lastName, email, telegramChatId FROM contractors LIMIT 10;",
+  "rows": [
+    {
+      "id": "90001",
+      "firstName": "Mohamed",
+      "lastName": "Guizeni",
+      "email": "gizeni90@gmail.com",
+      "telegramChatId": "123456789"
+    },
+    {
+      "id": "90002",
+      "firstName": "Marius",
+      "lastName": "Andronache",
+      "email": "mariochitocu@gmail.com",
+      "telegramChatId": "8006717361"
+    },
+    {
+      "id": "120001",
+      "firstName": "John",
+      "lastName": "Smith",
+      "email": "john.smith@test.com",
+      "telegramChatId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\temail\ttelegramChatId\n90001\tMohamed\tGuizeni\tgizeni90@gmail.com\t123456789\n90002\tMarius\tAndronache\tmariochitocu@gmail.com\t8006717361\n120001\tJohn\tSmith\tjohn.smith@test.com\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

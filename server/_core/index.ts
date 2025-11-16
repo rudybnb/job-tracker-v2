@@ -7,6 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { telegramRestRouter } from "../telegramRestApi";
+import telegramVoiceRouter from "../telegramVoiceApi";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -38,6 +39,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Telegram REST API for n8n integration
   app.use("/api/telegram", telegramRestRouter);
+  // Telegram Voice Transcription API
+  app.use("/api/telegram", telegramVoiceRouter);
   // tRPC API
   app.use(
     "/api/trpc",
