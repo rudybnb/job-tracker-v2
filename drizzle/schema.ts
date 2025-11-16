@@ -33,6 +33,8 @@ export const jobs = mysqlTable("jobs", {
   totalMaterialCost: int("totalMaterialCost").default(0), // Sum of all material resources  
   assignedContractorId: int("assignedContractorId"),
   uploadId: int("uploadId"), // Track which CSV upload created this job
+  latitude: varchar("latitude", { length: 20 }), // GPS latitude for geofencing
+  longitude: varchar("longitude", { length: 20 }), // GPS longitude for geofencing
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -433,3 +435,5 @@ export const progressReports = mysqlTable("progressReports", {
 
 export type ProgressReport = typeof progressReports.$inferSelect;
 export type InsertProgressReport = typeof progressReports.$inferInsert;
+
+

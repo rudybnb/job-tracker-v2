@@ -441,10 +441,14 @@ export const mobileApiRouter = router({
       const assignmentData = assignment[0];
       const workSitePostcode = assignmentData.assignment.workLocation || assignmentData.job?.postCode || "";
 
-      // TODO: Geocode postcode to get work site coordinates
-      // For now, we'll use placeholder coordinates
-      const workSiteLatitude = "0";
-      const workSiteLongitude = "0";
+      // Get work site GPS coordinates from job
+      const workSiteLatitude = assignmentData.job?.latitude || "0";
+      const workSiteLongitude = assignmentData.job?.longitude || "0";
+
+      // Validate job has GPS coordinates
+      if (workSiteLatitude === "0" || workSiteLongitude === "0") {
+        throw new Error("Job site GPS coordinates not set. Please contact admin to add location.");
+      }
 
       // Calculate distance from work site (Haversine formula)
       const distance = calculateDistance(

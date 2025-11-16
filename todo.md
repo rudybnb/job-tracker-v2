@@ -501,3 +501,18 @@
 - [x] Add status badges (submitted, reviewed, approved) in table
 - [x] Add navigation link to progress reports in admin sidebar
 - [x] Test filtering, approval workflow, and status updates
+
+## GPS Clock-In/Clock-Out Feature
+- [x] Add latitude and longitude fields to jobs table in database schema
+- [x] Add GPS coordinates to Freddy Jacson job for testing
+- [x] Create workSessions table with clock-in/clock-out timestamps and GPS coordinates
+- [x] Implement calculateDistance helper function (Haversine formula)
+- [x] Implement clockIn API endpoint with 10-meter geofencing validation
+- [x] Implement clockOut API endpoint with session duration calculation
+- [x] Implement getCurrentSession API endpoint to check active sessions
+- [x] Add clock-in/clock-out UI to contractor dashboard with GPS permission request
+- [x] Display real-time distance from job site location
+- [x] Show validation messages (too far, within range, clocked in successfully)
+- [x] Display active session timer and clock-out button when clocked in
+- [x] Test GPS geofencing with different locations (within 10m, outside 10m)
+- [x] Verify work session data persists correctly in database

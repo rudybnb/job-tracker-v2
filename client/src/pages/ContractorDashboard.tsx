@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, LogOut, Briefcase, Clock, MapPin, Calendar } from "lucide-react";
+import ClockInOut from "@/components/ClockInOut";
 import { toast } from "sonner";
 
 export default function ContractorDashboard() {
@@ -228,21 +229,16 @@ export default function ContractorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Clock In/Out Section - Coming Soon */}
-        <Card className="bg-[#2a3847] border-gray-700 mt-6">
-          <CardHeader>
-            <CardTitle className="text-white">Time Tracking</CardTitle>
-            <CardDescription className="text-gray-400">
-              Clock in/out feature coming soon
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <Clock className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400">Clock in/out functionality will be available soon</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Clock In/Out Section */}
+        {assignments && assignments.length > 0 && (
+          <div className="mt-6">
+            <ClockInOut
+              assignmentId={assignments[0].id}
+              jobTitle={assignments[0].jobName}
+              jobLocation={assignments[0].jobAddress}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
