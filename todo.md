@@ -669,11 +669,29 @@
 
 
 ## Admin Reminder Dashboard & Morning Check-in
-- [ ] Create reminderLogs table in database schema
-- [ ] Build admin dashboard page to view reminder history
-- [ ] Show which contractors received reminders and their response status
-- [ ] Add morning check-in reminder at 8:15 AM
-- [ ] Create check-in tracking system (log when contractors log in or submit reports)
-- [ ] Add reason tracking when contractors don't check in by 8:15 AM
-- [ ] Create bot command for contractors to report why they can't work today
-- [ ] Display check-in status and reasons in admin dashboard
+- [x] Create reminderLogs table in database schema
+- [x] Build admin dashboard page to view reminder history
+- [x] Show which contractors received reminders and their response status
+- [x] Add morning check-in reminder at 8:15 AM
+- [x] Create check-in tracking system (log when contractors log in or submit reports)
+- [x] Add reason tracking when contractors don't check in by 8:15 AM
+- [x] Create bot command for contractors to report why they can't work today
+- [x] Display check-in status and reasons in admin dashboard
+
+## Voice Progress Report Display Bug
+- [ ] Fix voice progress reports not displaying in admin Progress Reports dashboard
+- [ ] Update Telegram bot confirmation message to include link to view report in app
+- [ ] Verify voice reports are being saved correctly to database
+- [ ] Test complete voice report workflow from Telegram to admin dashboard
+
+
+## n8n Morning Check-in Workflow
+- [ ] Create n8n workflow JSON for morning check-in reminders
+- [ ] Add Schedule Trigger node for 8:15 AM daily
+- [ ] Add HTTP Request node to fetch contractors from database
+- [ ] Add Telegram Send Message nodes for each contractor
+- [ ] Add Telegram Trigger node to listen for responses
+- [ ] Add Switch node to detect "working" vs "reason" responses
+- [ ] Add HTTP Request nodes to call /api/telegram/checkin-confirm and /api/telegram/checkin-reason
+- [ ] Test workflow with real contractor Telegram accounts
+- [ ] Document workflow setup and configuration
