@@ -12,7 +12,7 @@ import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { getDb } from "./db";
-import { workSessions, gpsCheckpoints, taskCompletions, jobAssignments, jobs, contractors, buildPhases } from "../drizzle/schema";
+import { workSessions, gpsCheckpoints, taskCompletions, jobAssignments, jobs, contractors, buildPhases, progressReports } from "../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -225,32 +225,32 @@ export const mobileApiRouter = router({
 
       const contractorId = decoded.contractorId;
 
-    // Get all assignments for this contractor
-    const assignments = await database
-      .select({
-        assignment: jobAssignments,
-        job: jobs,
-      })
-      .from(jobAssignments)
-      .leftJoin(jobs, eq(jobAssignments.jobId, jobs.id))
-      .where(eq(jobAssignments.contractorId, contractorId))
-      .orderBy(desc(jobAssignments.startDate));
+      // Get all assignments for this contractor
+      const assignments = await database
+        .select({
+          assignment: jobAssignments,
+          job: jobs,
+        })
+        .from(jobAssignments)
+        .leftJoin(jobs, eq(jobAssignments.jobId, jobs.id))
+        .where(eq(jobAssignments.contractorId, contractorId))
+        .orderBy(desc(jobAssignments.startDate));
 
-    return assignments.map((row) => ({
-      id: row.assignment.id,
-      jobId: row.assignment.jobId,
-      jobName: row.job?.title || "Unknown",
-      jobAddress: row.job?.address || "",
-      postCode: row.assignment.workLocation || row.job?.postCode || "",
-      startDate: row.assignment.startDate,
-      endDate: row.assignment.endDate,
-      selectedPhases: row.assignment.selectedPhases 
-        ? JSON.parse(row.assignment.selectedPhases) 
-        : [],
-      specialInstructions: row.assignment.specialInstructions,
-      status: row.assignment.status,
-      teamAssignment: row.assignment.teamAssignment === 1,
-    }));
+      return assignments.map((row) => ({
+        id: row.assignment.id,
+        jobId: row.assignment.jobId,
+        jobName: row.job?.title || "Unknown",
+        jobAddress: row.job?.address || "",
+        postCode: row.assignment.workLocation || row.job?.postCode || "",
+        startDate: row.assignment.startDate,
+        endDate: row.assignment.endDate,
+        selectedPhases: row.assignment.selectedPhases 
+          ? JSON.parse(row.assignment.selectedPhases) 
+          : [],
+        specialInstructions: row.assignment.specialInstructions,
+        status: row.assignment.status,
+        teamAssignment: row.assignment.teamAssignment === 1,
+      }));
     } catch (error) {
       console.error('[getMyAssignments] Error:', error);
       return [];
@@ -1138,6 +1138,168 @@ export const mobileApiRouter = router({
         status: phaseData.status,
         tasks: phaseData.tasks ? JSON.parse(phaseData.tasks) : [],
       };
+    }),
+
+  /**
+   * Upload progress photo to S3
+   * Returns the S3 URL for the uploaded photo
+   */
+  uploadProgressPhoto: publicProcedure
+    .input(
+      z.object({
+        fileName: z.string(),
+        fileData: z.string(), // Base64 encoded file data
+        mimeType: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const { storagePut } = await import("./storage");
+        
+        // Decode base64 file data
+        const buffer = Buffer.from(input.fileData, 'base64');
+        
+        // Generate unique file key
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const fileKey = `progress-photos/${timestamp}-${randomSuffix}-${input.fileName}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        
+        return {
+          success: true,
+          url,
+        };
+      } catch (error) {
+        console.error('[uploadProgressPhoto] Error:', error);
+        throw new Error('Failed to upload photo');
+      }
+    }),
+
+  /**
+   * Submit progress report with photos and notes
+   */
+  submitProgressReport: publicProcedure
+    .input(
+      z.object({
+        assignmentId: z.number(),
+        jobId: z.number(),
+        phaseName: z.string().optional(),
+        taskName: z.string().optional(),
+        notes: z.string(),
+        photoUrls: z.array(z.string()),
+        reportDate: z.string(), // ISO date string
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Extract contractor ID from JWT token (same pattern as me endpoint)
+        const authHeader = ctx.req.headers.authorization;
+        let contractorId: number | null = null;
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const token = authHeader.substring(7);
+          try {
+            const decoded = jwt.verify(token, ENV.cookieSecret) as { contractorId: number };
+            contractorId = decoded.contractorId;
+          } catch (err) {
+            console.error('[submitProgressReport] Invalid token:', err);
+            throw new Error('Invalid authentication token');
+          }
+        }
+
+        if (!contractorId) {
+          throw new Error('Authentication required');
+        }
+
+        const database = await getDb();
+        if (!database) {
+          throw new Error('Database not available');
+        }
+
+        // Insert progress report
+        await database.insert(progressReports).values({
+          contractorId,
+          assignmentId: input.assignmentId,
+          jobId: input.jobId,
+          reportDate: new Date(input.reportDate),
+          phaseName: input.phaseName || null,
+          taskName: input.taskName || null,
+          notes: input.notes,
+          photoUrls: JSON.stringify(input.photoUrls),
+          status: 'submitted',
+        });
+
+        return {
+          success: true,
+          message: 'Progress report submitted successfully',
+        };
+      } catch (error) {
+        console.error('[submitProgressReport] Error:', error);
+        throw error;
+      }
+    }),
+
+  /**
+   * Get progress reports for a contractor
+   */
+  getProgressReports: publicProcedure
+    .input(
+      z.object({
+        assignmentId: z.number().optional(),
+        limit: z.number().default(20),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        // Extract contractor ID from JWT token
+        const authHeader = ctx.req.headers.authorization;
+        let contractorId: number | null = null;
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const token = authHeader.substring(7);
+          try {
+            const decoded = jwt.verify(token, ENV.cookieSecret) as { contractorId: number };
+            contractorId = decoded.contractorId;
+          } catch (err) {
+            console.error('[getProgressReports] Invalid token:', err);
+            return [];
+          }
+        }
+
+        if (!contractorId) {
+          return [];
+        }
+
+        const database = await getDb();
+        if (!database) {
+          return [];
+        }
+
+        // Build query conditions
+        const conditions = [eq(progressReports.contractorId, contractorId)];
+        if (input.assignmentId) {
+          conditions.push(eq(progressReports.assignmentId, input.assignmentId));
+        }
+
+        // Fetch progress reports
+        const reports = await database
+          .select()
+          .from(progressReports)
+          .where(and(...conditions))
+          .orderBy(desc(progressReports.reportDate))
+          .limit(input.limit);
+
+        // Parse photo URLs from JSON
+        return reports.map(report => ({
+          ...report,
+          photoUrls: report.photoUrls ? JSON.parse(report.photoUrls) : [],
+        }));
+      } catch (error) {
+        console.error('[getProgressReports] Error:', error);
+        return [];
+      }
     }),
 });
 

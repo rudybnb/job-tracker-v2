@@ -84,6 +84,12 @@ export default function ContractorDashboard() {
               View My Tasks
             </Button>
             <Button
+              onClick={() => setLocation("/contractor-progress")}
+              className="bg-[#10B981] hover:bg-[#059669] text-white"
+            >
+              Submit Progress
+            </Button>
+            <Button
               onClick={() => logoutMutation.mutate()}
               variant="outline"
               className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"

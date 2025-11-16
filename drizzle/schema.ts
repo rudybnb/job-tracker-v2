@@ -401,3 +401,35 @@ export const taskCompletions = mysqlTable("taskCompletions", {
 
 export type TaskCompletion = typeof taskCompletions.$inferSelect;
 export type InsertTaskCompletion = typeof taskCompletions.$inferInsert;
+
+
+/**
+ * Progress Reports - Daily updates from contractors with photos and notes
+ */
+export const progressReports = mysqlTable("progressReports", {
+  id: int("id").autoincrement().primaryKey(),
+  contractorId: int("contractorId").notNull(),
+  assignmentId: int("assignmentId").notNull(),
+  jobId: int("jobId").notNull(),
+  
+  // Report details
+  reportDate: timestamp("reportDate").notNull(),
+  phaseName: varchar("phaseName", { length: 100 }),
+  taskName: varchar("taskName", { length: 200 }),
+  
+  // Content
+  notes: text("notes"),
+  photoUrls: text("photoUrls"), // JSON array of S3 URLs for progress photos
+  
+  // Status
+  status: mysqlEnum("status", ["submitted", "reviewed", "approved"]).default("submitted").notNull(),
+  reviewedBy: int("reviewedBy"), // Admin user ID who reviewed
+  reviewedAt: timestamp("reviewedAt"),
+  reviewNotes: text("reviewNotes"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProgressReport = typeof progressReports.$inferSelect;
+export type InsertProgressReport = typeof progressReports.$inferInsert;

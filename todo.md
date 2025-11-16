@@ -477,3 +477,16 @@
 - [x] Add sample tasks to buildPhases for Freddy Jacson job (Internal Decoration: 3 tasks, Plastering: 4 tasks, Carpentry: 3 tasks)
 
 - [ ] Test contractor task completion flow - login, view tasks, mark complete
+
+
+## Progress Report Feature
+- [x] Create progressReports table in database schema with photo URLs and notes
+- [x] Implement uploadProgressPhoto API endpoint for S3 photo uploads
+- [x] Implement submitProgressReport API endpoint to save reports
+- [x] Implement getProgressReports API endpoint to fetch contractor reports
+- [x] Create ContractorProgressReport page with photo upload UI
+- [x] Add photo preview and multiple photo upload support
+- [x] Add form fields for task selection, notes, and date
+- [x] Add navigation button from contractor dashboard to progress reports
+- [x] Test photo upload to S3 and report submission
+- [x] Verify progress reports persist and display correctly

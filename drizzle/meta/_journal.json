@@ -85,6 +85,13 @@
       "when": 1763240149142,
       "tag": "0011_premium_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1763294339079,
+      "tag": "0012_grey_wendigo",
+      "breakpoints": true
     }
   ]
 }
