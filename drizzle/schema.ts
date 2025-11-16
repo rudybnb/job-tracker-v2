@@ -99,6 +99,7 @@ export const contractors = mysqlTable("contractors", {
   dailyRate: int("dailyRate"), // in pence, calculated or custom daily rate
   cisVerified: boolean("cisVerified").default(false),
   adminNotes: text("adminNotes"),
+  telegramChatId: varchar("telegramChatId", { length: 100 }).unique(), // Telegram chat ID for bot integration
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

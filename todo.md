@@ -554,3 +554,25 @@
 - [x] Implement toggle functionality to switch between password/text input type
 - [x] Style eye icon to match login page design
 - [x] Test show/hide password functionality
+
+## Fix Mohamed Login Issue
+- [ ] Query database to find Mohamed's exact username
+- [ ] Verify Mohamed's contractor record exists (ID 90001)
+- [ ] Generate new bcrypt password hash for "mohamed123"
+- [ ] Update Mohamed's password in contractors table
+- [ ] Test login with mohamed/mohamed123 credentials
+- [ ] Verify successful login and dashboard access
+
+## n8n Telegram Bot Integration
+- [x] Add telegramChatId field to contractors table schema
+- [x] Create telegram API router (server/telegramRestApi.ts)
+- [x] Implement GET /api/telegram/worker-type/:chatId endpoint (returns contractor info)
+- [x] Implement GET /api/telegram/hours/:chatId endpoint (returns logged work hours)
+- [x] Implement GET /api/telegram/payments/:chatId endpoint (returns payment status for day-rate contractors)
+- [x] Implement GET /api/telegram/subcontractor/quotes/:chatId endpoint (returns active quotes)
+- [x] Implement GET /api/telegram/subcontractor/milestones/:chatId endpoint (returns milestone progress)
+- [x] Implement GET /api/telegram/subcontractor/payment-status/:chatId endpoint (returns payment status for subcontractors)
+- [x] Update n8n workflow JSON to point to new Job Tracker endpoints
+- [x] Test complete workflow: Telegram message → n8n → Job Tracker API → GPT-4 → Telegram response
+- [ ] Add admin UI to set contractor Telegram chat IDs
+- [ ] Document API endpoints for n8n integration

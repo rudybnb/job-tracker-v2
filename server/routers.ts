@@ -8,6 +8,7 @@ import { TRPCError } from "@trpc/server";
 import * as telegram from "./telegram";
 import { contractorAuthRouter } from "./contractorAuth";
 import { mobileApiRouter } from "./mobileApi";
+import { telegramApiRouter } from "./routers/telegramApi";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -29,6 +30,7 @@ export const appRouter = router({
   system: systemRouter,
   contractorAuth: contractorAuthRouter,
   mobileApi: mobileApiRouter, // Mobile app endpoints for contractors
+  telegramApi: telegramApiRouter, // Telegram bot endpoints for n8n integration
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
