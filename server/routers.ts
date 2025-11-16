@@ -873,6 +873,43 @@ export const appRouter = router({
       return { isValid, configured: !!process.env.TELEGRAM_BOT_TOKEN };
     }),
   }),
+
+  // Progress Reports (Admin)
+  progressReports: router({    
+    // Get all progress reports with filtering
+    getAll: adminProcedure
+      .input(
+        z.object({
+          contractorId: z.number().optional(),
+          jobId: z.number().optional(),
+          status: z.enum(["submitted", "reviewed", "approved"]).optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getAllProgressReports(input);
+      }),
+
+    // Review a progress report (approve/reject with notes)
+    review: adminProcedure
+      .input(
+        z.object({
+          reportId: z.number(),
+          status: z.enum(["reviewed", "approved"]),
+          reviewNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.reviewProgressReport({
+          reportId: input.reportId,
+          status: input.status,
+          reviewNotes: input.reviewNotes || null,
+          reviewedBy: ctx.user.id,
+        });
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

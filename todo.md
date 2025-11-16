@@ -490,3 +490,14 @@
 - [x] Add navigation button from contractor dashboard to progress reports
 - [x] Test photo upload to S3 and report submission
 - [x] Verify progress reports persist and display correctly
+
+## Admin Progress Report Review Feature
+- [x] Implement getAllProgressReports API endpoint with filtering (contractor, job, date, status)
+- [x] Implement reviewProgressReport API endpoint to approve/reject with notes
+- [x] Create ProgressReports admin page with data table and filters
+- [x] Add filter controls for contractor, job, date range, and status
+- [x] Add review modal with approve/reject buttons and notes textarea
+- [x] Display progress report photos in modal with lightbox
+- [x] Add status badges (submitted, reviewed, approved) in table
+- [x] Add navigation link to progress reports in admin sidebar
+- [x] Test filtering, approval workflow, and status updates

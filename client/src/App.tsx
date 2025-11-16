@@ -21,6 +21,7 @@ import ContractorLogin from "./pages/ContractorLogin";
 import ContractorDashboard from "./pages/ContractorDashboard";
 import ContractorTasks from "./pages/ContractorTasks";
 import ContractorProgressReport from "./pages/ContractorProgressReport";
+import ProgressReports from "./pages/ProgressReports";
 
 function Router() {
   return (
@@ -96,6 +97,12 @@ function Router() {
       <Route path={"/sessions"}>
         <DashboardLayout>
           <WorkSessions />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path={"/progress-reports"}>
+        <DashboardLayout>
+          <ProgressReports />
         </DashboardLayout>
       </Route>
       

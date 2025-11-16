@@ -1,4 +1,4 @@
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -29,6 +29,7 @@ import {
   InsertContractorApplication,
   phaseCompletions,
   InsertPhaseCompletion,
+  progressReports,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -807,4 +808,78 @@ export async function getContractorPayment(
     totalPayment,
     contractorName
   };
+}
+
+
+// Progress Reports operations
+export async function getAllProgressReports(filters: {
+  contractorId?: number;
+  jobId?: number;
+  status?: "submitted" | "reviewed" | "approved";
+  startDate?: string;
+  endDate?: string;
+}) {
+  const database = await getDb();
+  if (!database) return [];
+
+  let query = database
+    .select({
+      report: progressReports,
+      contractor: contractors,
+      job: jobs,
+    })
+    .from(progressReports)
+    .leftJoin(contractors, eq(progressReports.contractorId, contractors.id))
+    .leftJoin(jobs, eq(progressReports.jobId, jobs.id))
+    .$dynamic();
+
+  // Apply filters
+  const conditions = [];
+  if (filters.contractorId) {
+    conditions.push(eq(progressReports.contractorId, filters.contractorId));
+  }
+  if (filters.jobId) {
+    conditions.push(eq(progressReports.jobId, filters.jobId));
+  }
+  if (filters.status) {
+    conditions.push(eq(progressReports.status, filters.status));
+  }
+  if (filters.startDate) {
+    conditions.push(gte(progressReports.reportDate, new Date(filters.startDate)));
+  }
+  if (filters.endDate) {
+    conditions.push(lte(progressReports.reportDate, new Date(filters.endDate)));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions));
+  }
+
+  const results = await query.orderBy(desc(progressReports.createdAt));
+  
+  return results.map(r => ({
+    ...r.report,
+    contractorName: r.contractor ? `${r.contractor.firstName} ${r.contractor.lastName}` : 'Unknown',
+    jobTitle: r.job?.title || 'Unknown Job',
+  }));
+}
+
+export async function reviewProgressReport(params: {
+  reportId: number;
+  status: "reviewed" | "approved";
+  reviewNotes: string | null;
+  reviewedBy: number;
+}) {
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+
+  await database
+    .update(progressReports)
+    .set({
+      status: params.status,
+      reviewNotes: params.reviewNotes,
+      reviewedBy: params.reviewedBy,
+      reviewedAt: new Date(),
+    })
+    .where(eq(progressReports.id, params.reportId));
 }
