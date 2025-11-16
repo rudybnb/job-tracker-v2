@@ -11,6 +11,8 @@ import telegramVoiceRouter from "../telegramVoiceApi";
 import telegramRegistrationRouter from "../telegramRegistrationApi";
 import telegramBotRouter from "../telegramBotApi";
 import telegramNotificationRouter from "../telegramNotificationApi";
+import schedulerRouter from "../schedulerApi";
+import { initializeScheduler, stopScheduler } from "./scheduler";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -50,6 +52,8 @@ async function startServer() {
   app.use("/api/telegram", telegramBotRouter);
   // Telegram Notification API
   app.use("/api/telegram", telegramNotificationRouter);
+  // Scheduler API
+  app.use("/api/scheduler", schedulerRouter);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -74,6 +78,22 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+  
+  // Initialize scheduled tasks
+  initializeScheduler();
+  
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, stopping scheduler...');
+    stopScheduler();
+    process.exit(0);
+  });
+  
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, stopping scheduler...');
+    stopScheduler();
+    process.exit(0);
+  });
   });
 }
 

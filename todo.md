@@ -657,3 +657,12 @@
 - [ ] Implement proactive alert system for job updates
 - [ ] Update n8n workflow to handle translations and queries
 - [ ] Test multi-language voice transcription and translation
+
+
+## Automated Daily Reminders
+- [x] Create scheduled task system for daily reminders
+- [x] Build logic to check contractors with active assignments but no progress reports today
+- [x] Create reminder notification endpoint
+- [x] Add configurable reminder time (default: 5 PM)
+- [ ] Add admin settings page for reminder configuration
+- [x] Test reminder delivery at scheduled time

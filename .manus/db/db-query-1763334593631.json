@@ -1,0 +1,50 @@
+{
+  "query": "SELECT ja.id, ja.contractorId, ja.startDate, ja.endDate, c.firstName, c.telegramChatId FROM jobAssignments ja LEFT JOIN contractors c ON ja.contractorId = c.id",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT ja.id, ja.contractorId, ja.startDate, ja.endDate, c.firstName, c.telegramChatId FROM jobAssignments ja LEFT JOIN contractors c ON ja.contractorId = c.id",
+  "rows": [
+    {
+      "id": "330003",
+      "contractorId": "90001",
+      "startDate": "2025-11-17 00:00:00",
+      "endDate": "2026-06-20 00:00:00",
+      "firstName": "Rudy",
+      "telegramChatId": "7617462316"
+    },
+    {
+      "id": "360001",
+      "contractorId": "90001",
+      "startDate": "NULL",
+      "endDate": "NULL",
+      "firstName": "Rudy",
+      "telegramChatId": "7617462316"
+    },
+    {
+      "id": "360002",
+      "contractorId": "90002",
+      "startDate": "NULL",
+      "endDate": "NULL",
+      "firstName": "Marius",
+      "telegramChatId": "8006717361"
+    },
+    {
+      "id": "360003",
+      "contractorId": "150001",
+      "startDate": "NULL",
+      "endDate": "NULL",
+      "firstName": "Dalwayne",
+      "telegramChatId": "80167446"
+    },
+    {
+      "id": "360004",
+      "contractorId": "150002",
+      "startDate": "NULL",
+      "endDate": "NULL",
+      "firstName": "Muhammed",
+      "telegramChatId": "5209713845"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcontractorId\tstartDate\tendDate\tfirstName\ttelegramChatId\n330003\t90001\t2025-11-17 00:00:00\t2026-06-20 00:00:00\tRudy\t7617462316\n360001\t90001\tNULL\tNULL\tRudy\t7617462316\n360002\t90002\tNULL\tNULL\tMarius\t8006717361\n360003\t150001\tNULL\tNULL\tDalwayne\t80167446\n360004\t150002\tNULL\tNULL\tMuhammed\t5209713845\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}
