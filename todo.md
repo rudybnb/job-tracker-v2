@@ -606,3 +606,32 @@
 - [ ] Test voice transcription with Afrikaans, Zulu, Portuguese, French
 - [ ] Add admin view for progress reports in dashboard
 - [ ] Update company name from HBXL to Sculpt Projects in bot responses
+
+## n8n Voice Message Workflow Update
+- [x] Create updated n8n workflow with voice message detection
+- [x] Add Telegram file download nodes for voice messages
+- [x] Add HTTP Request node to call /api/telegram/transcribe-voice
+- [x] Add progress report saving node
+- [x] Add confirmation message back to contractor
+- [x] Update company name to Sculpt Projects in all bot responses
+- [ ] Test complete voice → transcription → save → confirm flow
+
+## n8n Workflow Credential Fix
+- [x] Fix Telegram bot token access in Get Voice File Info node
+- [x] Create /api/telegram/process-voice endpoint that handles bot token server-side
+- [x] Update workflow to use simplified process-voice endpoint
+- [ ] Add TELEGRAM_BOT_TOKEN to environment variables
+- [ ] Test voice file download with corrected authentication
+
+## Progress Reports Dashboard
+- [x] Create tRPC procedure to fetch all progress reports with contractor and job details
+- [x] Create tRPC procedure to filter reports by contractor, job, date range
+- [x] Build Progress Reports page (/progress-reports) with list view
+- [x] Add audio playback component for voice recordings
+- [x] Add photo gallery for attached images
+- [x] Add filters: contractor dropdown, job dropdown, date range picker
+- [x] Show original language and transcription side-by-side
+- [x] Add voice/text type badge in reports table
+- [ ] Add search functionality for report text
+- [ ] Add export to CSV functionality
+- [ ] Fix empty transcription issue (voice messages returning empty text)

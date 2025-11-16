@@ -165,6 +165,7 @@ export default function ProgressReports() {
                   <TableHead>Job</TableHead>
                   <TableHead>Phase</TableHead>
                   <TableHead>Task</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -180,6 +181,15 @@ export default function ProgressReports() {
                     <TableCell>{report.phaseName || "—"}</TableCell>
                     <TableCell className="max-w-[200px] truncate">
                       {report.taskName || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {report.audioUrl ? (
+                        <Badge variant="outline" className="bg-blue-50">
+                          🎤 Voice
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">📝 Text</Badge>
+                      )}
                     </TableCell>
                     <TableCell>{getStatusBadge(report.status)}</TableCell>
                     <TableCell>
@@ -250,12 +260,45 @@ export default function ProgressReports() {
                 </div>
               </div>
 
+              {/* Voice Message */}
+              {selectedReport.audioUrl && (
+                <div className="space-y-2">
+                  <Label>Voice Message</Label>
+                  <div className="p-4 bg-muted rounded-lg space-y-3">
+                    {/* Audio Player */}
+                    <audio controls className="w-full">
+                      <source src={selectedReport.audioUrl} type="audio/ogg" />
+                      <source src={selectedReport.audioUrl} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                    
+                    {/* Language and Duration Info */}
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      {selectedReport.originalLanguage && (
+                        <span>Language: {selectedReport.originalLanguage.toUpperCase()}</span>
+                      )}
+                      {selectedReport.transcriptionDuration && (
+                        <span>Duration: {Math.round(selectedReport.transcriptionDuration)}s</span>
+                      )}
+                    </div>
+
+                    {/* Transcription */}
+                    {selectedReport.transcribedText && (
+                      <div className="p-3 bg-background rounded border">
+                        <p className="text-sm font-medium mb-1">Transcription (English):</p>
+                        <p className="text-sm whitespace-pre-wrap">{selectedReport.transcribedText}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Progress Notes */}
               <div className="space-y-2">
                 <Label>Progress Notes</Label>
                 <div className="p-4 bg-muted rounded-lg">
                   <p className="text-sm whitespace-pre-wrap">
-                    {selectedReport.notes || "No notes provided"}
+                    {selectedReport.notes || selectedReport.reportText || "No notes provided"}
                   </p>
                 </div>
               </div>

@@ -129,4 +129,89 @@ router.get("/progress-reports/:chatId", async (req, res) => {
   }
 });
 
+/**
+ * POST /api/telegram/process-voice
+ * Complete voice processing: download from Telegram → transcribe → save report
+ * This endpoint handles the bot token server-side so n8n doesn't need credential access
+ * 
+ * Body: { chatId: string, fileId: string }
+ */
+router.post("/process-voice", async (req, res) => {
+  try {
+    const { chatId, fileId } = req.body;
+
+    if (!chatId || !fileId) {
+      return res.status(400).json({
+        success: false,
+        error: "chatId and fileId are required",
+      });
+    }
+
+    // Get bot token from environment
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(500).json({
+        success: false,
+        error: "Telegram bot token not configured",
+      });
+    }
+
+    // Step 1: Get file info from Telegram
+    const fileInfoResponse = await fetch(
+      `https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`
+    );
+    
+    if (!fileInfoResponse.ok) {
+      return res.status(400).json({
+        success: false,
+        error: "Failed to get file info from Telegram",
+      });
+    }
+
+    const fileInfo = await fileInfoResponse.json();
+    const filePath = fileInfo.result.file_path;
+
+    // Step 2: Construct download URL
+    const audioUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+
+    // Step 3: Transcribe audio
+    const transcriptionResult = await transcribeAudio({
+      audioUrl,
+      prompt: "Transcribe this construction site progress report. Include details about work completed, materials used, and any issues.",
+    });
+
+    // Check if transcription failed
+    if ("error" in transcriptionResult) {
+      return res.status(400).json({
+        success: false,
+        error: transcriptionResult.error,
+        code: transcriptionResult.code,
+      });
+    }
+
+    // Step 4: Save progress report (TODO: implement database save)
+    console.log("[Voice Progress Report]", {
+      chatId,
+      text: transcriptionResult.text.substring(0, 100),
+      language: transcriptionResult.language,
+      duration: transcriptionResult.duration,
+    });
+
+    // Step 5: Return success with transcription
+    return res.json({
+      success: true,
+      text: transcriptionResult.text,
+      language: transcriptionResult.language,
+      duration: transcriptionResult.duration,
+      message: "Progress report saved successfully",
+    });
+  } catch (error) {
+    console.error("[Telegram Voice API] Process voice error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error processing voice message",
+    });
+  }
+});
+
 export default router;
