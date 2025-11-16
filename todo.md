@@ -650,3 +650,10 @@
 - [x] Update progress report API to link chat ID with registered contractors
 - [ ] Add job/assignment selection for progress reports
 - [ ] Test complete registration and progress report flow
+
+## Telegram Bot Enhancements - Multi-language & Alerts
+- [ ] Add automatic translation for non-English voice messages to English
+- [ ] Create query endpoints for contractor data access (jobs, payments, quotes, milestones)
+- [ ] Implement proactive alert system for job updates
+- [ ] Update n8n workflow to handle translations and queries
+- [ ] Test multi-language voice transcription and translation

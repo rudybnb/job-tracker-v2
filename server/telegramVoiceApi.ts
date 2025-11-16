@@ -8,6 +8,7 @@ import { ENV } from "./_core/env";
 import { getDb } from "./db";
 import { contractors, progressReports, jobAssignments } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { translateText, getLanguageName } from "./_core/translation";
 
 const router = express.Router();
 
@@ -243,20 +244,92 @@ router.post("/process-voice", async (req, res) => {
       });
     }
 
-    // Step 4: Save progress report (TODO: implement database save)
-    console.log("[Voice Progress Report]", {
-      chatId,
-      text: transcriptionResult.text.substring(0, 100),
-      language: transcriptionResult.language,
-      duration: transcriptionResult.duration,
+    // Step 4: Translate to English if needed
+    const detectedLanguage = getLanguageName(transcriptionResult.language);
+    let translatedText = transcriptionResult.text;
+    
+    if (transcriptionResult.language !== 'en') {
+      const translationResult = await translateText({
+        text: transcriptionResult.text,
+        sourceLanguage: detectedLanguage,
+        targetLanguage: "English",
+      });
+
+      if ("error" in translationResult) {
+        console.warn("[Translation] Failed, using original text:", translationResult.error);
+      } else {
+        translatedText = translationResult.translatedText;
+      }
+    }
+
+    // Step 5: Save to database
+    const db = await getDb();
+    if (!db) {
+      return res.status(500).json({
+        success: false,
+        error: "Database not available",
+      });
+    }
+
+    // Find contractor by chat ID
+    const contractorResult = await db
+      .select()
+      .from(contractors)
+      .where(eq(contractors.telegramChatId, chatId))
+      .limit(1);
+
+    if (contractorResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Contractor not found. Please register first.",
+      });
+    }
+
+    const contractor = contractorResult[0];
+
+    // Find active assignment
+    const assignmentResult = await db
+      .select()
+      .from(jobAssignments)
+      .where(eq(jobAssignments.contractorId, contractor.id))
+      .limit(1);
+
+    if (assignmentResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No active job assignment found.",
+      });
+    }
+
+    const assignment = assignmentResult[0];
+
+    // Save progress report
+    const result = await db.insert(progressReports).values({
+      contractorId: contractor.id,
+      assignmentId: assignment.id,
+      jobId: assignment.jobId,
+      reportDate: new Date(),
+      transcribedText: translatedText,
+      originalLanguage: detectedLanguage,
+      audioUrl: audioUrl,
+      status: "submitted",
     });
 
-    // Step 5: Return success with transcription
+    console.log("[Voice Progress Report] Saved:", {
+      reportId: result[0].insertId,
+      contractor: `${contractor.firstName} ${contractor.lastName}`,
+      language: detectedLanguage,
+      translated: transcriptionResult.language !== 'en',
+    });
+
+    // Step 6: Return success with transcription
     return res.json({
       success: true,
-      text: transcriptionResult.text,
-      language: transcriptionResult.language,
+      text: translatedText,
+      originalText: transcriptionResult.text,
+      language: detectedLanguage,
       duration: transcriptionResult.duration,
+      reportId: result[0].insertId,
       message: "Progress report saved successfully",
     });
   } catch (error) {
