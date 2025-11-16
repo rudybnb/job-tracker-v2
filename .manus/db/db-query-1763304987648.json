@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, firstName, lastName, username, email, phone FROM contractors WHERE firstName LIKE '%Mohamed%' OR lastName LIKE '%Mohamed%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, lastName, username, email, phone FROM contractors WHERE firstName LIKE '%Mohamed%' OR lastName LIKE '%Mohamed%';",
+  "rows": [
+    {
+      "id": "90001",
+      "firstName": "Mohamed",
+      "lastName": "Guizeni",
+      "username": "NULL",
+      "email": "gizeni90@gmail.com",
+      "phone": "07684370186"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\tusername\temail\tphone\n90001\tMohamed\tGuizeni\tNULL\tgizeni90@gmail.com\t07684370186\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

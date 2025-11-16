@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, firstName, username FROM contractors WHERE id = 120001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, username FROM contractors WHERE id = 120001;",
+  "rows": [
+    {
+      "id": "120001",
+      "firstName": "John",
+      "username": "john"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tusername\n120001\tJohn\tjohn\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

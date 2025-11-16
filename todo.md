@@ -534,3 +534,23 @@
 - [x] Verify clockIn API endpoint contractor lookup logic
 - [x] Fix contractor ID mapping between users and contractors tables
 - [x] Test GPS clock-in with John's credentials and verify success
+
+## Add GPS Coordinates to Freddy Jacson Job
+- [ ] Check Freddy Jacson job postcode in database
+- [ ] Geocode the postcode using Google Maps API
+- [ ] Update job GPS coordinates (latitude, longitude) in database
+- [ ] Verify coordinates are set correctly
+- [ ] Test clock-in on mobile phone with real GPS location
+
+## Fix Mohamed Login Credentials
+- [ ] Query database to find Mohamed's exact username
+- [ ] Check if password hash exists and is valid
+- [ ] Reset password to default pattern if needed
+- [ ] Test login with correct credentials
+- [ ] Verify Mohamed can access contractor dashboard
+
+## Add Password Visibility Toggle
+- [x] Add eye icon button to password field in contractor login page
+- [x] Implement toggle functionality to switch between password/text input type
+- [x] Style eye icon to match login page design
+- [x] Test show/hide password functionality
