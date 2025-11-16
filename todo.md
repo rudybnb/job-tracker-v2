@@ -635,3 +635,10 @@
 - [ ] Add search functionality for report text
 - [ ] Add export to CSV functionality
 - [ ] Fix empty transcription issue (voice messages returning empty text)
+
+## TELEGRAM_BOT_TOKEN Environment Variable Issue
+- [x] Check how TELEGRAM_BOT_TOKEN is accessed in telegramVoiceApi.ts
+- [x] Verify environment variable is properly exposed in ENV configuration
+- [x] Add TELEGRAM_BOT_TOKEN to server/_core/env.ts (added as telegramBotToken)
+- [ ] Test /api/telegram/process-voice endpoint with proper token access
+- [ ] Republish and verify voice messages work
