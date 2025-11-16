@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { telegramRestRouter } from "../telegramRestApi";
 import telegramVoiceRouter from "../telegramVoiceApi";
+import telegramRegistrationRouter from "../telegramRegistrationApi";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -41,6 +42,8 @@ async function startServer() {
   app.use("/api/telegram", telegramRestRouter);
   // Telegram Voice Transcription API
   app.use("/api/telegram", telegramVoiceRouter);
+  // Telegram Contractor Registration API
+  app.use("/api/telegram", telegramRegistrationRouter);
   // tRPC API
   app.use(
     "/api/trpc",

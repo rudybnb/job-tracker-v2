@@ -5,6 +5,9 @@
 import express from "express";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { ENV } from "./_core/env";
+import { getDb } from "./db";
+import { contractors, progressReports, jobAssignments } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -83,20 +86,70 @@ router.post("/progress-report", async (req, res) => {
       });
     }
 
-    // TODO: Save to database once progressReports table is created
-    // For now, just return success
-    console.log("[Progress Report]", {
-      chatId,
-      reportText: reportText.substring(0, 100),
-      originalLanguage,
-      hasAudio: !!audioUrl,
-      photoCount: photoUrls?.length || 0,
+    const db = await getDb();
+    if (!db) {
+      return res.status(500).json({
+        success: false,
+        error: "Database not available",
+      });
+    }
+
+    // Find contractor by Telegram chat ID
+    const contractorResult = await db
+      .select()
+      .from(contractors)
+      .where(eq(contractors.telegramChatId, chatId))
+      .limit(1);
+
+    if (contractorResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Contractor not found. Please register first using /register command.",
+      });
+    }
+
+    const contractor = contractorResult[0];
+
+    // Find active assignment for this contractor
+    const assignmentResult = await db
+      .select()
+      .from(jobAssignments)
+      .where(eq(jobAssignments.contractorId, contractor.id))
+      .limit(1);
+
+    if (assignmentResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No active job assignment found. Please contact your admin.",
+      });
+    }
+
+    const assignment = assignmentResult[0];
+
+    // Save progress report
+    const result = await db.insert(progressReports).values({
+      contractorId: contractor.id,
+      assignmentId: assignment.id,
+      jobId: assignment.jobId,
+      reportDate: new Date(),
+      transcribedText: reportText,
+      originalLanguage: originalLanguage || "auto-detected",
+      audioUrl: audioUrl || null,
+      photoUrls: photoUrls ? JSON.stringify(photoUrls) : null,
+      status: "submitted",
+    });
+
+    console.log("[Progress Report] Saved:", {
+      reportId: result[0].insertId,
+      contractor: `${contractor.firstName} ${contractor.lastName}`,
+      job: assignment.jobId,
+      textLength: reportText.length,
     });
 
     return res.json({
       success: true,
       message: "Progress report saved successfully",
-      reportId: Date.now(), // Temporary ID until database is set up
+      reportId: result[0].insertId,
     });
   } catch (error) {
     console.error("[Telegram Voice API] Progress report error:", error);

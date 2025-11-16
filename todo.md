@@ -642,3 +642,11 @@
 - [x] Add TELEGRAM_BOT_TOKEN to server/_core/env.ts (added as telegramBotToken)
 - [ ] Test /api/telegram/process-voice endpoint with proper token access
 - [ ] Republish and verify voice messages work
+
+
+## Telegram Bot Voice Progress Reports
+- [x] Create contractor registration API endpoint (/api/telegram/register-contractor)
+- [ ] Build n8n registration workflow for /register command  
+- [x] Update progress report API to link chat ID with registered contractors
+- [ ] Add job/assignment selection for progress reports
+- [ ] Test complete registration and progress report flow
