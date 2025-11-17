@@ -53,10 +53,13 @@ export async function checkAndNotifyNewAssignments() {
           ? `\n\n📝 Special Instructions:\n${assignment.specialInstructions}`
           : '';
         
+        const postcodeText = job?.postCode ? `\n🏠 Postcode: ${job.postCode}` : '';
+        
         const message = `🔔 *New Job Assignment*\n\n` +
           `📍 Job: ${job?.title || 'Unknown'}\n` +
-          `📌 Address: ${job?.address || 'N/A'}\n` +
-          `📅 Start: ${assignment.startDate?.toLocaleDateString() || 'N/A'}\n` +
+          `📌 Address: ${job?.address || 'N/A'}` +
+          postcodeText +
+          `\n📅 Start: ${assignment.startDate?.toLocaleDateString() || 'N/A'}\n` +
           `📅 End: ${assignment.endDate?.toLocaleDateString() || 'N/A'}` +
           phasesText +
           instructionsText +

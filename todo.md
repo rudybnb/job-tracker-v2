@@ -802,3 +802,4 @@
 - [x] Implement Telegram alerts when assigning contractors to jobs
 - [x] Add acknowledgment tracking for job assignments
 - [ ] Debug why Rudy didn't receive Telegram notification for job assignment
+- [x] Add postcode to Telegram notification message
