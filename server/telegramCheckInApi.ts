@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getDb } from "./db";
-import { contractors, checkIns, reminderLogs } from "../drizzle/schema";
+import { contractors, checkIns, reminderLogs, users } from "../drizzle/schema";
 import { eq, and, desc, gte } from "drizzle-orm";
 
 /**
@@ -355,8 +355,8 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
         }
       }
     } else {
-      // Handle reason/absence
-      console.log(`[Telegram Webhook] Processing reason for ${chatId}: "${message.text}"`);
+      // Handle conversational query with AI chatbot
+      console.log(`[Telegram Webhook] Processing AI query for ${chatId}: "${message.text}"`);
       
       const db = await getDb();
       if (!db) {
@@ -374,35 +374,32 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
         } else {
           const contractorData = contractor[0];
           
-          // Record check-in with reason
-          await db.insert(checkIns).values({
-            contractorId: contractorData.id,
-            checkInType: "telegram_response",
-            checkInTime: new Date(),
-            notes: message.text, // Store original message as reason
-          });
-
-          // Update reminder log
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          // Import AI chatbot handler
+          const { handleChatbotQuery } = await import("./telegramAIChatbot");
           
-          await db
-            .update(reminderLogs)
-            .set({
-              responded: true,
-              respondedAt: new Date(),
-              response: message.text,
-            })
-            .where(
-              and(
-                eq(reminderLogs.contractorId, contractorData.id),
-                gte(reminderLogs.sentAt, today)
-              )
-            );
-
-          responseText = `📝 Thanks for letting us know, ${contractorData.firstName}. Take care!`;
-          success = true;
-          console.log(`[Telegram Webhook] Reason recorded for ${contractorData.firstName}`);
+          // Determine if user is admin (check against owner open ID)
+          const isAdmin = contractorData.userId ? (
+            await db
+              .select()
+              .from(users)
+              .where(eq(users.id, contractorData.userId))
+              .limit(1)
+          ).some(u => u.role === 'admin') : false;
+          
+          // Process query with AI chatbot
+          try {
+            responseText = await handleChatbotQuery(message.text, {
+              chatId,
+              firstName,
+              isAdmin,
+              contractorId: contractorData.id
+            });
+            success = true;
+            console.log(`[Telegram Webhook] AI query processed for ${contractorData.firstName}`);
+          } catch (error) {
+            console.error("[Telegram Webhook] AI chatbot error:", error);
+            responseText = "Sorry, I had trouble processing your question. Please try rephrasing it or contact support.";
+          }
         }
       }
     }

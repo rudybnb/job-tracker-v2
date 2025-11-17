@@ -732,3 +732,33 @@
 - [x] Verify webhook works with real Telegram messages
 - [ ] Monitor webhook logs for any errors
 - [ ] Add multi-language keyword support (Afrikaans, Romanian, Arabic)
+
+## AI-Powered Telegram Chatbot
+- [ ] Create AI query handler with LLM integration for natural language understanding
+- [ ] Build comprehensive database query functions for all entities
+- [ ] Implement smart access control (admin vs contractor permissions)
+- [ ] Add query handlers for jobs (active, completed, pending, over budget)
+- [ ] Add query handlers for payments (outstanding, paid, owed by contractor)
+- [ ] Add query handlers for budgets (spent, remaining, over/under budget)
+- [ ] Add query handlers for contractors (availability, performance, work history)
+- [ ] Add query handlers for work sessions (hours logged, daily summaries)
+- [ ] Add query handlers for progress reports (latest updates, issues)
+- [ ] Update webhook to route check-ins vs conversational queries
+- [ ] Add formatted response templates for different query types
+- [ ] Test with various natural language questions
+- [ ] Add error handling and fallback responses
+
+
+## AI-Powered Telegram Chatbot
+- [x] Create AI query handler with LLM integration for natural language understanding
+- [x] Build database query functions for all entities (jobs, payments, budgets, contractors, work sessions, check-ins, progress reports)
+- [x] Implement access control (admin sees all data, contractors see only their own)
+- [x] Integrate chatbot into Telegram webhook to handle conversational queries
+- [x] Add support for common questions (payments owed, job status, budget tracking, hours worked)
+- [x] Route check-in keywords to confirmation handler, everything else to AI chatbot
+- [x] Fix TypeScript compilation errors in chatbot module
+- [x] Update webhook to import and call chatbot for non-confirmation messages
+- [ ] Test with various natural language questions via Telegram
+- [ ] Add multi-language support (Afrikaans, Romanian, Arabic)
+- [ ] Add conversation history/context for follow-up questions
+- [ ] Implement caching for frequently asked questions
