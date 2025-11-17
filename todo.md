@@ -794,3 +794,4 @@
 - [x] Set up Timi Fofuyen test job with 8 rooms and 2 contractors
 - [ ] Fix contractor assignment interface - cannot assign contractors to jobs
 - [x] Fix contractor authentication bug - Mohamed login shows Welcome Rudy instead of correct name
+- [x] Fix contractor task view - shows "No tasks defined for this phase" instead of actual tasks
