@@ -293,6 +293,13 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
     const chatId = String(message.chat.id);
     const firstName = message.from.first_name || "Contractor";
 
+    // Log message structure for debugging
+    console.log(`[Telegram Webhook] Message from ${firstName} (${chatId})`);
+    console.log(`[Telegram Webhook] Message keys:`, Object.keys(message));
+    console.log(`[Telegram Webhook] Has voice?`, !!message.voice);
+    console.log(`[Telegram Webhook] Has text?`, !!message.text);
+    console.log(`[Telegram Webhook] Has audio?`, !!message.audio);
+
     let messageText = "";
     let responseText = "";
     let success = false;
@@ -325,8 +332,12 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
             const audioUrl = `https://api.telegram.org/file/bot${telegramToken}/${filePath}`;
             
             console.log(`[Telegram Webhook] Transcribing audio from: ${audioUrl}`);
+            console.log(`[Telegram Webhook] File path: ${filePath}`);
+            console.log(`[Telegram Webhook] Voice duration: ${message.voice.duration}s, size: ${message.voice.file_size} bytes`);
+            console.log(`[Telegram Webhook] Voice MIME type: ${message.voice.mime_type || 'not provided'}`);
             
             // Transcribe audio
+            console.log(`[Telegram Webhook] Calling transcribeAudio...`);
             const transcription = await transcribeAudio({ audioUrl });
             
             // Check if transcription was successful
@@ -335,12 +346,16 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
               responseText = "Sorry, I couldn't understand your voice message. Please try again or type your message.";
             } else {
               messageText = transcription.text.toLowerCase().trim();
-              console.log(`[Telegram Webhook] Transcribed: "${messageText}"`);
+              console.log(`[Telegram Webhook] ✅ Voice transcribed successfully!`);
+              console.log(`[Telegram Webhook] Transcribed text: "${transcription.text}"`);
+              console.log(`[Telegram Webhook] Language detected: ${transcription.language}`);
+              console.log(`[Telegram Webhook] Processing as message: "${messageText}"`);
             }
           }
         }
       } catch (error) {
         console.error("[Telegram Webhook] Voice transcription error:", error);
+        console.error("[Telegram Webhook] Error stack:", error instanceof Error ? error.stack : 'No stack trace');
         responseText = "Sorry, I couldn't understand your voice message. Please try again or type your message.";
       }
     } else if (message.text) {
@@ -423,7 +438,7 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
       }
     } else {
       // Handle conversational query with AI chatbot
-      console.log(`[Telegram Webhook] Processing AI query for ${chatId}: "${message.text}"`);
+      console.log(`[Telegram Webhook] Processing AI query for ${chatId}: "${messageText}"`);
       
       const db = await getDb();
       if (!db) {
@@ -455,7 +470,7 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
           
           // Process query with AI chatbot
           try {
-            responseText = await handleChatbotQuery(message.text, {
+            responseText = await handleChatbotQuery(messageText, {
               chatId,
               firstName,
               isAdmin,

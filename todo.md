@@ -773,3 +773,13 @@
 - [x] Add error handling for transcription failures
 - [ ] Test with various voice queries (ready for user testing)
 - [ ] Add voice reply support (text-to-speech for responses)
+
+
+## n8n Modular Agent System
+- [ ] Create Check-in Response Agent workflow (handles yes/reasons)
+- [ ] Create Query Agent workflow (AI-powered database queries)
+- [ ] Create Router Agent workflow (directs messages to correct agent)
+- [ ] Test each agent independently
+- [ ] Test agent-to-agent communication
+- [ ] Export all agent workflow JSON files
+- [ ] Document agent architecture and linking pattern
