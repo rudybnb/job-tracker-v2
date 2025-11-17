@@ -213,3 +213,50 @@ telegramCheckInRouter.post("/checkin-confirm", async (req, res) => {
     return res.status(500).json({ success: false, error: "Failed to record check-in confirmation" });
   }
 });
+
+/**
+ * POST /api/telegram/log-reminder
+ * Logs that a reminder was sent to a contractor (called by n8n workflow)
+ * 
+ * Expected body:
+ * {
+ *   contractorId: number,
+ *   reminderType: "morning_checkin" | "daily_report",
+ *   success: boolean
+ * }
+ */
+telegramCheckInRouter.post("/log-reminder", async (req, res) => {
+  const { contractorId, reminderType, success } = req.body;
+  
+  if (!contractorId || !reminderType) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "Missing required fields: contractorId and reminderType" 
+    });
+  }
+
+  try {
+    const db = await getDb();
+    if (!db) {
+      return res.status(503).json({ success: false, error: "Database not available" });
+    }
+
+    // Log the reminder
+    await db.insert(reminderLogs).values({
+      contractorId,
+      reminderType,
+      sentAt: new Date(),
+      responded: false,
+    });
+
+    console.log(`[Telegram Reminder] Logged ${reminderType} reminder for contractor ${contractorId} (success: ${success})`);
+
+    return res.json({
+      success: true,
+      message: "Reminder logged successfully",
+    });
+  } catch (error) {
+    console.error("[Telegram Reminder API] Error logging reminder:", error);
+    return res.status(500).json({ success: false, error: "Failed to log reminder" });
+  }
+});
