@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, username, firstName, lastName, primaryTrade, email FROM contractors WHERE id = 90001",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, username, firstName, lastName, primaryTrade, email FROM contractors WHERE id = 90001",
+  "rows": [
+    {
+      "id": "90001",
+      "username": "mohamed",
+      "firstName": "Rudy",
+      "lastName": "Diedericks",
+      "primaryTrade": "Plumber",
+      "email": "rudy@hbxl.co.za"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tfirstName\tlastName\tprimaryTrade\temail\n90001\tmohamed\tRudy\tDiedericks\tPlumber\trudy@hbxl.co.za\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

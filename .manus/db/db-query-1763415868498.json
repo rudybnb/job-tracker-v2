@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, CONCAT(firstName, ' ', lastName) as fullName, primaryTrade FROM contractors WHERE id IN (SELECT DISTINCT id FROM contractors ORDER BY id LIMIT 10)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, CONCAT(firstName, ' ', lastName) as fullName, primaryTrade FROM contractors WHERE id IN (SELECT DISTINCT id FROM contractors ORDER BY id LIMIT 10)",
+  "rows": [
+    {
+      "id": "90001",
+      "fullName": "Rudy Diedericks",
+      "primaryTrade": "Plumber"
+    },
+    {
+      "id": "90002",
+      "fullName": "Marius Andronache",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "120001",
+      "fullName": "John Smith",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "150001",
+      "fullName": "Dalwayne Diedericks",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "150002",
+      "fullName": "Mohamed Guizeni",
+      "primaryTrade": "Plumber"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfullName\tprimaryTrade\n90001\tRudy Diedericks\tPlumber\n90002\tMarius Andronache\tGeneral Builder\n120001\tJohn Smith\tGeneral Builder\n150001\tDalwayne Diedericks\tGeneral Builder\n150002\tMohamed Guizeni\tPlumber\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

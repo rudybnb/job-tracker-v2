@@ -783,3 +783,14 @@
 - [ ] Test agent-to-agent communication
 - [ ] Export all agent workflow JSON files
 - [ ] Document agent architecture and linking pattern
+
+## HBXL Room-Based Pricing System
+- [x] Add rooms field to jobs table (JSON array)
+- [x] Add pricingModel field to jobAssignments (hourly, per_room, per_phase, fixed_price)
+- [x] Add hourlyRate, pricePerRoom fields to jobAssignments
+- [x] Add assignedRooms and completedRooms tracking
+- [x] Create room completion handler for Telegram bot
+- [x] Update Dalwayne and Mohamed contractor information
+- [x] Set up Timi Fofuyen test job with 8 rooms and 2 contractors
+- [ ] Fix contractor assignment interface - cannot assign contractors to jobs
+- [x] Fix contractor authentication bug - Mohamed login shows Welcome Rudy instead of correct name
