@@ -160,6 +160,8 @@ export const jobAssignments = mysqlTable("jobAssignments", {
   milestonePrice: int("milestonePrice"), // in cents, for fixed price/milestone
   completedRooms: text("completedRooms"), // JSON array of completed room names with dates
   teamAssignment: int("teamAssignment").default(0), // boolean: 1 for team, 0 for individual
+  acknowledged: boolean("acknowledged").default(false), // Whether contractor acknowledged the assignment
+  acknowledgedAt: timestamp("acknowledgedAt"), // When contractor acknowledged
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

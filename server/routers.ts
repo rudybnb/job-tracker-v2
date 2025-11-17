@@ -424,6 +424,12 @@ export const appRouter = router({
         const { contractorIds, selectedPhases, ...assignmentData } = input;
         const results = [];
 
+        // Get job details for notification
+        const job = await db.getJobById(input.jobId);
+        if (!job) {
+          throw new Error("Job not found");
+        }
+
         // Create an assignment for each contractor
         for (const contractorId of contractorIds) {
           const result = await db.createJobAssignment({
@@ -433,6 +439,42 @@ export const appRouter = router({
             teamAssignment: contractorIds.length > 1 ? 1 : 0,
           });
           results.push(result);
+
+          // Send Telegram notification
+          try {
+            const contractor = await db.getContractorById(contractorId);
+            if (contractor?.telegramChatId) {
+              const { sendTelegramNotification } = await import("./_core/telegramNotifications");
+              
+              const phasesText = selectedPhases && selectedPhases.length > 0
+                ? `\n\n📋 Assigned Phases:\n${selectedPhases.map(p => `  • ${p}`).join('\n')}`
+                : '';
+              
+              const instructionsText = input.specialInstructions
+                ? `\n\n📝 Special Instructions:\n${input.specialInstructions}`
+                : '';
+              
+              const message = `🔔 *New Job Assignment*\n\n` +
+                `📍 Job: ${job.title}\n` +
+                `📌 Address: ${job.address || 'N/A'}\n` +
+                `📅 Start: ${input.startDate.toLocaleDateString()}\n` +
+                `📅 End: ${input.endDate.toLocaleDateString()}` +
+                phasesText +
+                instructionsText +
+                `\n\n✅ Reply with "ACCEPT" to acknowledge this assignment.`;
+              
+              await sendTelegramNotification({
+                chatId: contractor.telegramChatId,
+                message,
+                type: "job_assigned",
+                parseMode: "Markdown",
+              });
+              console.log(`[Job Assignment] Telegram notification sent to contractor ${contractorId}`);
+            }
+          } catch (error) {
+            console.error(`[Job Assignment] Failed to send Telegram notification to contractor ${contractorId}:`, error);
+            // Don't fail the assignment if notification fails
+          }
         }
 
         return { success: true, assignmentsCreated: results.length };
