@@ -117,7 +117,8 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     let buildPhase = (row['Build Phase'] || '').trim();
     const supplier = (row['Supplier'] || '').trim();
     const resourceDescription = (row['Resource Description'] || '').trim();
-    const orderQuantity = parseInt(row['Order Quantity'] || '0');
+    const orderQuantityStr = (row['Order Quantity'] || '').trim();
+    const orderQuantity = orderQuantityStr ? parseInt(orderQuantityStr) : 1; // Default to 1 if empty
     
     // Update current phase if this row has a phase name
     if (buildPhase) {
@@ -140,7 +141,8 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     if (!resourceType) {
       continue;
     }
-    if (isNaN(orderQuantity) || orderQuantity === 0) {
+    // Skip only if orderQuantity is invalid (NaN), but allow 0 or empty (defaulted to 1)
+    if (isNaN(orderQuantity)) {
       continue;
     }
 
