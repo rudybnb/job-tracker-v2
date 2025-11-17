@@ -762,3 +762,14 @@
 - [ ] Add multi-language support (Afrikaans, Romanian, Arabic)
 - [ ] Add conversation history/context for follow-up questions
 - [ ] Implement caching for frequently asked questions
+
+
+## Telegram Voice Command Support
+- [x] Detect voice messages in Telegram webhook
+- [x] Download voice file from Telegram servers
+- [x] Convert voice to text using Whisper API (voiceTranscription helper)
+- [x] Route transcribed text to AI chatbot
+- [x] Send text reply back to user
+- [x] Add error handling for transcription failures
+- [ ] Test with various voice queries (ready for user testing)
+- [ ] Add voice reply support (text-to-speech for responses)

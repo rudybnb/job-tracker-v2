@@ -284,24 +284,91 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
     const update = req.body;
     
     // Telegram sends updates with message object
-    if (!update.message || !update.message.text) {
-      console.log("[Telegram Webhook] Received update without text message:", JSON.stringify(update));
+    if (!update.message) {
+      console.log("[Telegram Webhook] Received update without message:", JSON.stringify(update));
       return res.status(200).json({ ok: true }); // Always return 200 to Telegram
     }
 
     const message = update.message;
     const chatId = String(message.chat.id);
-    const messageText = message.text.toLowerCase().trim();
     const firstName = message.from.first_name || "Contractor";
 
-    console.log(`[Telegram Webhook] Message from ${firstName} (${chatId}): "${message.text}"`);
+    let messageText = "";
+    let responseText = "";
+    let success = false;
+
+    // Handle voice messages
+    if (message.voice) {
+      console.log(`[Telegram Webhook] Voice message from ${firstName} (${chatId})`);
+      
+      try {
+        // Import voice transcription helper
+        const { transcribeAudio } = await import("./_core/voiceTranscription");
+        
+        // Get voice file from Telegram
+        const fileId = message.voice.file_id;
+        const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+        
+        if (!telegramToken) {
+          console.error("[Telegram Webhook] TELEGRAM_BOT_TOKEN not set");
+          responseText = "Sorry, voice messages are not configured. Please type your message.";
+        } else {
+          // Get file path from Telegram
+          const fileResponse = await fetch(`https://api.telegram.org/bot${telegramToken}/getFile?file_id=${fileId}`);
+          const fileData = await fileResponse.json();
+          
+          if (!fileData.ok) {
+            console.error("[Telegram Webhook] Failed to get voice file:", fileData);
+            responseText = "Sorry, I couldn't process your voice message. Please try again.";
+          } else {
+            const filePath = fileData.result.file_path;
+            const audioUrl = `https://api.telegram.org/file/bot${telegramToken}/${filePath}`;
+            
+            console.log(`[Telegram Webhook] Transcribing audio from: ${audioUrl}`);
+            
+            // Transcribe audio
+            const transcription = await transcribeAudio({ audioUrl });
+            
+            // Check if transcription was successful
+            if ('error' in transcription) {
+              console.error("[Telegram Webhook] Transcription failed:", transcription.error);
+              responseText = "Sorry, I couldn't understand your voice message. Please try again or type your message.";
+            } else {
+              messageText = transcription.text.toLowerCase().trim();
+              console.log(`[Telegram Webhook] Transcribed: "${messageText}"`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("[Telegram Webhook] Voice transcription error:", error);
+        responseText = "Sorry, I couldn't understand your voice message. Please try again or type your message.";
+      }
+    } else if (message.text) {
+      // Handle text messages
+      messageText = message.text.toLowerCase().trim();
+      console.log(`[Telegram Webhook] Text message from ${firstName} (${chatId}): "${message.text}"`);
+    } else {
+      // Unsupported message type
+      console.log("[Telegram Webhook] Unsupported message type:", JSON.stringify(message));
+      return res.status(200).json({ ok: true });
+    }
+
+    // If we have a response already (error), send it
+    if (responseText) {
+      await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: responseText,
+        }),
+      });
+      return res.json({ ok: true, success: false });
+    }
 
     // Check if it's a confirmation keyword
     const confirmationKeywords = ['working', 'yes', 'yep', 'yeah', 'ok', 'okay', 'confirmed', 'here', 'present'];
     const isConfirmation = confirmationKeywords.some(keyword => messageText.includes(keyword));
-
-    let responseText = "";
-    let success = false;
 
     if (isConfirmation) {
       // Handle confirmation
