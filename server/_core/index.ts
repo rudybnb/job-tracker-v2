@@ -17,6 +17,7 @@ import { telegramContractorListRouter } from "../telegramContractorListApi";
 import { testWebhookRouter } from "../test-webhook";
 import telegramTestRouter from "../telegramTestApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
+import { startAssignmentNotifier } from "../assignmentNotifier.js";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -93,6 +94,9 @@ async function startServer() {
   
   // Initialize scheduled tasks
   initializeScheduler();
+  
+  // Start assignment notifier
+  startAssignmentNotifier();
   
   // Graceful shutdown
   process.on('SIGTERM', () => {

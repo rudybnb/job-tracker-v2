@@ -162,6 +162,7 @@ export const jobAssignments = mysqlTable("jobAssignments", {
   teamAssignment: int("teamAssignment").default(0), // boolean: 1 for team, 0 for individual
   acknowledged: boolean("acknowledged").default(false), // Whether contractor acknowledged the assignment
   acknowledgedAt: timestamp("acknowledgedAt"), // When contractor acknowledged
+  notifiedAt: timestamp("notifiedAt"), // When Telegram notification was sent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
