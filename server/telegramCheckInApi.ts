@@ -381,11 +381,57 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
       return res.json({ ok: true, success: false });
     }
 
-    // Check if it's a confirmation keyword
-    const confirmationKeywords = ['working', 'yes', 'yep', 'yeah', 'ok', 'okay', 'confirmed', 'here', 'present'];
-    const isConfirmation = confirmationKeywords.some(keyword => messageText.includes(keyword));
+    // Check if it's a room completion message
+    const roomCompletionPattern = /(bedroom|kitchen|bathroom|dining|living|ensuite|room)\s*(\d+)?\s*(complete|completed|done|finished)/i;
+    const roomMatch = messageText.match(roomCompletionPattern);
+    
+    if (roomMatch) {
+      // Handle room completion
+      console.log(`[Telegram Webhook] Room completion detected: "${messageText}"`);
+      
+      const db = await getDb();
+      if (!db) {
+        responseText = "Sorry, system is temporarily unavailable. Please try again later.";
+      } else {
+        const contractor = await db
+          .select()
+          .from(contractors)
+          .where(eq(contractors.telegramChatId, chatId))
+          .limit(1);
 
-    if (isConfirmation) {
+        if (!contractor || contractor.length === 0) {
+          responseText = "Sorry, I couldn't find your account. Please contact support to link your Telegram.";
+        } else {
+          const contractorData = contractor[0];
+          
+          // Import room completion handler
+          const { handleRoomCompletion } = await import("./roomCompletionHandler");
+          
+          try {
+            const result = await handleRoomCompletion({
+              contractorId: contractorData.id,
+              message: messageText,
+              db
+            });
+            
+            if (result.success) {
+              responseText = result.message;
+              success = true;
+            } else {
+              responseText = result.message || "Sorry, I couldn't process that room completion.";
+            }
+          } catch (error) {
+            console.error('[Telegram Webhook] Room completion error:', error);
+            responseText = "Sorry, I encountered an error processing the room completion.";
+          }
+        }
+      }
+    } else {
+      // Check if it's a confirmation keyword
+      const confirmationKeywords = ['working', 'yes', 'yep', 'yeah', 'ok', 'okay', 'confirmed', 'here', 'present'];
+      const isConfirmation = confirmationKeywords.some(keyword => messageText.includes(keyword));
+
+      if (isConfirmation) {
       // Handle confirmation
       console.log(`[Telegram Webhook] Processing confirmation for ${chatId}`);
       
@@ -483,6 +529,7 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
             responseText = "Sorry, I had trouble processing your question. Please try rephrasing it or contact support.";
           }
         }
+      }
       }
     }
 

@@ -66,6 +66,7 @@ export const jobs = mysqlTable("jobs", {
   uploadId: int("uploadId"), // Track which CSV upload created this job
   latitude: varchar("latitude", { length: 20 }), // GPS latitude for geofencing
   longitude: varchar("longitude", { length: 20 }), // GPS longitude for geofencing
+  rooms: text("rooms"), // JSON array of room objects: [{name, type, floor, status}]
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -148,11 +149,16 @@ export const jobAssignments = mysqlTable("jobAssignments", {
   contractorId: int("contractorId").notNull(),
   workLocation: text("workLocation"),
   selectedPhases: text("selectedPhases"), // JSON array of phase names
+  assignedRooms: text("assignedRooms"), // JSON array of room names assigned to this contractor
   startDate: timestamp("startDate"),
   endDate: timestamp("endDate"),
   specialInstructions: text("specialInstructions"),
   status: mysqlEnum("status", ["assigned", "in_progress", "completed", "cancelled"]).default("assigned").notNull(),
-  milestonePrice: int("milestonePrice"), // in cents, for subcontractors
+  pricingModel: mysqlEnum("pricingModel", ["hourly", "per_room", "per_phase", "fixed_price"]).default("hourly"),
+  hourlyRate: int("hourlyRate"), // in pence, for hourly pricing
+  pricePerRoom: int("pricePerRoom"), // in pence, for per-room pricing
+  milestonePrice: int("milestonePrice"), // in cents, for fixed price/milestone
+  completedRooms: text("completedRooms"), // JSON array of completed room names with dates
   teamAssignment: int("teamAssignment").default(0), // boolean: 1 for team, 0 for individual
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
