@@ -14,6 +14,7 @@ import telegramNotificationRouter from "../telegramNotificationApi";
 import schedulerRouter from "../schedulerApi";
 import { telegramCheckInRouter } from "../telegramCheckInApi";
 import { telegramContractorListRouter } from "../telegramContractorListApi";
+import { testWebhookRouter } from "../test-webhook";
 import telegramTestRouter from "../telegramTestApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
 import { serveStatic, setupVite } from "./vite";
@@ -57,6 +58,8 @@ async function startServer() {
   app.use("/api/telegram", telegramNotificationRouter);
   // Telegram Check-in API
   app.use("/api/telegram", telegramCheckInRouter);
+  // Test webhook
+  app.use("/api/telegram", testWebhookRouter);
   // Telegram Contractor List API
   app.use("/api/telegram", telegramContractorListRouter);
   // Telegram Test API (for testing without disturbing contractors)

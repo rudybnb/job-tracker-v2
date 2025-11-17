@@ -726,7 +726,9 @@
 - [x] Implement automatic routing to confirm vs reason handlers
 - [x] Add database updates for checkIns and reminderLogs tables
 - [x] Integrate Telegram API for sending reply messages
-- [x] Register webhook with Telegram servers
+- [x] Register webhook with Telegram servers (using dev server URL)
 - [x] Test complete flow: message → process → database → reply
+- [x] Debug and fix webhook routing issues
+- [x] Verify webhook works with real Telegram messages
 - [ ] Monitor webhook logs for any errors
 - [ ] Add multi-language keyword support (Afrikaans, Romanian, Arabic)
