@@ -796,3 +796,4 @@
 - [x] Fix contractor authentication bug - Mohamed login shows Welcome Rudy instead of correct name
 - [x] Fix contractor task view - shows "No tasks defined for this phase" instead of actual tasks
 - [x] Extract Material resources as tickable tasks (not Labour) with percentage completion indicator
+- [x] Fix CSV parser to handle "Material - [supplier]" format instead of exact "Material" match

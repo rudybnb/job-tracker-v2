@@ -128,8 +128,16 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
       buildPhase = currentPhase;
     }
     
+    // Determine resource type (handle "Material - supplier" and "Labour" formats)
+    let resourceType: 'Material' | 'Labour' | null = null;
+    if (typeOfResource.startsWith('Material')) {
+      resourceType = 'Material';
+    } else if (typeOfResource === 'Labour') {
+      resourceType = 'Labour';
+    }
+    
     // Skip invalid rows
-    if (!typeOfResource || (typeOfResource !== 'Material' && typeOfResource !== 'Labour')) {
+    if (!resourceType) {
       continue;
     }
     if (isNaN(orderQuantity) || orderQuantity === 0) {
@@ -140,14 +148,14 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     
     resources.push({
       buildPhase,
-      typeOfResource: typeOfResource as 'Material' | 'Labour',
+      typeOfResource: resourceType,
       supplier,
       resourceDescription,
       orderQuantity,
       cost,
     });
 
-    if (typeOfResource === 'Labour') {
+    if (resourceType === 'Labour') {
       totalLabourCost += cost;
     } else {
       totalMaterialCost += cost;
