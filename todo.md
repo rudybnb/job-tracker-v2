@@ -798,3 +798,4 @@
 - [x] Extract Material resources as tickable tasks (not Labour) with percentage completion indicator
 - [x] Fix CSV parser to handle "Material - [supplier]" format instead of exact "Material" match
 - [x] Fix CSV parser to handle empty Order Quantity for Material resources
+- [x] Set up login credentials for Dalwayne contractor (username: dalwayne, password: dalwayne123)
