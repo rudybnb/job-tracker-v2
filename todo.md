@@ -795,3 +795,4 @@
 - [ ] Fix contractor assignment interface - cannot assign contractors to jobs
 - [x] Fix contractor authentication bug - Mohamed login shows Welcome Rudy instead of correct name
 - [x] Fix contractor task view - shows "No tasks defined for this phase" instead of actual tasks
+- [ ] Restore actual CSV tasks to contractor view - currently showing generic tasks instead of detailed CSV tasks (fixed parser, ready for re-upload)

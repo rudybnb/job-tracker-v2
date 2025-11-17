@@ -267,12 +267,26 @@ export const appRouter = router({
           const jobId = jobResult.insertId;
           console.log(`[CSV] Job created with ID: ${jobId}`);
 
-          // Create phases
+          // Group Labour tasks by phase
+          const tasksByPhase = new Map<string, string[]>();
+          for (const resource of result.resources) {
+            if (resource.typeOfResource === 'Labour') {
+              if (!tasksByPhase.has(resource.buildPhase)) {
+                tasksByPhase.set(resource.buildPhase, []);
+              }
+              tasksByPhase.get(resource.buildPhase)!.push(resource.resourceDescription);
+            }
+          }
+
+          // Create phases with aggregated tasks
           for (let j = 0; j < result.phases.length; j++) {
+            const phaseName = result.phases[j];
+            const phaseTasks = tasksByPhase.get(phaseName) || [];
+            
             await db.createBuildPhase({
               jobId,
-              phaseName: result.phases[j],
-              tasks: '',
+              phaseName,
+              tasks: JSON.stringify(phaseTasks),
               order: j,
             });
           }

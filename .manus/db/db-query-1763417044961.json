@@ -1,0 +1,46 @@
+{
+  "query": "SELECT buildPhase, resourceDescription FROM jobResources WHERE jobId = 660002 AND typeOfResource = 'Labour' ORDER BY buildPhase, id LIMIT 50",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT buildPhase, resourceDescription FROM jobResources WHERE jobId = 660002 AND typeOfResource = 'Labour' ORDER BY buildPhase, id LIMIT 50",
+  "rows": [
+    {
+      "buildPhase": "Bedroom 1 Ground Floor",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Bedroom 2 Ground Floor",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Bedroom 3 UpStairs",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Bedroom 4 Upstairs",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Garage Plumbing Only",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Garden",
+      "resourceDescription": "Garden £1"
+    },
+    {
+      "buildPhase": "Ground Floor entrance /Passage",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Ground Floor Office",
+      "resourceDescription": "Refurmbishment  £1"
+    },
+    {
+      "buildPhase": "Stair Painting",
+      "resourceDescription": "Refurmbishment  £1"
+    }
+  ],
+  "messages": [],
+  "stdout": "buildPhase\tresourceDescription\nBedroom 1 Ground Floor\tRefurmbishment  £1\nBedroom 2 Ground Floor\tRefurmbishment  £1\nBedroom 3 UpStairs\tRefurmbishment  £1\nBedroom 4 Upstairs\tRefurmbishment  £1\nGarage Plumbing Only\tRefurmbishment  £1\nGarden\tGarden £1\nGround Floor entrance /Passage\tRefurmbishment  £1\nGround Floor Office\tRefurmbishment  £1\nStair Painting\tRefurmbishment  £1\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
