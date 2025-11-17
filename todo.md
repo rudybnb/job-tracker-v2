@@ -803,3 +803,4 @@
 - [x] Add acknowledgment tracking for job assignments
 - [ ] Debug why Rudy didn't receive Telegram notification for job assignment
 - [x] Add postcode to Telegram notification message
+- [x] Fix acknowledgment handler to process ACCEPT messages correctly instead of showing general help menu

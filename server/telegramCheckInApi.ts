@@ -426,6 +426,25 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
           }
         }
       }
+    } else if (messageText === 'accept' || messageText === 'accepted') {
+      // Handle job assignment acknowledgment
+      console.log(`[Telegram Webhook] Processing ACCEPT acknowledgment for ${chatId}`);
+      
+      const db = await getDb();  
+      if (!db) {
+        responseText = "Sorry, system is temporarily unavailable. Please try again later.";
+      } else {
+        const { handleJobAcknowledgment } = await import("./telegramAcknowledgment");
+        
+        const result = await handleJobAcknowledgment({
+          telegramChatId: chatId,
+          message: messageText,
+          db
+        });
+        
+        responseText = result.message;
+        success = result.success;
+      }
     } else {
       // Check if it's a confirmation keyword
       const confirmationKeywords = ['working', 'yes', 'yep', 'yeah', 'ok', 'okay', 'confirmed', 'here', 'present'];
