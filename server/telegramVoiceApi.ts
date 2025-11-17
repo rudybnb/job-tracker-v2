@@ -8,7 +8,7 @@ import { ENV } from "./_core/env";
 import { getDb } from "./db";
 import { contractors, progressReports, jobAssignments } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
-import { translateText, getLanguageName } from "./_core/translation";
+import { translateText, getLanguageName, detectLanguage } from "./_core/translation";
 
 const router = express.Router();
 
@@ -244,11 +244,22 @@ router.post("/process-voice", async (req, res) => {
       });
     }
 
-    // Step 4: Translate to English if needed
-    const detectedLanguage = getLanguageName(transcriptionResult.language);
-    let translatedText = transcriptionResult.text;
+    // Step 4: Detect language if unknown
+    let detectedLanguage = getLanguageName(transcriptionResult.language);
     
-    if (transcriptionResult.language !== 'en') {
+    // If language is unknown or not recognized, use LLM to detect it
+    if (detectedLanguage === 'UNKNOWN' || detectedLanguage === transcriptionResult.language) {
+      console.log("[Language Detection] Whisper returned unknown language, using LLM detection");
+      detectedLanguage = await detectLanguage(transcriptionResult.text);
+      console.log("[Language Detection] Detected:", detectedLanguage);
+    }
+    
+    // Step 5: Translate to English if needed
+    let translatedText = transcriptionResult.text;
+    const isEnglish = detectedLanguage.toLowerCase() === 'english' || transcriptionResult.language === 'en';
+    
+    if (!isEnglish) {
+      console.log(`[Translation] Translating from ${detectedLanguage} to English`);
       const translationResult = await translateText({
         text: transcriptionResult.text,
         sourceLanguage: detectedLanguage,
@@ -259,10 +270,11 @@ router.post("/process-voice", async (req, res) => {
         console.warn("[Translation] Failed, using original text:", translationResult.error);
       } else {
         translatedText = translationResult.translatedText;
+        console.log("[Translation] Success:", translatedText.substring(0, 100) + "...");
       }
     }
 
-    // Step 5: Save to database
+    // Step 6: Save to database
     const db = await getDb();
     if (!db) {
       return res.status(500).json({
@@ -322,7 +334,7 @@ router.post("/process-voice", async (req, res) => {
       translated: transcriptionResult.language !== 'en',
     });
 
-    // Step 6: Return success with transcription
+    // Step 7: Return success with transcription
     return res.json({
       success: true,
       text: translatedText,

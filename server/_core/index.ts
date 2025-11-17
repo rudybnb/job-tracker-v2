@@ -14,6 +14,7 @@ import telegramNotificationRouter from "../telegramNotificationApi";
 import schedulerRouter from "../schedulerApi";
 import { telegramCheckInRouter } from "../telegramCheckInApi";
 import { telegramContractorListRouter } from "../telegramContractorListApi";
+import telegramTestRouter from "../telegramTestApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
 import { serveStatic, setupVite } from "./vite";
 
@@ -58,6 +59,8 @@ async function startServer() {
   app.use("/api/telegram", telegramCheckInRouter);
   // Telegram Contractor List API
   app.use("/api/telegram", telegramContractorListRouter);
+  // Telegram Test API (for testing without disturbing contractors)
+  app.use("/api/telegram", telegramTestRouter);
   // Scheduler API
   app.use("/api/scheduler", schedulerRouter);
   // tRPC API

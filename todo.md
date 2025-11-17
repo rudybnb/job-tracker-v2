@@ -695,3 +695,26 @@
 - [ ] Add HTTP Request nodes to call /api/telegram/checkin-confirm and /api/telegram/checkin-reason
 - [ ] Test workflow with real contractor Telegram accounts
 - [ ] Document workflow setup and configuration
+
+
+## Voice Message Translation Bug
+- [x] Fix language detection for Afrikaans voice messages (currently showing "UNKNOWN")
+- [x] Add automatic translation from Afrikaans to English
+- [x] Update progress report display to show both original and translated text
+- [x] Test with multiple languages (Afrikaans, Portuguese, Zulu)
+- [x] Ensure translation works for all non-English voice messages
+
+
+## Test Endpoint for Morning Check-in
+- [x] Create test endpoint to send sample morning check-in message to admin's Telegram
+- [x] Test message delivery and verify format
+- [x] Document how to use test endpoint
+
+
+## n8n Workflow Conflict Resolution
+- [x] Design logic to distinguish check-in responses from progress reports
+- [x] Update progress report workflow to filter out check-in keywords
+- [x] Update check-in workflow to only process check-in responses
+- [x] Add keyword-based filtering for smart message routing
+- [x] Update workflows to use new translation endpoint
+- [x] Create comprehensive setup and testing guide

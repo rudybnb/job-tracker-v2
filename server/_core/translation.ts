@@ -82,6 +82,34 @@ export async function translateText(
 }
 
 /**
+ * Detect the language of text using LLM
+ */
+export async function detectLanguage(text: string): Promise<string> {
+  try {
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: "You are a language detection expert. Identify the language of the following text. Return ONLY the language name (e.g., 'Afrikaans', 'English', 'Portuguese', 'Zulu'), nothing else.",
+        },
+        {
+          role: "user",
+          content: text,
+        },
+      ],
+    });
+
+    const content = response.choices[0]?.message?.content;
+    const detectedLanguage = typeof content === 'string' ? content.trim() : 'Unknown';
+    
+    return detectedLanguage;
+  } catch (error) {
+    console.error("[Language Detection] Error:", error);
+    return "Unknown";
+  }
+}
+
+/**
  * Helper to get full language name from ISO 639-1 code
  */
 export function getLanguageName(langCode: string): string {
