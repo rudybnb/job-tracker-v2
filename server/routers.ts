@@ -267,10 +267,10 @@ export const appRouter = router({
           const jobId = jobResult.insertId;
           console.log(`[CSV] Job created with ID: ${jobId}`);
 
-          // Group Labour tasks by phase
+          // Group Material tasks by phase (Labour is for payment only, not tasks)
           const tasksByPhase = new Map<string, string[]>();
           for (const resource of result.resources) {
-            if (resource.typeOfResource === 'Labour') {
+            if (resource.typeOfResource === 'Material') {
               if (!tasksByPhase.has(resource.buildPhase)) {
                 tasksByPhase.set(resource.buildPhase, []);
               }

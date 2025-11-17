@@ -194,14 +194,27 @@ function PhaseTaskList({ assignmentId, jobId, phaseName, onTaskToggle, isTaskCom
   const completedCount = phase.tasks.filter((task: string) => 
     isTaskCompleted(assignmentId, phaseName, task)
   ).length;
+  
+  const totalTasks = phase.tasks.length;
+  const percentage = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   return (
     <div className="py-4 border-t border-gray-700 first:border-t-0">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-lg text-[#F59E0B]">{phaseName}</h3>
-        <Badge variant="outline" className="text-gray-300">
-          {completedCount}/{phase.tasks.length} complete
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-gray-300">
+            {completedCount}/{totalTasks} complete ({percentage}%)
+          </Badge>
+        </div>
+      </div>
+      
+      {/* Progress bar */}
+      <div className="mb-4 bg-gray-800 rounded-full h-2 overflow-hidden">
+        <div 
+          className="h-full bg-[#F59E0B] transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
       </div>
       
       <div className="space-y-3">
