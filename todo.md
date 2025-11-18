@@ -817,3 +817,5 @@
 - [x] Include AI chatbot, voice/text translation, reminders, assignments, budget tracking
 - [x] Create API endpoints for AI query and reminder reply agents
 - [x] Document complete setup instructions
+- [x] Create simplified n8n workflow (only 6 nodes, easier to configure)
+- [x] Create unified message handler that routes all logic server-side
