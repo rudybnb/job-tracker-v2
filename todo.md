@@ -806,3 +806,4 @@
 - [x] Fix acknowledgment handler to process ACCEPT messages correctly instead of showing general help menu
 - [x] Clear all reminder logs from database
 - [x] Create short URL redirect /login for contractor login page
+- [x] Update entire app color scheme to match contractor login page (dark navy background with orange accents)
