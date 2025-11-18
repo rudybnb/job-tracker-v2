@@ -484,3 +484,26 @@ export type ProgressReport = typeof progressReports.$inferSelect;
 export type InsertProgressReport = typeof progressReports.$inferInsert;
 
 
+/**
+ * Progress Report Sessions - Tracks multi-step conversation state
+ */
+export const progressReportSessions = mysqlTable("progressReportSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  chatId: varchar("chatId", { length: 50 }).notNull().unique(),
+  contractorId: int("contractorId"),
+  step: varchar("step", { length: 50 }).notNull().default("idle"),
+  
+  // Collected data during conversation
+  workCompleted: text("workCompleted"),
+  progressPercentage: int("progressPercentage"),
+  issues: text("issues"),
+  materials: text("materials"),
+  
+  // Metadata
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  lastActivityAt: timestamp("lastActivityAt").defaultNow().onUpdateNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+});
+
+export type ProgressReportSession = typeof progressReportSessions.$inferSelect;
+export type InsertProgressReportSession = typeof progressReportSessions.$inferInsert;

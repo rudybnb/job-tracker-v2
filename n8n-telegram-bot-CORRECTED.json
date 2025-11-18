@@ -1,0 +1,191 @@
+{
+  "name": "Telegram Bot - Voice & Text (CORRECTED)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "telegram-bot-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$json.message.voice }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-voice",
+      "name": "Has Voice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $credentials.telegramApi.accessToken }}/getFile?file_id={{ $json.message.voice.file_id }}",
+        "options": {}
+      },
+      "id": "get-file-path",
+      "name": "Get File Path",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot{{ $credentials.telegramApi.accessToken }}/{{ $json.result.file_path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "download-voice-file",
+      "name": "Download Voice File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "data",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "transcribe-voice",
+      "name": "Transcribe Voice",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [1050, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the original Telegram message data\nconst telegramData = $('Telegram Trigger').first().json;\nconst transcription = $input.first().json;\n\nreturn {\n  json: {\n    chatId: String(telegramData.message.chat.id),\n    firstName: telegramData.message.from.first_name || 'User',\n    messageType: 'voice',\n    message: transcription.text || ''\n  }\n};"
+      },
+      "id": "prepare-voice-data",
+      "name": "Prepare Voice Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for text message\nconst data = $input.first().json;\n\nreturn {\n  json: {\n    chatId: String(data.message.chat.id),\n    firstName: data.message.from.first_name || 'User',\n    messageType: 'text',\n    message: data.message.text || ''\n  }\n};"
+      },
+      "id": "prepare-text-data",
+      "name": "Prepare Text Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://3000-if9ltlqrw1vuwodmn1x4w-b5b3bb23.manusvm.computer/api/telegram/handle-message",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "send-to-server",
+      "name": "Send to Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $('Send to Server').first().json.response || 'Message received!' }}",
+        "additionalFields": {}
+      },
+      "id": "send-response",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1650, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [[{ "node": "Has Voice?", "type": "main", "index": 0 }]]
+    },
+    "Has Voice?": {
+      "main": [
+        [{ "node": "Get File Path", "type": "main", "index": 0 }],
+        [{ "node": "Prepare Text Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get File Path": {
+      "main": [[{ "node": "Download Voice File", "type": "main", "index": 0 }]]
+    },
+    "Download Voice File": {
+      "main": [[{ "node": "Transcribe Voice", "type": "main", "index": 0 }]]
+    },
+    "Transcribe Voice": {
+      "main": [[{ "node": "Prepare Voice Data", "type": "main", "index": 0 }]]
+    },
+    "Prepare Voice Data": {
+      "main": [[{ "node": "Send to Server", "type": "main", "index": 0 }]]
+    },
+    "Prepare Text Data": {
+      "main": [[{ "node": "Send to Server", "type": "main", "index": 0 }]]
+    },
+    "Send to Server": {
+      "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-18T17:00:00.000Z",
+  "versionId": "corrected-v1"
+}

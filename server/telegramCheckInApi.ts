@@ -280,6 +280,12 @@ telegramCheckInRouter.post("/log-reminder", async (req, res) => {
  * }
  */
 telegramCheckInRouter.post("/webhook", async (req, res) => {
+  // DISABLED: n8n workflow is now handling all Telegram messages
+  // This prevents duplicate responses
+  console.log("[Telegram Webhook] Disabled - n8n workflow is handling messages");
+  return res.status(200).json({ ok: true, message: "Webhook disabled - using n8n" });
+  
+  /* ORIGINAL CODE DISABLED
   try {
     const update = req.body;
     
@@ -588,4 +594,5 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
     // Still return 200 to Telegram to avoid retries
     return res.status(200).json({ ok: true, error: "Internal error" });
   }
+  */ // END DISABLED CODE
 });

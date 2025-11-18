@@ -8,6 +8,11 @@ import { contractors, reminderLogs, checkIns, jobAssignments } from "../drizzle/
 import { eq, and, desc, gte } from "drizzle-orm";
 import { handleChatbotQuery } from "./telegramAIChatbot";
 import { transcribeAudio } from "./_core/voiceTranscription";
+import { 
+  hasActiveProgressReportSession,
+  processProgressReportMessage,
+  startProgressReportConversation 
+} from "./progressReportConversation";
 
 const router = express.Router();
 
@@ -83,6 +88,32 @@ router.post("/handle-message", async (req, res) => {
       return res.json({
         success: false,
         response: "I didn't receive any message content. Please try again."
+      });
+    }
+
+    // Check if user has an active progress report conversation
+    const hasActiveSession = await hasActiveProgressReportSession(chatId);
+    if (hasActiveSession) {
+      // Process message as part of progress report conversation
+      const result = await processProgressReportMessage({
+        message: {
+          chat: { id: parseInt(chatId) },
+          from: { first_name: firstName },
+          text: messageText,
+        }
+      });
+      return res.json({
+        success: true,
+        response: result.response
+      });
+    }
+
+    // Check if user wants to start a progress report
+    if (messageText.toLowerCase().includes("📝 report") || messageText.toLowerCase() === "report") {
+      const firstQuestion = await startProgressReportConversation(chatId);
+      return res.json({
+        success: true,
+        response: firstQuestion
       });
     }
 

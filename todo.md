@@ -821,3 +821,13 @@
 - [x] Create unified message handler that routes all logic server-side
 - [x] Fix voice message transcription in Telegram bot (text messages work, voice messages fail)
 - [x] Create updated n8n workflow using Transcribe Recording node (same as working progress report workflow)
+
+## Progress Report Agent Implementation
+- [x] Add progressReports table to database schema
+- [x] Create progressReportSessions table for conversation state
+- [x] Add Telegram menu button (/report command) interface
+- [x] Implement voice transcription for report responses
+- [x] Create server conversation handler for multi-step flow
+- [x] Integrate with existing /api/telegram/handle-message endpoint
+- [x] Admin dashboard view already exists (Progress Reports page)
+- [x] Test complete flow: /report → 4 questions → voice/text responses → save → display in admin
