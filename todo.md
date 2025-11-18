@@ -812,3 +812,4 @@
 - [x] Fix missing assign button on Jobs page
 - [x] Fix issue when clicking Job Assignments in sidebar
 - [x] Restore missing Create Assignment button on Job Assignments page
+- [x] Change Create Assignment button color to green

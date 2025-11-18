@@ -158,7 +158,7 @@ export default function JobAssignments() {
           </div>
           <Button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-yellow text-black hover:bg-yellow/90 text-lg px-8 py-6"
+            className="bg-green-600 text-white hover:bg-green-700 text-lg px-8 py-6"
           >
             <Plus className="h-5 w-5 mr-2" />
             Create Assignment
