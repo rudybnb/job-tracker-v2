@@ -819,3 +819,5 @@
 - [x] Document complete setup instructions
 - [x] Create simplified n8n workflow (only 6 nodes, easier to configure)
 - [x] Create unified message handler that routes all logic server-side
+- [x] Fix voice message transcription in Telegram bot (text messages work, voice messages fail)
+- [x] Create updated n8n workflow using Transcribe Recording node (same as working progress report workflow)
