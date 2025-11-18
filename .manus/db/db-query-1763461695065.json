@@ -1,0 +1,9 @@
+{
+  "query": "\nSELECT \n  ja.id,\n  CONCAT(c.firstName, ' ', c.lastName) as contractorName,\n  c.telegramChatId,\n  ja.notifiedAt,\n  ja.createdAt,\n  j.title as jobTitle\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nJOIN jobs j ON ja.jobId = j.id\nWHERE CONCAT(c.firstName, ' ', c.lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\nORDER BY ja.createdAt DESC\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute \nSELECT \n  ja.id,\n  CONCAT(c.firstName, ' ', c.lastName) as contractorName,\n  c.telegramChatId,\n  ja.notifiedAt,\n  ja.createdAt,\n  j.title as jobTitle\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nJOIN jobs j ON ja.jobId = j.id\nWHERE CONCAT(c.firstName, ' ', c.lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\nORDER BY ja.createdAt DESC\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 65
+}

@@ -1,0 +1,24 @@
+{
+  "query": "\nSELECT \n  id,\n  CONCAT(firstName, ' ', lastName) as name,\n  email,\n  telegramChatId,\n  status\nFROM contractors\nWHERE CONCAT(firstName, ' ', lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute \nSELECT \n  id,\n  CONCAT(firstName, ' ', lastName) as name,\n  email,\n  telegramChatId,\n  status\nFROM contractors\nWHERE CONCAT(firstName, ' ', lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\n",
+  "rows": [
+    {
+      "id": "150001",
+      "name": "Dalwayne Diedericks",
+      "email": "dalwayne.diedericks@gmail.com",
+      "telegramChatId": "8016744652",
+      "status": "approved"
+    },
+    {
+      "id": "150002",
+      "name": "Mohamed Guizeni",
+      "email": "gizeni90@gmail.com",
+      "telegramChatId": "5209713845",
+      "status": "approved"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\ttelegramChatId\tstatus\n150001\tDalwayne Diedericks\tdalwayne.diedericks@gmail.com\t8016744652\tapproved\n150002\tMohamed Guizeni\tgizeni90@gmail.com\t5209713845\tapproved\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

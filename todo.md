@@ -808,3 +808,4 @@
 - [x] Create short URL redirect /login for contractor login page
 - [x] Update entire app color scheme to match contractor login page (dark navy background with orange accents)
 - [x] Apply gold/orange finish to all headings throughout the app
+- [x] Investigate why Mohamed and Dalwayne didn't receive Telegram messages for assignments and 8:15 reminder this morning
