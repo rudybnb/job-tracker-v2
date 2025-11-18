@@ -804,3 +804,5 @@
 - [ ] Debug why Rudy didn't receive Telegram notification for job assignment
 - [x] Add postcode to Telegram notification message
 - [x] Fix acknowledgment handler to process ACCEPT messages correctly instead of showing general help menu
+- [x] Clear all reminder logs from database
+- [x] Create short URL redirect /login for contractor login page
