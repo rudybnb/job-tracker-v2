@@ -810,3 +810,4 @@
 - [x] Apply gold/orange finish to all headings throughout the app
 - [x] Investigate why Mohamed and Dalwayne didn't receive Telegram messages for assignments and 8:15 reminder this morning
 - [x] Fix missing assign button on Jobs page
+- [x] Fix issue when clicking Job Assignments in sidebar

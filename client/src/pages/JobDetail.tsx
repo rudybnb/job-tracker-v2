@@ -67,7 +67,7 @@ export default function JobDetail({ jobId }: JobDetailProps) {
           </div>
         </div>
         <Button 
-          onClick={() => setLocation('/job-assignments')}
+          onClick={() => setLocation('/assignments')}
           className="gap-2"
         >
           <UserPlus className="h-4 w-4" />
