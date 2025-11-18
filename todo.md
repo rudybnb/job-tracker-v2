@@ -813,3 +813,7 @@
 - [x] Fix issue when clicking Job Assignments in sidebar
 - [x] Restore missing Create Assignment button on Job Assignments page
 - [x] Change Create Assignment button color to green
+- [x] Create comprehensive n8n workflow for Telegram bot (all features in one workflow)
+- [x] Include AI chatbot, voice/text translation, reminders, assignments, budget tracking
+- [x] Create API endpoints for AI query and reminder reply agents
+- [x] Document complete setup instructions

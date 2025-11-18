@@ -16,6 +16,8 @@ import { telegramCheckInRouter } from "../telegramCheckInApi";
 import { telegramContractorListRouter } from "../telegramContractorListApi";
 import { testWebhookRouter } from "../test-webhook";
 import telegramTestRouter from "../telegramTestApi";
+import telegramAiQueryRouter from "../telegramAiQueryApi";
+import telegramReminderReplyRouter from "../telegramReminderReplyApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
 import { startAssignmentNotifier } from "../assignmentNotifier.js";
 import { serveStatic, setupVite } from "./vite";
@@ -65,6 +67,10 @@ async function startServer() {
   app.use("/api/telegram", telegramContractorListRouter);
   // Telegram Test API (for testing without disturbing contractors)
   app.use("/api/telegram", telegramTestRouter);
+  // Telegram AI Query API (for n8n workflow)
+  app.use("/api/telegram", telegramAiQueryRouter);
+  // Telegram Reminder Reply API (for n8n workflow)
+  app.use("/api/telegram", telegramReminderReplyRouter);
   // Scheduler API
   app.use("/api/scheduler", schedulerRouter);
   // tRPC API
