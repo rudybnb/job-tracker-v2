@@ -807,3 +807,4 @@
 - [x] Clear all reminder logs from database
 - [x] Create short URL redirect /login for contractor login page
 - [x] Update entire app color scheme to match contractor login page (dark navy background with orange accents)
+- [x] Apply gold/orange finish to all headings throughout the app
