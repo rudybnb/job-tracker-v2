@@ -875,8 +875,16 @@
 - [ ] Test with simple echo response to isolate issue
 
 ## Webhook Testing & Verification
-- [ ] Check /tmp/telegram-webhook.log to see user's chat ID
-- [ ] Verify user's chat ID is registered in contractors table
-- [ ] If not registered, either register user or use a contractor's chat ID for testing
-- [ ] Verify responses are being sent successfully
+- [x] Check /tmp/telegram-webhook.log to see user's chat ID
+- [x] Verify user's chat ID is registered in contractors table
+- [x] If not registered, either register user or use a contractor's chat ID for testing
+- [x] Verify responses are being sent successfully (Dalwayne test: ok=true)
 - [ ] Test with actual contractor queries once chat ID is confirmed
+
+## Telegram API Error Debugging
+- [ ] Add detailed logging to capture exact Telegram API error response
+- [ ] Identify why sendMessage returns 400 error
+- [ ] Check if bot token is valid
+- [ ] Check if chat ID format is correct
+- [ ] Verify bot hasn't been blocked by user
+- [ ] Fix the error and verify message delivery works

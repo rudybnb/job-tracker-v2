@@ -199,8 +199,10 @@ async function sendTelegramMessage(chatId: string, text: string): Promise<void> 
     });
     const result = await response.json();
     console.log("[Telegram Webhook] sendMessage result:", JSON.stringify(result, null, 2));
+    logToFile(`sendMessage result: ok=${result.ok}, error=${result.error_code || 'none'}, description=${result.description || 'none'}`);
     if (!result.ok) {
       console.error("[Telegram Webhook] Telegram API error:", result);
+      logToFile(`TELEGRAM API ERROR: ${JSON.stringify(result)}`);
     }
   } catch (error) {
     console.error("[Telegram Webhook] Error sending message:", error);
