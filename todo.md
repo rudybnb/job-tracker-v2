@@ -856,3 +856,10 @@
 - [x] Support natural patterns: "mohamed clock in?", "any update mohamed", "where is mohamed", "check mohamed"
 - [x] Infer query type from context keywords (clock/check → check-ins, where/location → GPS, etc.)
 - [x] Remove rigid regex patterns in favor of flexible name + keyword detection
+
+## n8n Workflow Debugging
+- [ ] Identify what processing n8n is doing before forwarding to server
+- [ ] Check if n8n has AI/LLM nodes that cache responses
+- [ ] Check if n8n has message filtering/routing logic
+- [ ] Verify n8n is forwarding raw Telegram data without modification
+- [ ] Fix n8n workflow to be true passthrough OR implement direct webhook properly
