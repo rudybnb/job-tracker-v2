@@ -833,3 +833,8 @@
 - [x] Integrate with existing /api/telegram/handle-message endpoint
 - [x] Admin dashboard view already exists (Progress Reports page)
 - [x] Test complete flow: /report → 4 questions → voice/text responses → save → display in admin
+
+## AI Chatbot Issues
+- [x] Fix AI chatbot returning wrong contractor data (showing Rudy's check-ins when asked about Mohamed)
+- [x] Ensure chatbot queries filter by correct contractor name/ID
+- [ ] Test contractor-specific queries (check-ins, payments, assignments)
