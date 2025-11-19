@@ -7,6 +7,15 @@ import { getDb } from "./db";
 import { contractors } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { ENV } from "./_core/env";
+import { appendFileSync } from "fs";
+
+function logToFile(message: string) {
+  try {
+    appendFileSync("/tmp/telegram-webhook.log", `${new Date().toISOString()} - ${message}\n`);
+  } catch (e) {
+    // Ignore file errors
+  }
+}
 
 const router = express.Router();
 
@@ -20,6 +29,8 @@ async function processMessageAsync(
   messageText: string | undefined,
   voiceFileUrl: string | undefined
 ): Promise<void> {
+  logToFile(`processMessageAsync started: chatId=${chatId}, firstName=${firstName}, type=${messageType}`);
+  console.log("[Telegram Webhook] processMessageAsync started:", { chatId, firstName, messageType });
   try {
     // Find contractor by chatId
     const db = await getDb();
@@ -36,7 +47,10 @@ async function processMessageAsync(
       .limit(1)
       .then(results => results[0]);
     
+    logToFile(`Contractor lookup: chatId=${chatId}, found=${!!contractor}`);
+    
     if (!contractor) {
+      logToFile(`Unknown contractor with chatId=${chatId}`);
       console.log("[Telegram Webhook] Unknown contractor, chatId:", chatId);
       await sendTelegramMessage(
         chatId,
@@ -46,6 +60,7 @@ async function processMessageAsync(
     }
     
     // Forward to unified handler
+    console.log("[Telegram Webhook] Calling unified handler...");
     const handlerResponse = await fetch(`http://localhost:3000/api/telegram/handle-message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,11 +73,16 @@ async function processMessageAsync(
       })
     });
     
+    console.log("[Telegram Webhook] Handler response status:", handlerResponse.status);
     const handlerResult = await handlerResponse.json();
+    console.log("[Telegram Webhook] Handler result:", JSON.stringify(handlerResult, null, 2));
     
     // Send response back to Telegram
     if (handlerResult.response) {
+      console.log("[Telegram Webhook] Sending response to user:", handlerResult.response.substring(0, 100));
       await sendTelegramMessage(chatId, handlerResult.response);
+    } else {
+      console.log("[Telegram Webhook] No response from handler");
     }
   } catch (error) {
     console.error("[Telegram Webhook] Error in processMessageAsync:", error);
@@ -88,6 +108,12 @@ async function processMessageAsync(
  * }
  */
 router.post("/webhook", async (req, res) => {
+  logToFile("========== WEBHOOK CALLED ==========");
+  console.log("\n\n========== TELEGRAM WEBHOOK CALLED ==========");
+  console.log("[Telegram Webhook] Timestamp:", new Date().toISOString());
+  console.log("[Telegram Webhook] Request headers:", JSON.stringify(req.headers, null, 2));
+  console.log("[Telegram Webhook] Request body:", JSON.stringify(req.body, null, 2));
+  
   try {
     const update = req.body;
     
@@ -159,16 +185,23 @@ router.post("/webhook", async (req, res) => {
  * Send message to Telegram user
  */
 async function sendTelegramMessage(chatId: string, text: string): Promise<void> {
+  logToFile(`sendTelegramMessage called: chatId=${chatId}, textLength=${text.length}`);
+  console.log("[Telegram Webhook] sendTelegramMessage called:", { chatId, textLength: text.length });
   try {
-    await fetch(`https://api.telegram.org/bot${ENV.telegramBotToken}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${ENV.telegramBotToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text,
-        parse_mode: "Markdown"
+        text
+        // Removed parse_mode to avoid markdown errors
       })
     });
+    const result = await response.json();
+    console.log("[Telegram Webhook] sendMessage result:", JSON.stringify(result, null, 2));
+    if (!result.ok) {
+      console.error("[Telegram Webhook] Telegram API error:", result);
+    }
   } catch (error) {
     console.error("[Telegram Webhook] Error sending message:", error);
   }

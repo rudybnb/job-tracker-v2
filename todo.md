@@ -873,3 +873,10 @@
 - [ ] Check if sendMessage API calls are being made
 - [ ] Verify bot token is correct and has permissions
 - [ ] Test with simple echo response to isolate issue
+
+## Webhook Testing & Verification
+- [ ] Check /tmp/telegram-webhook.log to see user's chat ID
+- [ ] Verify user's chat ID is registered in contractors table
+- [ ] If not registered, either register user or use a contractor's chat ID for testing
+- [ ] Verify responses are being sent successfully
+- [ ] Test with actual contractor queries once chat ID is confirmed
