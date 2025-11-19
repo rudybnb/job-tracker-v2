@@ -11,6 +11,66 @@ import { ENV } from "./_core/env";
 const router = express.Router();
 
 /**
+ * Process message asynchronously and send response via Telegram API
+ */
+async function processMessageAsync(
+  chatId: string,
+  firstName: string,
+  messageType: "text" | "voice",
+  messageText: string | undefined,
+  voiceFileUrl: string | undefined
+): Promise<void> {
+  try {
+    // Find contractor by chatId
+    const db = await getDb();
+    if (!db) {
+      console.error("[Telegram Webhook] Database unavailable");
+      await sendTelegramMessage(chatId, "System temporarily unavailable. Please try again later.");
+      return;
+    }
+    
+    const contractor = await db
+      .select()
+      .from(contractors)
+      .where(eq(contractors.telegramChatId, chatId))
+      .limit(1)
+      .then(results => results[0]);
+    
+    if (!contractor) {
+      console.log("[Telegram Webhook] Unknown contractor, chatId:", chatId);
+      await sendTelegramMessage(
+        chatId,
+        `Hi ${firstName}! I don't recognize your account yet. Please contact the admin to register your Telegram account.`
+      );
+      return;
+    }
+    
+    // Forward to unified handler
+    const handlerResponse = await fetch(`http://localhost:3000/api/telegram/handle-message`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chatId,
+        firstName,
+        messageType,
+        message: messageText,
+        voiceFileUrl
+      })
+    });
+    
+    const handlerResult = await handlerResponse.json();
+    
+    // Send response back to Telegram
+    if (handlerResult.response) {
+      await sendTelegramMessage(chatId, handlerResult.response);
+    }
+  } catch (error) {
+    console.error("[Telegram Webhook] Error in processMessageAsync:", error);
+    await sendTelegramMessage(chatId, "Sorry, I encountered an error. Please try again.");
+  }
+}
+
+/**
  * POST /api/telegram/webhook
  * Receives Telegram updates directly from Telegram servers
  * 
@@ -81,51 +141,13 @@ router.post("/webhook", async (req, res) => {
       voiceFileUrl: voiceFileUrl?.substring(0, 50)
     });
     
-    // Find contractor by chatId
-    const db = await getDb();
-    if (!db) {
-      console.error("[Telegram Webhook] Database unavailable");
-      await sendTelegramMessage(chatId, "System temporarily unavailable. Please try again later.");
-      return res.json({ ok: true });
-    }
+    // IMPORTANT: Return immediately to avoid Telegram timeout
+    res.json({ ok: true });
     
-    const contractor = await db
-      .select()
-      .from(contractors)
-      .where(eq(contractors.telegramChatId, chatId))
-      .limit(1)
-      .then(results => results[0]);
-    
-    if (!contractor) {
-      console.log("[Telegram Webhook] Unknown contractor, chatId:", chatId);
-      await sendTelegramMessage(
-        chatId,
-        `Hi ${firstName}! I don't recognize your account yet. Please contact the admin to register your Telegram account.`
-      );
-      return res.json({ ok: true });
-    }
-    
-    // Forward to unified handler
-    const handlerResponse = await fetch(`http://localhost:3000/api/telegram/handle-message`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chatId,
-        firstName,
-        messageType,
-        message: messageText,
-        voiceFileUrl
-      })
+    // Process message asynchronously (don't await)
+    processMessageAsync(chatId, firstName, messageType, messageText, voiceFileUrl).catch(error => {
+      console.error("[Telegram Webhook] Error processing message:", error);
     });
-    
-    const handlerResult = await handlerResponse.json();
-    
-    // Send response back to Telegram
-    if (handlerResult.response) {
-      await sendTelegramMessage(chatId, handlerResult.response);
-    }
-    
-    return res.json({ ok: true });
     
   } catch (error) {
     console.error("[Telegram Webhook] Error:", error);

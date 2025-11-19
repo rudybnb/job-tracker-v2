@@ -857,9 +857,11 @@
 - [x] Infer query type from context keywords (clock/check → check-ins, where/location → GPS, etc.)
 - [x] Remove rigid regex patterns in favor of flexible name + keyword detection
 
-## n8n Workflow Debugging
-- [ ] Identify what processing n8n is doing before forwarding to server
-- [ ] Check if n8n has AI/LLM nodes that cache responses
-- [ ] Check if n8n has message filtering/routing logic
-- [ ] Verify n8n is forwarding raw Telegram data without modification
-- [ ] Fix n8n workflow to be true passthrough OR implement direct webhook properly
+## Direct Telegram Webhook (Proper Implementation)
+- [x] Create webhook endpoint that immediately returns {ok: true} to avoid timeout
+- [x] Process messages asynchronously in background
+- [x] Send responses via Telegram sendMessage API (not webhook response)
+- [x] Handle text and voice messages
+- [ ] Register webhook URL with Telegram API
+- [ ] Test end-to-end: Telegram → Webhook → Processing → sendMessage → User receives response
+- [ ] Remove n8n dependency completely
