@@ -862,6 +862,6 @@
 - [x] Process messages asynchronously in background
 - [x] Send responses via Telegram sendMessage API (not webhook response)
 - [x] Handle text and voice messages
-- [ ] Register webhook URL with Telegram API
+- [x] Register webhook URL with Telegram API
 - [ ] Test end-to-end: Telegram → Webhook → Processing → sendMessage → User receives response
 - [ ] Remove n8n dependency completely
