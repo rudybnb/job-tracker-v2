@@ -122,7 +122,19 @@ Return a JSON object with: category, action, filters, timeRange, specificEntitie
   });
 
   const content = response.choices[0].message.content;
-  return JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+  const intent = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+  
+  // Debug logging
+  console.log('[AI Chatbot] Intent Analysis:', {
+    message,
+    category: intent.category,
+    action: intent.action,
+    timeRange: intent.timeRange,
+    specificEntities: intent.specificEntities,
+    filters: intent.filters
+  });
+  
+  return intent;
 }
 
 /**
@@ -545,6 +557,7 @@ async function handleCheckInsQuery(intent: any, context: ChatContext): Promise<s
     // If admin asking about specific contractor, filter by name
     if (context.isAdmin && intent.specificEntities && intent.specificEntities.length > 0) {
       const contractorName = intent.specificEntities[0].toLowerCase();
+      console.log('[Check-ins Query] Filtering by contractor:', contractorName, 'from entities:', intent.specificEntities);
       // Filter results by contractor name after query (since we need the joined name)
       const allResults = await query.orderBy(desc(checkIns.checkInTime)).limit(100);
       const filtered = allResults.filter(c => 

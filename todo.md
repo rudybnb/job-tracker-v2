@@ -838,3 +838,8 @@
 - [x] Fix AI chatbot returning wrong contractor data (showing Rudy's check-ins when asked about Mohamed)
 - [x] Ensure chatbot queries filter by correct contractor name/ID
 - [ ] Test contractor-specific queries (check-ins, payments, assignments)
+
+## Debugging Tasks
+- [x] Add console.log to verify LLM intent extraction (specificEntities, category, timeRange)
+- [ ] Test if contractor name filtering is actually being triggered
+- [ ] Verify n8n workflow is hitting the updated server endpoint
