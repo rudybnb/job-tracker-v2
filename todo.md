@@ -865,3 +865,11 @@
 - [x] Register webhook URL with Telegram API
 - [ ] Test end-to-end: Telegram → Webhook → Processing → sendMessage → User receives response
 - [ ] Remove n8n dependency completely
+
+## Webhook Debugging
+- [x] Check if webhook is receiving messages from Telegram
+- [x] Fixed route conflict - removed old disabled webhook endpoint
+- [ ] Verify async processing is being triggered
+- [ ] Check if sendMessage API calls are being made
+- [ ] Verify bot token is correct and has permissions
+- [ ] Test with simple echo response to isolate issue

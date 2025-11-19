@@ -279,11 +279,10 @@ telegramCheckInRouter.post("/log-reminder", async (req, res) => {
  *   }
  * }
  */
-telegramCheckInRouter.post("/webhook", async (req, res) => {
-  // DISABLED: n8n workflow is now handling all Telegram messages
-  // This prevents duplicate responses
-  console.log("[Telegram Webhook] Disabled - n8n workflow is handling messages");
-  return res.status(200).json({ ok: true, message: "Webhook disabled - using n8n" });
+// DISABLED: Old webhook endpoint - now using telegramWebhook.ts for direct Telegram integration
+// telegramCheckInRouter.post("/webhook", async (req, res) => {
+//   console.log("[Telegram Webhook] Disabled - n8n workflow is handling messages");
+//   return res.status(200).json({ ok: true, message: "Webhook disabled - using n8n" });
   
   /* ORIGINAL CODE DISABLED
   try {
@@ -595,4 +594,4 @@ telegramCheckInRouter.post("/webhook", async (req, res) => {
     return res.status(200).json({ ok: true, error: "Internal error" });
   }
   */ // END DISABLED CODE
-});
+// }); // END DISABLED WEBHOOK
