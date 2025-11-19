@@ -132,9 +132,10 @@ router.post("/handle-message", async (req, res) => {
       return await handleReminderReply(db, contractor, messageText, messageType, recentReminder, res);
     }
 
-    // 3. Check for progress report keywords
-    const reportKeywords = ["completed", "finished", "done", "progress", "update"];
-    if (reportKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    // 3. Check for progress report keywords (only if it's clearly a report, not a question)
+    const reportKeywords = ["completed", "finished", "done", "progress"];
+    const isQuestion = lowerMessage.includes("?") || lowerMessage.startsWith("any") || lowerMessage.startsWith("what") || lowerMessage.startsWith("how") || lowerMessage.startsWith("when") || lowerMessage.startsWith("where") || lowerMessage.startsWith("who");
+    if (!isQuestion && reportKeywords.some(keyword => lowerMessage.includes(keyword))) {
       return await handleProgressReport(db, contractor, messageText, res);
     }
 
