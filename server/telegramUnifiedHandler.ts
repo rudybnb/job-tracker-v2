@@ -314,32 +314,24 @@ async function handleQuery(db: any, contractor: any, message: string, firstName:
  */
 async function handleSimpleContractorQuery(db: any, message: string, res: any) {
   try {
-    // Extract contractor name from message (common patterns)
-    const contractorNameMatch = message.match(/(?:did|show|get|check)\s+([a-z]+)(?:'s|s)?\s+(?:clock|check|hour|payment|work)/i);
-    
-    if (!contractorNameMatch) {
-      return null; // No contractor name found, fall through to AI
-    }
-    
-    const searchName = contractorNameMatch[1].toLowerCase();
-    console.log('[Simple Query] Searching for contractor:', searchName);
-    
-    // Find contractor by name (first name match)
-    const contractorResults = await db
+    // Get all contractors to check if any name is mentioned in the message
+    const allContractors = await db
       .select()
       .from(contractors)
-      .limit(20);
+      .limit(50);
     
-    const matchedContractor = contractorResults.find((c: any) => 
-      c.firstName?.toLowerCase().includes(searchName) || 
-      c.lastName?.toLowerCase().includes(searchName)
-    );
+    // Find if any contractor name is mentioned in the message
+    const matchedContractor = allContractors.find((c: any) => {
+      const firstName = c.firstName?.toLowerCase() || '';
+      const lastName = c.lastName?.toLowerCase() || '';
+      const lowerMessage = message.toLowerCase();
+      
+      // Check if first name or last name appears in message
+      return lowerMessage.includes(firstName) || lowerMessage.includes(lastName);
+    });
     
     if (!matchedContractor) {
-      return res.json({
-        success: true,
-        response: `I couldn't find a contractor named "${searchName}". Try checking the spelling or ask me to list all contractors.`
-      });
+      return null; // No contractor name found, fall through to AI
     }
     
     console.log('[Simple Query] Found contractor:', matchedContractor.firstName, matchedContractor.lastName);

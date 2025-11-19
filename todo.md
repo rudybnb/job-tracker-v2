@@ -850,3 +850,9 @@
 - [x] Extract contractor name from message using regex patterns
 - [x] Query database directly without LLM overhead
 - [x] Fall back to AI chatbot only for complex/unmatched queries
+
+## Natural Language Query Improvements
+- [x] Make contractor queries more flexible - detect contractor names anywhere in message
+- [x] Support natural patterns: "mohamed clock in?", "any update mohamed", "where is mohamed", "check mohamed"
+- [x] Infer query type from context keywords (clock/check → check-ins, where/location → GPS, etc.)
+- [x] Remove rigid regex patterns in favor of flexible name + keyword detection
