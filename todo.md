@@ -843,3 +843,10 @@
 - [x] Add console.log to verify LLM intent extraction (specificEntities, category, timeRange)
 - [ ] Test if contractor name filtering is actually being triggered
 - [ ] Verify n8n workflow is hitting the updated server endpoint
+
+## Telegram Bot Improvements
+- [x] Replace complex AI intent analysis with simple keyword-based routing
+- [x] Add direct keyword matching for: "did [name] clock in", "show [name]'s hours", "[name] payment"
+- [x] Extract contractor name from message using regex patterns
+- [x] Query database directly without LLM overhead
+- [x] Fall back to AI chatbot only for complex/unmatched queries

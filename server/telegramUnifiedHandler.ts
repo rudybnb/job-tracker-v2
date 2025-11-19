@@ -4,7 +4,7 @@
  */
 import express from "express";
 import { getDb } from "./db";
-import { contractors, reminderLogs, checkIns, jobAssignments } from "../drizzle/schema";
+import { contractors, reminderLogs, checkIns, jobAssignments, workSessions } from "../drizzle/schema";
 import { eq, and, desc, gte } from "drizzle-orm";
 import { handleChatbotQuery } from "./telegramAIChatbot";
 import { transcribeAudio } from "./_core/voiceTranscription";
@@ -139,7 +139,13 @@ router.post("/handle-message", async (req, res) => {
       return await handleProgressReport(db, contractor, messageText, res);
     }
 
-    // 4. Default: AI chatbot query
+    // 4. Check for simple contractor queries (before expensive AI call)
+    const contractorQueryResult = await handleSimpleContractorQuery(db, lowerMessage, res);
+    if (contractorQueryResult) {
+      return contractorQueryResult;
+    }
+
+    // 5. Default: AI chatbot query (for complex questions)
     return await handleQuery(db, contractor, messageText, firstName, res);
 
   } catch (error) {
@@ -299,6 +305,145 @@ async function handleQuery(db: any, contractor: any, message: string, firstName:
       success: false,
       response: "Sorry, I had trouble processing your question. Please try again."
     });
+  }
+}
+
+/**
+ * Handle simple contractor queries with direct keyword matching
+ * Returns response if matched, null if no match (fall through to AI)
+ */
+async function handleSimpleContractorQuery(db: any, message: string, res: any) {
+  try {
+    // Extract contractor name from message (common patterns)
+    const contractorNameMatch = message.match(/(?:did|show|get|check)\s+([a-z]+)(?:'s|s)?\s+(?:clock|check|hour|payment|work)/i);
+    
+    if (!contractorNameMatch) {
+      return null; // No contractor name found, fall through to AI
+    }
+    
+    const searchName = contractorNameMatch[1].toLowerCase();
+    console.log('[Simple Query] Searching for contractor:', searchName);
+    
+    // Find contractor by name (first name match)
+    const contractorResults = await db
+      .select()
+      .from(contractors)
+      .limit(20);
+    
+    const matchedContractor = contractorResults.find((c: any) => 
+      c.firstName?.toLowerCase().includes(searchName) || 
+      c.lastName?.toLowerCase().includes(searchName)
+    );
+    
+    if (!matchedContractor) {
+      return res.json({
+        success: true,
+        response: `I couldn't find a contractor named "${searchName}". Try checking the spelling or ask me to list all contractors.`
+      });
+    }
+    
+    console.log('[Simple Query] Found contractor:', matchedContractor.firstName, matchedContractor.lastName);
+    
+    // Determine query type
+    if (message.includes('clock') || message.includes('check')) {
+      // Check-in query
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const todayCheckIns = await db
+        .select()
+        .from(checkIns)
+        .where(
+          and(
+            eq(checkIns.contractorId, matchedContractor.id),
+            gte(checkIns.checkInTime, today)
+          )
+        )
+        .orderBy(desc(checkIns.checkInTime));
+      
+      if (todayCheckIns.length === 0) {
+        return res.json({
+          success: true,
+          response: `${matchedContractor.firstName} hasn't checked in today yet.`
+        });
+      }
+      
+      let response = `✅ *${matchedContractor.firstName}'s Check-ins Today (${todayCheckIns.length})*\n\n`;
+      todayCheckIns.forEach((c: any) => {
+        const time = new Date(c.checkInTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        response += `• ${time} - ${c.checkInType}\n`;
+        if (c.notes) {
+          response += `  Note: ${c.notes}\n`;
+        }
+      });
+      
+      return res.json({
+        success: true,
+        response
+      });
+    }
+    
+    if (message.includes('hour') || message.includes('work')) {
+      // Work hours query
+      const sessions = await db
+        .select()
+        .from(workSessions)
+        .where(eq(workSessions.contractorId, matchedContractor.id))
+        .orderBy(desc(workSessions.startTime))
+        .limit(10);
+      
+      if (sessions.length === 0) {
+        return res.json({
+          success: true,
+          response: `${matchedContractor.firstName} has no recorded work sessions yet.`
+        });
+      }
+      
+      const totalHours = sessions.reduce((sum: number, s: any) => sum + (Number(s.hoursWorked) || 0), 0);
+      
+      let response = `⏱️ *${matchedContractor.firstName}'s Work Hours*\n\n`;
+      response += `Total Hours: ${(totalHours / 60).toFixed(1)}h\n`;
+      response += `Sessions: ${sessions.length}\n\n`;
+      response += `*Recent Sessions:*\n`;
+      sessions.slice(0, 5).forEach((s: any) => {
+        const date = new Date(s.startTime).toLocaleDateString();
+        const hours = (Number(s.hoursWorked) / 60).toFixed(1);
+        response += `• ${date}: ${hours}h\n`;
+      });
+      
+      return res.json({
+        success: true,
+        response
+      });
+    }
+    
+    if (message.includes('payment') || message.includes('pay') || message.includes('owe')) {
+      // Payment query
+      const sessions = await db
+        .select()
+        .from(workSessions)
+        .where(eq(workSessions.contractorId, matchedContractor.id));
+      
+      const totalGross = sessions.reduce((sum: number, s: any) => sum + (Number(s.grossPay) || 0), 0);
+      const totalNet = sessions.reduce((sum: number, s: any) => sum + (Number(s.netPay) || 0), 0);
+      
+      let response = `💰 *${matchedContractor.firstName}'s Payments*\n\n`;
+      response += `Gross Pay: R${(totalGross / 100).toFixed(2)}\n`;
+      response += `Net Pay: R${(totalNet / 100).toFixed(2)}\n`;
+      response += `Sessions: ${sessions.length}\n`;
+      
+      return res.json({
+        success: true,
+        response
+      });
+    }
+    
+    // No specific query type matched, fall through to AI
+    return null;
+    
+  } catch (error) {
+    console.error('[Simple Query] Error:', error);
+    return null; // Fall through to AI on error
   }
 }
 
