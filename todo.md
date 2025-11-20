@@ -896,3 +896,10 @@
 - [x] Verify Telegram bot can send messages to contractors - Webhook working (Dalwayne test)
 - [ ] ROOT CAUSE: No active job assignments in database - reminders only sent to contractors with active assignments
 - [ ] Create test assignment or manually trigger reminder to verify system works
+
+## Scheduler Date Issue
+- [x] ROOT CAUSE: Most job assignments have end dates in the past (Nov 19) or today (Nov 20)
+- [x] Scheduler filters assignments by date range - only sends to active assignments
+- [ ] Extend assignment end dates to future dates (e.g., Nov 30) so reminders continue
+- [ ] Or manually trigger test reminder to verify system works
+- [ ] Update assignments in UI to have proper date ranges
