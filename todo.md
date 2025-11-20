@@ -927,3 +927,9 @@
 - [ ] Add better routing to distinguish between queries and progress reports
 - [ ] Add Afrikaans language support for contractor queries (het, gewerk, vandag, etc.)
 - [ ] Implement "who worked" query handler to list contractors with work sessions/check-ins for specified date
+
+## Render Deployment Fixes
+- [x] Move drizzle-kit to regular dependencies (not devDependencies)
+- [x] Update build script to ensure migrations run correctly
+- [x] Update RENDER_DEPLOYMENT.md with PostgreSQL migration instructions
+- [ ] Save checkpoint with deployment fixes

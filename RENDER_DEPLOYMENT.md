@@ -66,9 +66,12 @@ If Blueprint doesn't work, create services manually:
 2. Name: `job-tracker-db`
 3. Database: `job_tracker`
 4. User: `job_tracker_user`
-5. Plan: **Starter** ($7/month) or **Free** (sleeps after 90 days)
-6. Click **"Create Database"**
-7. **Copy the Internal Database URL** (you'll need this)
+5. PostgreSQL Version: **16** (latest)
+6. Plan: **Starter** ($7/month) or **Free** (sleeps after 90 days)
+7. Click **"Create Database"**
+8. **Copy the Internal Database URL** (you'll need this)
+   - Format: `postgresql://user:password@host:port/database`
+   - Example: `postgresql://job_tracker_user:abc123@dpg-xxx.oregon-postgres.render.com/job_tracker`
 
 **Create Web Service:**
 1. Click **"New +"** → **"Web Service"**
@@ -122,6 +125,24 @@ VITE_ANALYTICS_ENDPOINT=https://analytics.manus.im
 2. Render will automatically build and deploy
 3. Wait 5-10 minutes for first deployment
 4. You'll get a URL like: `https://job-tracker-xxxx.onrender.com`
+
+## Step 7.5: Run Database Migrations (CRITICAL)
+
+**After the first successful deployment**, you MUST run migrations to create the database schema:
+
+1. Go to your web service in Render dashboard
+2. Click **"Shell"** tab (opens a terminal)
+3. Run the migration command:
+   ```bash
+   pnpm db:push
+   ```
+4. Wait for completion (should see "Migrations applied successfully")
+5. Verify tables were created:
+   ```bash
+   pnpm drizzle-kit studio
+   ```
+
+**Important**: Without this step, your database will be empty and the app will fail to work!
 
 ## Step 8: Update Telegram Webhook
 
