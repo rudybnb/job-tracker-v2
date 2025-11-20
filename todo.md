@@ -943,5 +943,11 @@
 
 ## Fix drizzle-kit Not Found in Start Command
 - [x] Update db:push script to use npx drizzle-kit
-- [ ] Test updated start command
-- [ ] Save checkpoint with fix
+- [x] Test updated start command
+- [x] Save checkpoint with fix
+
+## Fix Render Build - Remove db:push from Build Command
+- [x] Update db:push script to use drizzle-kit push (simpler command)
+- [ ] Document that migrations must be run manually via Shell after first deploy
+- [ ] Save checkpoint with updated instructions
+- [ ] Guide user through Render configuration update
