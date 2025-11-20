@@ -938,5 +938,10 @@
 - [x] Update build script to run migrations automatically (reverted - doesn't work)
 - [x] Create startup script to run migrations before server starts
 - [x] Update start command to run migrations first
-- [ ] Save checkpoint with auto-migration on startup
-- [ ] Redeploy to Render
+- [x] Save checkpoint with auto-migration on startup
+- [ ] Redeploy to Render (user action required)
+
+## Fix drizzle-kit Not Found in Start Command
+- [x] Update db:push script to use npx drizzle-kit
+- [ ] Test updated start command
+- [ ] Save checkpoint with fix
