@@ -910,3 +910,20 @@
 - [x] Successfully sent to 4 contractors (Mohamed, Dalwayne, Rudy, Marius)
 - [ ] Verify contractors received test reminders on Telegram
 - [ ] Test voice message reply to reminder
+
+## Render Deployment Files
+- [x] Created render.yaml configuration file
+- [x] Created build.sh script
+- [x] Created start.sh script
+- [x] Created health check endpoint (/api/health)
+- [x] Created comprehensive deployment guide (RENDER_DEPLOYMENT.md)
+- [ ] Download files from Manus
+- [ ] Push to GitHub repository
+- [ ] Deploy to Render
+- [ ] Update Telegram webhook to Render URL
+
+## Known Bugs (Fix After Render Deployment)
+- [ ] "Who worked yesterday" query returns wrong response (acknowledgment instead of work session list)
+- [ ] Add better routing to distinguish between queries and progress reports
+- [ ] Add Afrikaans language support for contractor queries (het, gewerk, vandag, etc.)
+- [ ] Implement "who worked" query handler to list contractors with work sessions/check-ins for specified date

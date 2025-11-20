@@ -20,6 +20,7 @@ import telegramAiQueryRouter from "../telegramAiQueryApi";
 import telegramReminderReplyRouter from "../telegramReminderReplyApi";
 import telegramUnifiedRouter from "../telegramUnifiedHandler";
 import telegramWebhookRouter from "../telegramWebhook";
+import healthRouter from "../healthApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
 import { startAssignmentNotifier } from "../assignmentNotifier.js";
 import { serveStatic, setupVite } from "./vite";
@@ -79,6 +80,8 @@ async function startServer() {
   app.use("/api/telegram", telegramWebhookRouter);
   // Scheduler API
   app.use("/api/scheduler", schedulerRouter);
+  // Health Check API
+  app.use("/api", healthRouter);
   // tRPC API
   app.use(
     "/api/trpc",
