@@ -888,3 +888,11 @@
 - [ ] Check if chat ID format is correct
 - [ ] Verify bot hasn't been blocked by user
 - [ ] Fix the error and verify message delivery works
+
+## Morning Reminder Issues
+- [x] Check reminder system configuration (time, timezone, enabled status) - Configured for 8:15 AM UTC
+- [x] Verify reminder cron job or scheduler is running - Scheduler is initialized
+- [x] Check if reminders are being sent via n8n or server - Server-side scheduler
+- [x] Verify Telegram bot can send messages to contractors - Webhook working (Dalwayne test)
+- [ ] ROOT CAUSE: No active job assignments in database - reminders only sent to contractors with active assignments
+- [ ] Create test assignment or manually trigger reminder to verify system works
