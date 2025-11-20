@@ -932,4 +932,11 @@
 - [x] Move drizzle-kit to regular dependencies (not devDependencies)
 - [x] Update build script to ensure migrations run correctly
 - [x] Update RENDER_DEPLOYMENT.md with PostgreSQL migration instructions
-- [ ] Save checkpoint with deployment fixes
+- [x] Save checkpoint with deployment fixes
+
+## Auto-Migration on Deployment
+- [x] Update build script to run migrations automatically (reverted - doesn't work)
+- [x] Create startup script to run migrations before server starts
+- [x] Update start command to run migrations first
+- [ ] Save checkpoint with auto-migration on startup
+- [ ] Redeploy to Render
