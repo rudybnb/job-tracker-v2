@@ -138,10 +138,10 @@ router.post("/progress-report", async (req, res) => {
       audioUrl: audioUrl || null,
       photoUrls: photoUrls ? JSON.stringify(photoUrls) : null,
       status: "submitted",
-    });
+    }).returning({ id: progressReports.id });
 
     console.log("[Progress Report] Saved:", {
-      reportId: result[0].insertId,
+      reportId: result[0].id,
       contractor: `${contractor.firstName} ${contractor.lastName}`,
       job: assignment.jobId,
       textLength: reportText.length,
@@ -150,7 +150,7 @@ router.post("/progress-report", async (req, res) => {
     return res.json({
       success: true,
       message: "Progress report saved successfully",
-      reportId: result[0].insertId,
+      reportId: result[0].id,
     });
   } catch (error) {
     console.error("[Telegram Voice API] Progress report error:", error);
@@ -325,10 +325,10 @@ router.post("/process-voice", async (req, res) => {
       originalLanguage: detectedLanguage,
       audioUrl: audioUrl,
       status: "submitted",
-    });
+    }).returning({ id: progressReports.id });
 
     console.log("[Voice Progress Report] Saved:", {
-      reportId: result[0].insertId,
+      reportId: result[0].id,
       contractor: `${contractor.firstName} ${contractor.lastName}`,
       language: detectedLanguage,
       translated: transcriptionResult.language !== 'en',
@@ -341,7 +341,7 @@ router.post("/process-voice", async (req, res) => {
       originalText: transcriptionResult.text,
       language: detectedLanguage,
       duration: transcriptionResult.duration,
-      reportId: result[0].insertId,
+      reportId: result[0].id,
       message: "Progress report saved successfully",
     });
   } catch (error) {
