@@ -903,3 +903,10 @@
 - [ ] Extend assignment end dates to future dates (e.g., Nov 30) so reminders continue
 - [ ] Or manually trigger test reminder to verify system works
 - [ ] Update assignments in UI to have proper date ranges
+
+## Test Reminder Trigger
+- [x] Trigger test reminders via /api/scheduler/test-reminders endpoint
+- [x] Modified endpoint to send to ALL contractors (not just active assignments)
+- [x] Successfully sent to 4 contractors (Mohamed, Dalwayne, Rudy, Marius)
+- [ ] Verify contractors received test reminders on Telegram
+- [ ] Test voice message reply to reminder
