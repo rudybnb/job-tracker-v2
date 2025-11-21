@@ -23,7 +23,7 @@ export default function Home() {
             <CardDescription>Manage construction jobs, contractors, and budgets</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full" size="lg" onClick={() => setLocation("/contractor-login")}>
+            <Button className="w-full" size="lg" onClick={() => window.location.href = "/contractor-login-simple.html"}>
               Sign In
             </Button>
           </CardContent>
