@@ -960,3 +960,15 @@
 - [ ] Create admin user on Render database (username: admin, password: admin123)
 - [ ] Push changes to GitHub for Render deployment
 - [ ] Verify Render deployment works with new authentication
+
+## Fix Home Page Sign In Button
+- [ ] Update Home.tsx Sign in button to redirect to /contractor-login
+- [ ] Remove any remaining getLoginUrl() references
+- [ ] Test that clicking Sign in goes to contractor login page
+- [ ] Push fix to GitHub for Render deployment
+
+## Remove All Remaining getLoginUrl References
+- [ ] Fix DashboardLayout.tsx to redirect to /contractor-login
+- [ ] Fix main.tsx error boundary to redirect to /contractor-login
+- [ ] Remove getLoginUrl export from const.ts
+- [ ] Push all fixes to GitHub
