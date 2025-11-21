@@ -951,3 +951,12 @@
 - [ ] Document that migrations must be run manually via Shell after first deploy
 - [ ] Save checkpoint with updated instructions
 - [ ] Guide user through Render configuration update
+
+## Render Deployment - Remove Manus OAuth Dependency
+- [x] Replace Home page OAuth login with contractor username/password login
+- [x] Update context.ts to check contractor JWT tokens
+- [x] Update useAuth hook to redirect to /contractor-login
+- [x] Update ContractorLogin to redirect to dashboard after login
+- [ ] Create admin user on Render database (username: admin, password: admin123)
+- [ ] Push changes to GitHub for Render deployment
+- [ ] Verify Render deployment works with new authentication
