@@ -8,6 +8,7 @@ import { contractors } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { ENV } from "./_core/env";
 import { appendFileSync } from "fs";
+import { processMessage } from "./telegramUnifiedHandler";
 
 function logToFile(message: string) {
   try {
@@ -59,22 +60,9 @@ async function processMessageAsync(
       return;
     }
     
-    // Forward to unified handler
-    console.log("[Telegram Webhook] Calling unified handler...");
-    const handlerResponse = await fetch(`http://localhost:3000/api/telegram/handle-message`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chatId,
-        firstName,
-        messageType,
-        message: messageText,
-        voiceFileUrl
-      })
-    });
-    
-    console.log("[Telegram Webhook] Handler response status:", handlerResponse.status);
-    const handlerResult = await handlerResponse.json();
+    // Call unified handler directly (no HTTP request needed)
+    console.log("[Telegram Webhook] Calling processMessage directly...");
+    const handlerResult = await processMessage(chatId, firstName, messageType, messageText, voiceFileUrl);
     console.log("[Telegram Webhook] Handler result:", JSON.stringify(handlerResult, null, 2));
     
     // Send response back to Telegram

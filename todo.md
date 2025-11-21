@@ -972,3 +972,20 @@
 - [ ] Fix main.tsx error boundary to redirect to /contractor-login
 - [ ] Remove getLoginUrl export from const.ts
 - [ ] Push all fixes to GitHub
+
+## Add Missing Contractors to Render Database
+- [ ] Add Dalwayne to contractors table
+- [ ] Add Muhamed to contractors table
+- [ ] Add Marius to contractors table
+- [ ] Add Rudy to contractors table
+
+## Fix CSV Upload Stuck Issue
+- [ ] Investigate why "Creating Jobs..." button is stuck
+- [ ] Check Render logs for upload errors
+- [ ] Fix any backend issues preventing job creation
+
+## Fix Telegram Notifications
+- [ ] Check if TELEGRAM_BOT_TOKEN is set in Render environment variables
+- [ ] Verify Telegram bot is configured correctly
+- [ ] Add telegramChatId to contractor records
+- [ ] Test Telegram notifications for job assignments

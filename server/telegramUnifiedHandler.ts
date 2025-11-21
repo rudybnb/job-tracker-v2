@@ -17,33 +17,32 @@ import {
 const router = express.Router();
 
 /**
- * POST /api/telegram/handle-message
- * Unified handler for all Telegram messages
- * Body: { 
- *   chatId: string, 
- *   firstName: string,
- *   messageType: 'text'|'voice',
- *   message?: string (for text),
- *   voiceFileUrl?: string (for voice)
- * }
+ * Core message processing logic (exported for direct use)
  */
-router.post("/handle-message", async (req, res) => {
+export async function processMessage(
+  chatId: string,
+  firstName: string,
+  messageType: 'text' | 'voice',
+  message?: string,
+  voiceFileUrl?: string
+): Promise<{ success: boolean; response: string; error?: string }> {
   try {
-    const { chatId, firstName, messageType, message, voiceFileUrl } = req.body;
 
     if (!chatId) {
-      return res.status(400).json({
+      return {
+        success: false,
         error: "Missing chatId",
         response: "Sorry, I couldn't identify your account."
-      });
+      };
     }
 
     const db = await getDb();
     if (!db) {
-      return res.status(500).json({ 
+      return { 
+        success: false,
         error: "Database not available",
         response: "Sorry, I'm having trouble accessing the database right now."
-      });
+      };
     }
 
     // Get contractor info
@@ -54,10 +53,10 @@ router.post("/handle-message", async (req, res) => {
       .limit(1);
 
     if (contractorResult.length === 0) {
-      return res.json({
+      return {
         success: false,
         response: `Hi ${firstName}! I don't recognize your account yet. Please contact the admin to get registered.`
-      });
+      };
     }
 
     const contractor = contractorResult[0];
@@ -77,18 +76,18 @@ router.post("/handle-message", async (req, res) => {
         }
       } catch (error) {
         console.error("[Telegram Handler] Voice transcription failed:", error);
-        return res.json({
+        return {
           success: false,
           response: "Sorry, I couldn't understand your voice message. Please try again or send a text message."
-        });
+        };
       }
     }
 
     if (!messageText) {
-      return res.json({
+      return {
         success: false,
         response: "I didn't receive any message content. Please try again."
-      });
+      };
     }
 
     // Check if user has an active progress report conversation
@@ -102,19 +101,19 @@ router.post("/handle-message", async (req, res) => {
           text: messageText,
         }
       });
-      return res.json({
+      return {
         success: true,
         response: result.response
-      });
+      };
     }
 
     // Check if user wants to start a progress report
     if (messageText.toLowerCase().includes("📝 report") || messageText.toLowerCase() === "report") {
       const firstQuestion = await startProgressReportConversation(chatId);
-      return res.json({
+      return {
         success: true,
         response: firstQuestion
-      });
+      };
     }
 
     // Analyze message intent
@@ -123,44 +122,60 @@ router.post("/handle-message", async (req, res) => {
     // 1. Check for assignment acknowledgment
     const acceptKeywords = ["accept", "ok", "yes", "confirmed", "i accept"];
     if (acceptKeywords.some(keyword => lowerMessage.includes(keyword))) {
-      return await handleAssignmentAcknowledgment(db, contractor, messageText, res);
+      return await handleAssignmentAcknowledgment(db, contractor, messageText);
     }
 
     // 2. Check for reminder reply (morning/evening)
     const recentReminder = await getRecentReminder(db, contractor.id);
     if (recentReminder) {
-      return await handleReminderReply(db, contractor, messageText, messageType, recentReminder, res);
+      return await handleReminderReply(db, contractor, messageText, messageType, recentReminder);
     }
 
     // 3. Check for progress report keywords (only if it's clearly a report, not a question)
     const reportKeywords = ["completed", "finished", "done", "progress"];
     const isQuestion = lowerMessage.includes("?") || lowerMessage.startsWith("any") || lowerMessage.startsWith("what") || lowerMessage.startsWith("how") || lowerMessage.startsWith("when") || lowerMessage.startsWith("where") || lowerMessage.startsWith("who");
     if (!isQuestion && reportKeywords.some(keyword => lowerMessage.includes(keyword))) {
-      return await handleProgressReport(db, contractor, messageText, res);
+      return await handleProgressReport(db, contractor, messageText);
     }
 
     // 4. Check for simple contractor queries (before expensive AI call)
-    const contractorQueryResult = await handleSimpleContractorQuery(db, lowerMessage, res);
+    const contractorQueryResult = await handleSimpleContractorQuery(db, lowerMessage);
     if (contractorQueryResult) {
       return contractorQueryResult;
     }
 
     // 5. Default: AI chatbot query (for complex questions)
-    return await handleQuery(db, contractor, messageText, firstName, res);
+    return await handleQuery(db, contractor, messageText, firstName);
 
   } catch (error) {
     console.error("[Telegram Handler] Error:", error);
-    return res.status(500).json({ 
+    return { 
+      success: false,
       error: "Internal server error",
       response: "Sorry, I encountered an error. Please try again."
-    });
+    };
+  }
+}
+
+/**
+ * POST /api/telegram/handle-message
+ * Express endpoint wrapper for processMessage
+ */
+router.post("/handle-message", async (req, res) => {
+  const { chatId, firstName, messageType, message, voiceFileUrl } = req.body;
+  const result = await processMessage(chatId, firstName, messageType, message, voiceFileUrl);
+  
+  if (result.success) {
+    return res.json(result);
+  } else {
+    return res.status(result.error === "Missing chatId" ? 400 : 500).json(result);
   }
 });
 
 /**
  * Handle assignment acknowledgment (ACCEPT)
  */
-async function handleAssignmentAcknowledgment(db: any, contractor: any, message: string, res: any) {
+async function handleAssignmentAcknowledgment(db: any, contractor: any, message: string) {
   try {
     // Find most recent unacknowledged assignment
     const assignments = await db
@@ -177,10 +192,10 @@ async function handleAssignmentAcknowledgment(db: any, contractor: any, message:
       .limit(1);
 
     if (assignments.length === 0) {
-      return res.json({
+      return {
         success: false,
         response: "I don't see any pending assignments to acknowledge. You're all set! 👍"
-      });
+      };
     }
 
     const assignment = assignments[0];
@@ -194,23 +209,23 @@ async function handleAssignmentAcknowledgment(db: any, contractor: any, message:
       })
       .where(eq(jobAssignments.id, assignment.id));
 
-    return res.json({
+    return {
       success: true,
       response: `Perfect! ✅ I've recorded your acknowledgment for the job assignment. Thanks ${contractor.firstName}!`
-    });
+    };
   } catch (error) {
     console.error("[Assignment Acknowledgment] Error:", error);
-    return res.json({
+    return {
       success: false,
       response: "I had trouble recording your acknowledgment. Please try again."
-    });
+    };
   }
 }
 
 /**
  * Handle reminder reply
  */
-async function handleReminderReply(db: any, contractor: any, message: string, messageType: string, reminder: any, res: any) {
+async function handleReminderReply(db: any, contractor: any, message: string, messageType: string, reminder: any) {
   try {
     // Update reminder log
     await db
@@ -245,23 +260,23 @@ async function handleReminderReply(db: any, contractor: any, message: string, me
       response = `Thanks for the update, ${contractor.firstName}! Your progress has been recorded. Have a good evening! 🌙`;
     }
 
-    return res.json({
+    return {
       success: true,
       response,
-    });
+    };
   } catch (error) {
     console.error("[Reminder Reply] Error:", error);
-    return res.json({
+    return {
       success: false,
       response: "I had trouble recording your response. Please try again."
-    });
+    };
   }
 }
 
 /**
  * Handle progress report
  */
-async function handleProgressReport(db: any, contractor: any, report: string, res: any) {
+async function handleProgressReport(db: any, contractor: any, report: string) {
   try {
     // Record check-in with progress report
     await db.insert(checkIns).values({
@@ -270,23 +285,23 @@ async function handleProgressReport(db: any, contractor: any, report: string, re
       notes: report,
     });
 
-    return res.json({
+    return {
       success: true,
       response: `Thanks for the progress update, ${contractor.firstName}! I've recorded it. Keep up the great work! 👍`
-    });
+    };
   } catch (error) {
     console.error("[Progress Report] Error:", error);
-    return res.json({
+    return {
       success: false,
       response: "I had trouble saving your progress report. Please try again."
-    });
+    };
   }
 }
 
 /**
  * Handle general query with AI chatbot
  */
-async function handleQuery(db: any, contractor: any, message: string, firstName: string, res: any) {
+async function handleQuery(db: any, contractor: any, message: string, firstName: string) {
   try {
     const response = await handleChatbotQuery(message, {
       chatId: contractor.telegramChatId,
@@ -295,16 +310,16 @@ async function handleQuery(db: any, contractor: any, message: string, firstName:
       contractorId: contractor.id,
     });
 
-    return res.json({
+    return {
       success: true,
       response,
-    });
+    };
   } catch (error) {
     console.error("[Query Handler] Error:", error);
-    return res.json({
+    return {
       success: false,
       response: "Sorry, I had trouble processing your question. Please try again."
-    });
+    };
   }
 }
 
@@ -312,7 +327,7 @@ async function handleQuery(db: any, contractor: any, message: string, firstName:
  * Handle simple contractor queries with direct keyword matching
  * Returns response if matched, null if no match (fall through to AI)
  */
-async function handleSimpleContractorQuery(db: any, message: string, res: any) {
+async function handleSimpleContractorQuery(db: any, message: string) {
   try {
     // Get all contractors to check if any name is mentioned in the message
     const allContractors = await db
@@ -354,10 +369,10 @@ async function handleSimpleContractorQuery(db: any, message: string, res: any) {
         .orderBy(desc(checkIns.checkInTime));
       
       if (todayCheckIns.length === 0) {
-        return res.json({
+        return {
           success: true,
           response: `${matchedContractor.firstName} hasn't checked in today yet.`
-        });
+        };
       }
       
       let response = `✅ *${matchedContractor.firstName}'s Check-ins Today (${todayCheckIns.length})*\n\n`;
@@ -369,10 +384,10 @@ async function handleSimpleContractorQuery(db: any, message: string, res: any) {
         }
       });
       
-      return res.json({
+      return {
         success: true,
         response
-      });
+      };
     }
     
     if (message.includes('hour') || message.includes('work')) {
@@ -385,10 +400,10 @@ async function handleSimpleContractorQuery(db: any, message: string, res: any) {
         .limit(10);
       
       if (sessions.length === 0) {
-        return res.json({
+        return {
           success: true,
           response: `${matchedContractor.firstName} has no recorded work sessions yet.`
-        });
+        };
       }
       
       const totalHours = sessions.reduce((sum: number, s: any) => sum + (Number(s.hoursWorked) || 0), 0);
@@ -403,10 +418,10 @@ async function handleSimpleContractorQuery(db: any, message: string, res: any) {
         response += `• ${date}: ${hours}h\n`;
       });
       
-      return res.json({
+      return {
         success: true,
         response
-      });
+      };
     }
     
     if (message.includes('payment') || message.includes('pay') || message.includes('owe')) {
@@ -424,10 +439,10 @@ async function handleSimpleContractorQuery(db: any, message: string, res: any) {
       response += `Net Pay: R${(totalNet / 100).toFixed(2)}\n`;
       response += `Sessions: ${sessions.length}\n`;
       
-      return res.json({
+      return {
         success: true,
         response
-      });
+      };
     }
     
     // No specific query type matched, fall through to AI
