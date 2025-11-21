@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE contractors SET \n  email = 'dalwayne.diedericks@gmail.com',\n  phone = '07984591436',\n  address = 'Essex',\n  postCode = 'RM16 2qb',\n  hourlyRate = 1875,\n  type = 'General Builder'\nWHERE firstName = 'Dalwayne' AND lastName = 'Johnson'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute UPDATE contractors SET \n  email = 'dalwayne.diedericks@gmail.com',\n  phone = '07984591436',\n  address = 'Essex',\n  postCode = 'RM16 2qb',\n  hourlyRate = 1875,\n  type = 'General Builder'\nWHERE firstName = 'Dalwayne' AND lastName = 'Johnson'",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'address' in 'field list'"
+  ]
+}

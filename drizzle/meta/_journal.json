@@ -85,6 +85,76 @@
       "when": 1763240149142,
       "tag": "0011_premium_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1763294339079,
+      "tag": "0012_grey_wendigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1763300150581,
+      "tag": "0013_glorious_marvel_boy",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1763314428410,
+      "tag": "0014_lonely_betty_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1763318407747,
+      "tag": "0015_purple_ken_ellis",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1763335045627,
+      "tag": "0016_fair_puff_adder",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1763335632509,
+      "tag": "0017_deep_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1763403936696,
+      "tag": "0018_unique_ravenous",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1763421091292,
+      "tag": "0019_tan_kylun",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1763423033402,
+      "tag": "0020_marvelous_dark_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1763493396845,
+      "tag": "0021_light_brood",
+      "breakpoints": true
     }
   ]
 }

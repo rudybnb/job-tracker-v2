@@ -1,0 +1,34 @@
+{
+  "query": "\nSELECT \n  ja.id,\n  ja.jobId,\n  ja.contractorId,\n  CONCAT(c.firstName, ' ', c.lastName) as contractorName,\n  c.telegramChatId,\n  ja.startDate,\n  ja.endDate,\n  ja.status,\n  ja.acknowledged,\n  ja.createdAt\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nWHERE CONCAT(c.firstName, ' ', c.lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\n  AND ja.status IN ('assigned', 'in_progress')\n  AND (ja.endDate IS NULL OR ja.endDate >= CURDATE())\nORDER BY ja.createdAt DESC\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute \nSELECT \n  ja.id,\n  ja.jobId,\n  ja.contractorId,\n  CONCAT(c.firstName, ' ', c.lastName) as contractorName,\n  c.telegramChatId,\n  ja.startDate,\n  ja.endDate,\n  ja.status,\n  ja.acknowledged,\n  ja.createdAt\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nWHERE CONCAT(c.firstName, ' ', c.lastName) IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\n  AND ja.status IN ('assigned', 'in_progress')\n  AND (ja.endDate IS NULL OR ja.endDate >= CURDATE())\nORDER BY ja.createdAt DESC\n",
+  "rows": [
+    {
+      "id": "630002",
+      "jobId": "780001",
+      "contractorId": "150001",
+      "contractorName": "Dalwayne Diedericks",
+      "telegramChatId": "8016744652",
+      "startDate": "2025-11-18 00:00:00",
+      "endDate": "2025-11-21 00:00:00",
+      "status": "assigned",
+      "acknowledged": "0",
+      "createdAt": "2025-11-18 07:37:44"
+    },
+    {
+      "id": "630001",
+      "jobId": "780001",
+      "contractorId": "150002",
+      "contractorName": "Mohamed Guizeni",
+      "telegramChatId": "5209713845",
+      "startDate": "2025-11-18 00:00:00",
+      "endDate": "2025-11-29 00:00:00",
+      "status": "assigned",
+      "acknowledged": "0",
+      "createdAt": "2025-11-18 07:37:06"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tcontractorId\tcontractorName\ttelegramChatId\tstartDate\tendDate\tstatus\tacknowledged\tcreatedAt\n630002\t780001\t150001\tDalwayne Diedericks\t8016744652\t2025-11-18 00:00:00\t2025-11-21 00:00:00\tassigned\t0\t2025-11-18 07:37:44\n630001\t780001\t150002\tMohamed Guizeni\t5209713845\t2025-11-18 00:00:00\t2025-11-29 00:00:00\tassigned\t0\t2025-11-18 07:37:06\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

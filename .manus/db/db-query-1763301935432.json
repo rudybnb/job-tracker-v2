@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, title, postCode, latitude, longitude FROM jobs LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, title, postCode, latitude, longitude FROM jobs LIMIT 5",
+  "rows": [
+    {
+      "id": "450001",
+      "title": "Freddy Jacson,,,,,",
+      "postCode": "DA17 5DB,,,,,",
+      "latitude": "NULL",
+      "longitude": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tpostCode\tlatitude\tlongitude\n450001\tFreddy Jacson,,,,,\tDA17 5DB,,,,,\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

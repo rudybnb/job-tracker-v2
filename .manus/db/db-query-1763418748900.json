@@ -1,0 +1,14 @@
+{
+  "query": "SELECT id, title FROM jobs WHERE title LIKE '%Emmanuel%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, title FROM jobs WHERE title LIKE '%Emmanuel%'",
+  "rows": [
+    {
+      "id": "690002",
+      "title": "Emmanuel ,,,,,"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\n690002\tEmmanuel ,,,,,\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

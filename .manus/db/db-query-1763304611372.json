@@ -1,0 +1,9 @@
+{
+  "query": "SELECT ja.id as assignment_id, ja.jobId, j.title, j.postCode, j.latitude, j.longitude FROM jobAssignments ja LEFT JOIN jobs j ON ja.jobId = j.id WHERE ja.contractorId = 120001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT ja.id as assignment_id, ja.jobId, j.title, j.postCode, j.latitude, j.longitude FROM jobAssignments ja LEFT JOIN jobs j ON ja.jobId = j.id WHERE ja.contractorId = 120001;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 53
+}

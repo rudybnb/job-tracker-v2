@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE jobs SET latitude = '51.4408', longitude = '0.1838' WHERE title LIKE '%Freddy%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute UPDATE jobs SET latitude = '51.4408', longitude = '0.1838' WHERE title LIKE '%Freddy%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 55
+}

@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  ja.id,\n  ja.jobId,\n  ja.contractorId,\n  c.name as contractorName,\n  c.telegramChatId,\n  ja.notificationSent,\n  ja.notificationSentAt,\n  ja.acknowledgedAt,\n  ja.createdAt,\n  j.clientName,\n  j.address\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nJOIN jobs j ON ja.jobId = j.id\nWHERE c.name IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\nORDER BY ja.createdAt DESC\nLIMIT 10\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute \nSELECT \n  ja.id,\n  ja.jobId,\n  ja.contractorId,\n  c.name as contractorName,\n  c.telegramChatId,\n  ja.notificationSent,\n  ja.notificationSentAt,\n  ja.acknowledgedAt,\n  ja.createdAt,\n  j.clientName,\n  j.address\nFROM jobAssignments ja\nJOIN contractors c ON ja.contractorId = c.id\nJOIN jobs j ON ja.jobId = j.id\nWHERE c.name IN ('Mohamed Guizeni', 'Dalwayne Diedericks')\nORDER BY ja.createdAt DESC\nLIMIT 10\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'c.name' in 'where clause'"
+  ]
+}

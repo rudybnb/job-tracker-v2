@@ -1,0 +1,27 @@
+{
+  "query": "SELECT * FROM progressReports ORDER BY createdAt DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT * FROM progressReports ORDER BY createdAt DESC LIMIT 1",
+  "rows": [
+    {
+      "id": "1",
+      "contractorId": "120001",
+      "assignmentId": "210001",
+      "jobId": "390002",
+      "reportDate": "2025-11-16 12:06:37",
+      "phaseName": "Internal Decoration",
+      "taskName": "Install decorative molding and trim",
+      "notes": "Completed installation of decorative molding in the living room and master bedroom. Used white painted MDF molding throughout. All corners are properly mitered and caulked. Trim work is complete and ready for final inspection. No issues encountered. Materials used: 50 meters of crown molding, wood glue, finishing nails, and white caulk.",
+      "photoUrls": "[]",
+      "status": "submitted",
+      "reviewedBy": "NULL",
+      "reviewedAt": "NULL",
+      "reviewNotes": "NULL",
+      "createdAt": "2025-11-16 12:06:37",
+      "updatedAt": "2025-11-16 12:06:37"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcontractorId\tassignmentId\tjobId\treportDate\tphaseName\ttaskName\tnotes\tphotoUrls\tstatus\treviewedBy\treviewedAt\treviewNotes\tcreatedAt\tupdatedAt\n1\t120001\t210001\t390002\t2025-11-16 12:06:37\tInternal Decoration\tInstall decorative molding and trim\tCompleted installation of decorative molding in the living room and master bedroom. Used white painted MDF molding throughout. All corners are properly mitered and caulked. Trim work is complete and ready for final inspection. No issues encountered. Materials used: 50 meters of crown molding, wood glue, finishing nails, and white caulk.\t[]\tsubmitted\tNULL\tNULL\tNULL\t2025-11-16 12:06:37\t2025-11-16 12:06:37\n",
+  "stderr": "",
+  "execution_time_ms": 709
+}

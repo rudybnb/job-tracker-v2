@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, username, firstName, lastName, primaryTrade FROM contractors ORDER BY id",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, username, firstName, lastName, primaryTrade FROM contractors ORDER BY id",
+  "rows": [
+    {
+      "id": "90001",
+      "username": "mohamed",
+      "firstName": "Rudy",
+      "lastName": "Diedericks",
+      "primaryTrade": "Plumber"
+    },
+    {
+      "id": "90002",
+      "username": "NULL",
+      "firstName": "Marius",
+      "lastName": "Andronache",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "120001",
+      "username": "john",
+      "firstName": "John",
+      "lastName": "Smith",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "150001",
+      "username": "NULL",
+      "firstName": "Dalwayne",
+      "lastName": "Diedericks",
+      "primaryTrade": "General Builder"
+    },
+    {
+      "id": "150002",
+      "username": "NULL",
+      "firstName": "Mohamed",
+      "lastName": "Guizeni",
+      "primaryTrade": "Plumber"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tfirstName\tlastName\tprimaryTrade\n90001\tmohamed\tRudy\tDiedericks\tPlumber\n90002\tNULL\tMarius\tAndronache\tGeneral Builder\n120001\tjohn\tJohn\tSmith\tGeneral Builder\n150001\tNULL\tDalwayne\tDiedericks\tGeneral Builder\n150002\tNULL\tMohamed\tGuizeni\tPlumber\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

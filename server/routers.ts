@@ -8,6 +8,8 @@ import { TRPCError } from "@trpc/server";
 import * as telegram from "./telegram";
 import { contractorAuthRouter } from "./contractorAuth";
 import { mobileApiRouter } from "./mobileApi";
+import { telegramApiRouter } from "./routers/telegramApi";
+import { reminderRouter } from "./routers/reminderRouter";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -29,6 +31,8 @@ export const appRouter = router({
   system: systemRouter,
   contractorAuth: contractorAuthRouter,
   mobileApi: mobileApiRouter, // Mobile app endpoints for contractors
+  telegramApi: telegramApiRouter, // Telegram bot endpoints for n8n integration
+  reminders: reminderRouter, // Reminder logs and check-in tracking
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -263,12 +267,26 @@ export const appRouter = router({
           const jobId = jobResult.insertId;
           console.log(`[CSV] Job created with ID: ${jobId}`);
 
-          // Create phases
+          // Group Material tasks by phase (Labour is for payment only, not tasks)
+          const tasksByPhase = new Map<string, string[]>();
+          for (const resource of result.resources) {
+            if (resource.typeOfResource === 'Material') {
+              if (!tasksByPhase.has(resource.buildPhase)) {
+                tasksByPhase.set(resource.buildPhase, []);
+              }
+              tasksByPhase.get(resource.buildPhase)!.push(resource.resourceDescription);
+            }
+          }
+
+          // Create phases with aggregated tasks
           for (let j = 0; j < result.phases.length; j++) {
+            const phaseName = result.phases[j];
+            const phaseTasks = tasksByPhase.get(phaseName) || [];
+            
             await db.createBuildPhase({
               jobId,
-              phaseName: result.phases[j],
-              tasks: '',
+              phaseName,
+              tasks: JSON.stringify(phaseTasks),
               order: j,
             });
           }
@@ -389,6 +407,34 @@ export const appRouter = router({
       return await db.getAllJobAssignments();
     }),
 
+    // Test endpoint to manually send notification
+    testNotification: adminProcedure
+      .input(z.object({ contractorId: z.number(), jobId: z.number() }))
+      .mutation(async ({ input }) => {
+        console.log('[TEST] Starting manual notification test');
+        const job = await db.getJobById(input.jobId);
+        const contractor = await db.getContractorById(input.contractorId);
+        
+        console.log('[TEST] Job:', job?.title);
+        console.log('[TEST] Contractor:', contractor?.firstName, contractor?.lastName);
+        console.log('[TEST] Chat ID:', contractor?.telegramChatId);
+        
+        if (!contractor?.telegramChatId) {
+          throw new Error('Contractor has no Telegram chat ID');
+        }
+        
+        const { sendTelegramNotification } = await import("./_core/telegramNotifications");
+        const result = await sendTelegramNotification({
+          chatId: contractor.telegramChatId,
+          message: `🔔 *Test Job Assignment*\n\n📍 Job: ${job?.title || 'Test'}\n\nThis is a manual test notification.`,
+          type: "job_assigned",
+          parseMode: "Markdown",
+        });
+        
+        console.log('[TEST] Notification result:', result);
+        return { success: result.success, message: 'Test notification sent' };
+      }),
+
     create: adminProcedure
       .input(
         z.object({
@@ -403,11 +449,68 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
+        console.log('[Job Assignment] CREATE MUTATION CALLED');
+        console.log('[Job Assignment] Input:', JSON.stringify(input, null, 2));
         const { contractorIds, selectedPhases, ...assignmentData } = input;
         const results = [];
 
+        // Get job details for notification
+        console.log('[Job Assignment] Fetching job', input.jobId);
+        const job = await db.getJobById(input.jobId);
+        console.log('[Job Assignment] Job found:', job?.title);
+        if (!job) {
+          throw new Error("Job not found");
+        }
+
         // Create an assignment for each contractor
+        console.log('[Job Assignment] About to loop through contractors:', contractorIds);
+        console.log('[Job Assignment] Number of contractors:', contractorIds.length);
+        
         for (const contractorId of contractorIds) {
+          console.log('[Job Assignment] Processing contractor:', contractorId);
+          // Send Telegram notification BEFORE creating assignment
+          try {
+            // Write to file to prove this code executes
+            await import('fs/promises').then(fs => fs.appendFile('/tmp/assignment_debug.log', `${new Date().toISOString()} - Notification attempt for contractor ${contractorId}\n`));
+            
+            console.log(`[Job Assignment] Attempting to send notification to contractor ${contractorId}`);
+            const contractor = await db.getContractorById(contractorId);
+            console.log(`[Job Assignment] Contractor found:`, contractor ? `${contractor.firstName} ${contractor.lastName}` : 'NOT FOUND');
+            console.log(`[Job Assignment] Telegram chat ID:`, contractor?.telegramChatId || 'NONE');
+            if (contractor?.telegramChatId) {
+              const { sendTelegramNotification } = await import("./_core/telegramNotifications");
+              
+              const phasesText = selectedPhases && selectedPhases.length > 0
+                ? `\n\n📋 Assigned Phases:\n${selectedPhases.map(p => `  • ${p}`).join('\n')}`
+                : '';
+              
+              const instructionsText = input.specialInstructions
+                ? `\n\n📝 Special Instructions:\n${input.specialInstructions}`
+                : '';
+              
+              const message = `🔔 *New Job Assignment*\n\n` +
+                `📍 Job: ${job.title}\n` +
+                `📌 Address: ${job.address || 'N/A'}\n` +
+                `📅 Start: ${input.startDate.toLocaleDateString()}\n` +
+                `📅 End: ${input.endDate.toLocaleDateString()}` +
+                phasesText +
+                instructionsText +
+                `\n\n✅ Reply with "ACCEPT" to acknowledge this assignment.`;
+              
+              await sendTelegramNotification({
+                chatId: contractor.telegramChatId,
+                message,
+                type: "job_assigned",
+                parseMode: "Markdown",
+              });
+              console.log(`[Job Assignment] Telegram notification sent to contractor ${contractorId}`);
+            }
+          } catch (error) {
+            console.error(`[Job Assignment] Failed to send Telegram notification to contractor ${contractorId}:`, error);
+            // Don't fail the assignment if notification fails
+          }
+
+          // Create assignment after notification
           const result = await db.createJobAssignment({
             ...assignmentData,
             contractorId,
@@ -872,6 +975,43 @@ export const appRouter = router({
       const isValid = await telegram.verifyBotToken();
       return { isValid, configured: !!process.env.TELEGRAM_BOT_TOKEN };
     }),
+  }),
+
+  // Progress Reports (Admin)
+  progressReports: router({    
+    // Get all progress reports with filtering
+    getAll: adminProcedure
+      .input(
+        z.object({
+          contractorId: z.number().optional(),
+          jobId: z.number().optional(),
+          status: z.enum(["submitted", "reviewed", "approved"]).optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await db.getAllProgressReports(input);
+      }),
+
+    // Review a progress report (approve/reject with notes)
+    review: adminProcedure
+      .input(
+        z.object({
+          reportId: z.number(),
+          status: z.enum(["reviewed", "approved"]),
+          reviewNotes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await db.reviewProgressReport({
+          reportId: input.reportId,
+          status: input.status,
+          reviewNotes: input.reviewNotes || null,
+          reviewedBy: ctx.user.id,
+        });
+        return { success: true };
+      }),
   }),
 });
 

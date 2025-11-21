@@ -1,0 +1,125 @@
+{
+  "name": "Job Tracker - Telegram Bot (Simplified)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "webhookId": "telegram-simple-bot",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.message.voice}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Has Voice?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "fileId": "={{$json.message.voice.file_id}}"
+      },
+      "name": "Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SERVER_URL}}/api/telegram/handle-message",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{$node[\"Telegram Trigger\"].json.message.chat.id}}\",\n  \"firstName\": \"{{$node[\"Telegram Trigger\"].json.message.from.first_name}}\",\n  \"messageType\": \"voice\",\n  \"voiceFileUrl\": \"{{$json.result.file_path}}\"\n}",
+        "options": {}
+      },
+      "name": "Process Voice Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SERVER_URL}}/api/telegram/handle-message",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chatId\": \"{{$json.message.chat.id}}\",\n  \"firstName\": \"{{$json.message.from.first_name}}\",\n  \"messageType\": \"text\",\n  \"message\": \"{{$json.message.text}}\"\n}",
+        "options": {}
+      },
+      "name": "Process Text Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Telegram Trigger\"].json.message.chat.id}}",
+        "text": "={{$json.response}}",
+        "additionalFields": {}
+      },
+      "name": "Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1050, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [[{"node": "Has Voice?", "type": "main", "index": 0}]]
+    },
+    "Has Voice?": {
+      "main": [
+        [{"node": "Get Voice File", "type": "main", "index": 0}],
+        [{"node": "Process Text Message", "type": "main", "index": 0}]
+      ]
+    },
+    "Get Voice File": {
+      "main": [[{"node": "Process Voice Message", "type": "main", "index": 0}]]
+    },
+    "Process Voice Message": {
+      "main": [[{"node": "Send Response", "type": "main", "index": 0}]]
+    },
+    "Process Text Message": {
+      "main": [[{"node": "Send Response", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-18T16:00:00.000Z",
+  "versionId": "2"
+}

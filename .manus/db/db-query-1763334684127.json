@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, firstName, lastName, telegramChatId FROM contractors WHERE id IN (90001, 90002, 150001, 150002)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, lastName, telegramChatId FROM contractors WHERE id IN (90001, 90002, 150001, 150002)",
+  "rows": [
+    {
+      "id": "90001",
+      "firstName": "Rudy",
+      "lastName": "Diedericks",
+      "telegramChatId": "7617462316"
+    },
+    {
+      "id": "90002",
+      "firstName": "Marius",
+      "lastName": "Andronache",
+      "telegramChatId": "8006717361"
+    },
+    {
+      "id": "150001",
+      "firstName": "Dalwayne",
+      "lastName": "Johnson",
+      "telegramChatId": "80167446"
+    },
+    {
+      "id": "150002",
+      "firstName": "Muhammed",
+      "lastName": "Guizeni",
+      "telegramChatId": "5209713845"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\ttelegramChatId\n90001\tRudy\tDiedericks\t7617462316\n90002\tMarius\tAndronache\t8006717361\n150001\tDalwayne\tJohnson\t80167446\n150002\tMuhammed\tGuizeni\t5209713845\n",
+  "stderr": "",
+  "execution_time_ms": 83
+}

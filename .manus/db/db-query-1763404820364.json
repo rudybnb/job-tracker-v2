@@ -1,0 +1,19 @@
+{
+  "query": "SELECT id, title, address, postCode, status, rooms, createdAt FROM jobs ORDER BY id DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, title, address, postCode, status, rooms, createdAt FROM jobs ORDER BY id DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "570001",
+      "title": "Freddy Jacson,,,,,",
+      "address": "Belvedere,,,,,",
+      "postCode": "DA17 5DB,,,,,",
+      "status": "pending",
+      "rooms": "NULL",
+      "createdAt": "2025-11-17 18:38:04"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\taddress\tpostCode\tstatus\trooms\tcreatedAt\n570001\tFreddy Jacson,,,,,\tBelvedere,,,,,\tDA17 5DB,,,,,\tpending\tNULL\t2025-11-17 18:38:04\n",
+  "stderr": "",
+  "execution_time_ms": 891
+}

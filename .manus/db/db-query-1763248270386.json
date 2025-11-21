@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE buildPhases SET tasks = '[\"Prepare walls and ceilings for plastering\", \"Apply base coat of plaster to all walls\", \"Apply finishing coat and smooth surfaces\", \"Sand and prepare plastered surfaces for painting\"]' WHERE jobId = 390002 AND phaseName = 'Plastering'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute UPDATE buildPhases SET tasks = '[\"Prepare walls and ceilings for plastering\", \"Apply base coat of plaster to all walls\", \"Apply finishing coat and smooth surfaces\", \"Sand and prepare plastered surfaces for painting\"]' WHERE jobId = 390002 AND phaseName = 'Plastering'",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 53
+}

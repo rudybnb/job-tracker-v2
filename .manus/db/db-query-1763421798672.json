@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, jobId, contractorId, createdAt FROM jobAssignments ORDER BY createdAt DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, jobId, contractorId, createdAt FROM jobAssignments ORDER BY createdAt DESC LIMIT 1",
+  "rows": [
+    {
+      "id": "600004",
+      "jobId": "750003",
+      "contractorId": "90001",
+      "createdAt": "2025-11-17 23:22:20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tcontractorId\tcreatedAt\n600004\t750003\t90001\t2025-11-17 23:22:20\n",
+  "stderr": "",
+  "execution_time_ms": 98
+}

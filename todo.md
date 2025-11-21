@@ -73,6 +73,8 @@
 ## Bug Fixes
 - [x] Fix jobs not loading on Job Assignments page (jobs are loading correctly)
 - [x] Restore delete buttons on CSV Upload page (improved visibility with red color)
+- [x] Fix Telegram bot returning same cached response ("Thanks for the progress update, Rudy!") for all messages
+- [x] Ensure message handler processes each message individually and returns appropriate responses
 
 ## Color Scheme Refinement
 - [x] Update to exact old app colors: #1F2A38 (navy bg), #D97706 (amber buttons), #333D4D (slate borders), #3682FF (primary blue)
@@ -455,3 +457,535 @@
 - [x] Simplify contractor login page - replace form with direct button onClick handler
 
 - [x] Create ultra-simple vanilla JavaScript login page (no React complexity) - available at /contractor-login-simple.html
+
+- [x] Fix redirect after successful login - changed to window.location.replace()
+
+- [x] Fix ContractorDashboard to accept localStorage token authentication - updated dashboard, mobileApi.me endpoint, and tRPC client
+
+- [x] Debug persistent redirect issue - removed duplicate useEffect that was causing redirect loop
+
+- [x] Debug why John's assignment isn't showing on contractor dashboard - fixed getMyAssignments to decode JWT token
+- [x] Implement GPS geofencing for clock-in (10m radius from job site) - updated from 1000m to 10m
+
+- [x] Fix TypeError in ContractorDashboard - changed assignment.phases to assignment.selectedPhases with optional chaining
+
+- [ ] Review and implement missing contractor dashboard pages
+- [x] Create contractor task list page - view assigned tasks and mark complete
+- [ ] Create progress report submission page - upload photos and notes
+- [x] Add navigation between contractor pages - added "View My Tasks" button to dashboard header
+
+- [x] Fix ContractorTasks authentication redirect - changed to check contractor_id instead of contractor_data
+
+- [x] Add sample tasks to buildPhases for Freddy Jacson job (Internal Decoration: 3 tasks, Plastering: 4 tasks, Carpentry: 3 tasks)
+
+- [ ] Test contractor task completion flow - login, view tasks, mark complete
+
+
+## Progress Report Feature
+- [x] Create progressReports table in database schema with photo URLs and notes
+- [x] Implement uploadProgressPhoto API endpoint for S3 photo uploads
+- [x] Implement submitProgressReport API endpoint to save reports
+- [x] Implement getProgressReports API endpoint to fetch contractor reports
+- [x] Create ContractorProgressReport page with photo upload UI
+- [x] Add photo preview and multiple photo upload support
+- [x] Add form fields for task selection, notes, and date
+- [x] Add navigation button from contractor dashboard to progress reports
+- [x] Test photo upload to S3 and report submission
+- [x] Verify progress reports persist and display correctly
+
+## Admin Progress Report Review Feature
+- [x] Implement getAllProgressReports API endpoint with filtering (contractor, job, date, status)
+- [x] Implement reviewProgressReport API endpoint to approve/reject with notes
+- [x] Create ProgressReports admin page with data table and filters
+- [x] Add filter controls for contractor, job, date range, and status
+- [x] Add review modal with approve/reject buttons and notes textarea
+- [x] Display progress report photos in modal with lightbox
+- [x] Add status badges (submitted, reviewed, approved) in table
+- [x] Add navigation link to progress reports in admin sidebar
+- [x] Test filtering, approval workflow, and status updates
+
+## GPS Clock-In/Clock-Out Feature
+- [x] Add latitude and longitude fields to jobs table in database schema
+- [x] Add GPS coordinates to Freddy Jacson job for testing
+- [x] Create workSessions table with clock-in/clock-out timestamps and GPS coordinates
+- [x] Implement calculateDistance helper function (Haversine formula)
+- [x] Implement clockIn API endpoint with 10-meter geofencing validation
+- [x] Implement clockOut API endpoint with session duration calculation
+- [x] Implement getCurrentSession API endpoint to check active sessions
+- [x] Add clock-in/clock-out UI to contractor dashboard with GPS permission request
+- [x] Display real-time distance from job site location
+- [x] Show validation messages (too far, within range, clocked in successfully)
+- [x] Display active session timer and clock-out button when clocked in
+- [x] Test GPS geofencing with different locations (within 10m, outside 10m)
+- [x] Verify work session data persists correctly in database
+
+## Automatic Postcode Geocoding Feature
+- [x] Research and choose geocoding API (Google Maps Geocoding API or UK Postcode API)
+- [x] Implement geocodePostcode helper function in backend
+- [x] Update job assignment endpoint to geocode postcode automatically
+- [x] Save latitude/longitude to job record when assigning contractor
+- [x] Handle geocoding errors gracefully (invalid postcode, API failure)
+- [x] Add loading state to assignment UI during geocoding
+- [x] Test assignment workflow with valid UK postcodes
+- [x] Verify GPS coordinates are saved correctly for geofencing
+- [x] Test clock-in with newly geocoded job coordinates
+
+## GPS Clock-In Bug Fix
+- [x] Investigate 'contractor not found' error when John tries to clock in
+- [x] Check contractor data in database (contractors table vs users table)
+- [x] Verify clockIn API endpoint contractor lookup logic
+- [x] Fix contractor ID mapping between users and contractors tables
+- [x] Test GPS clock-in with John's credentials and verify success
+
+## Add GPS Coordinates to Freddy Jacson Job
+- [ ] Check Freddy Jacson job postcode in database
+- [ ] Geocode the postcode using Google Maps API
+- [ ] Update job GPS coordinates (latitude, longitude) in database
+- [ ] Verify coordinates are set correctly
+- [ ] Test clock-in on mobile phone with real GPS location
+
+## Fix Mohamed Login Credentials
+- [ ] Query database to find Mohamed's exact username
+- [ ] Check if password hash exists and is valid
+- [ ] Reset password to default pattern if needed
+- [ ] Test login with correct credentials
+- [ ] Verify Mohamed can access contractor dashboard
+
+## Add Password Visibility Toggle
+- [x] Add eye icon button to password field in contractor login page
+- [x] Implement toggle functionality to switch between password/text input type
+- [x] Style eye icon to match login page design
+- [x] Test show/hide password functionality
+
+## Fix Mohamed Login Issue
+- [ ] Query database to find Mohamed's exact username
+- [ ] Verify Mohamed's contractor record exists (ID 90001)
+- [ ] Generate new bcrypt password hash for "mohamed123"
+- [ ] Update Mohamed's password in contractors table
+- [ ] Test login with mohamed/mohamed123 credentials
+- [ ] Verify successful login and dashboard access
+
+## n8n Telegram Bot Integration
+- [x] Add telegramChatId field to contractors table schema
+- [x] Create telegram API router (server/telegramRestApi.ts)
+- [x] Implement GET /api/telegram/worker-type/:chatId endpoint (returns contractor info)
+- [x] Implement GET /api/telegram/hours/:chatId endpoint (returns logged work hours)
+- [x] Implement GET /api/telegram/payments/:chatId endpoint (returns payment status for day-rate contractors)
+- [x] Implement GET /api/telegram/subcontractor/quotes/:chatId endpoint (returns active quotes)
+- [x] Implement GET /api/telegram/subcontractor/milestones/:chatId endpoint (returns milestone progress)
+- [x] Implement GET /api/telegram/subcontractor/payment-status/:chatId endpoint (returns payment status for subcontractors)
+- [x] Update n8n workflow JSON to point to new Job Tracker endpoints
+- [x] Test complete workflow: Telegram message → n8n → Job Tracker API → GPT-4 → Telegram response
+- [ ] Add admin UI to set contractor Telegram chat IDs
+- [ ] Document API endpoints for n8n integration
+
+## n8n Workflow Bug Fix
+- [x] Fix Parse Intent node error: "Cannot read properties of undefined (reading 'worker_type')"
+- [x] Update Parse Intent JavaScript code to correctly access Get Worker Type response data
+- [ ] Test updated workflow in n8n
+
+## Production n8n Workflow
+- [x] Generate n8n workflow with production URL (https://jobtrackr-7pdspyd4.manus.space/)
+- [x] Test production API endpoints are accessible
+- [x] Deliver production-ready workflow file to user
+
+## Link Contractor Telegram Accounts
+- [ ] Update Rudy Diedericks with telegramChatId: 7617462316
+- [ ] Update Hamza Aouichaoui with telegramChatId: 8108393007
+- [ ] Update Marius Andronache with telegramChatId: 8006717361
+- [ ] Update Dalwayne Diedericks with telegramChatId: 8016744652
+- [ ] Test bot with each contractor's Telegram account
+
+## Voice Transcription & Progress Reports (Multi-Language)
+- [x] Add progressReports table to database schema (contractorId, jobId, reportText, originalLanguage, audioUrl, photoUrls, timestamp)
+- [x] Create POST /api/telegram/transcribe-voice endpoint (receives audio file URL, returns transcribed English text)
+- [x] Create POST /api/telegram/progress-report endpoint (saves progress report with transcription)
+- [x] Add voice transcription fields to progressReports table (audioUrl, originalLanguage, transcribedText, transcriptionDuration)
+- [x] Create documentation for voice transcription setup (VOICE_TRANSCRIPTION_SETUP.md)
+- [ ] Update n8n workflow to detect voice messages
+- [ ] Add voice message handling flow in n8n (download audio → transcribe → save report → confirm to contractor)
+- [ ] Add photo upload handling for progress reports
+- [ ] Test voice transcription with Afrikaans, Zulu, Portuguese, French
+- [ ] Add admin view for progress reports in dashboard
+- [ ] Update company name from HBXL to Sculpt Projects in bot responses
+
+## n8n Voice Message Workflow Update
+- [x] Create updated n8n workflow with voice message detection
+- [x] Add Telegram file download nodes for voice messages
+- [x] Add HTTP Request node to call /api/telegram/transcribe-voice
+- [x] Add progress report saving node
+- [x] Add confirmation message back to contractor
+- [x] Update company name to Sculpt Projects in all bot responses
+- [ ] Test complete voice → transcription → save → confirm flow
+
+## n8n Workflow Credential Fix
+- [x] Fix Telegram bot token access in Get Voice File Info node
+- [x] Create /api/telegram/process-voice endpoint that handles bot token server-side
+- [x] Update workflow to use simplified process-voice endpoint
+- [ ] Add TELEGRAM_BOT_TOKEN to environment variables
+- [ ] Test voice file download with corrected authentication
+
+## Progress Reports Dashboard
+- [x] Create tRPC procedure to fetch all progress reports with contractor and job details
+- [x] Create tRPC procedure to filter reports by contractor, job, date range
+- [x] Build Progress Reports page (/progress-reports) with list view
+- [x] Add audio playback component for voice recordings
+- [x] Add photo gallery for attached images
+- [x] Add filters: contractor dropdown, job dropdown, date range picker
+- [x] Show original language and transcription side-by-side
+- [x] Add voice/text type badge in reports table
+- [ ] Add search functionality for report text
+- [ ] Add export to CSV functionality
+- [ ] Fix empty transcription issue (voice messages returning empty text)
+
+## TELEGRAM_BOT_TOKEN Environment Variable Issue
+- [x] Check how TELEGRAM_BOT_TOKEN is accessed in telegramVoiceApi.ts
+- [x] Verify environment variable is properly exposed in ENV configuration
+- [x] Add TELEGRAM_BOT_TOKEN to server/_core/env.ts (added as telegramBotToken)
+- [ ] Test /api/telegram/process-voice endpoint with proper token access
+- [ ] Republish and verify voice messages work
+
+
+## Telegram Bot Voice Progress Reports
+- [x] Create contractor registration API endpoint (/api/telegram/register-contractor)
+- [ ] Build n8n registration workflow for /register command  
+- [x] Update progress report API to link chat ID with registered contractors
+- [ ] Add job/assignment selection for progress reports
+- [ ] Test complete registration and progress report flow
+
+## Telegram Bot Enhancements - Multi-language & Alerts
+- [ ] Add automatic translation for non-English voice messages to English
+- [ ] Create query endpoints for contractor data access (jobs, payments, quotes, milestones)
+- [ ] Implement proactive alert system for job updates
+- [ ] Update n8n workflow to handle translations and queries
+- [ ] Test multi-language voice transcription and translation
+
+
+## Automated Daily Reminders
+- [x] Create scheduled task system for daily reminders
+- [x] Build logic to check contractors with active assignments but no progress reports today
+- [x] Create reminder notification endpoint
+- [x] Add configurable reminder time (default: 5 PM)
+- [ ] Add admin settings page for reminder configuration
+- [x] Test reminder delivery at scheduled time
+
+
+## Admin Reminder Dashboard & Morning Check-in
+- [x] Create reminderLogs table in database schema
+- [x] Build admin dashboard page to view reminder history
+- [x] Show which contractors received reminders and their response status
+- [x] Add morning check-in reminder at 8:15 AM
+- [x] Create check-in tracking system (log when contractors log in or submit reports)
+- [x] Add reason tracking when contractors don't check in by 8:15 AM
+- [x] Create bot command for contractors to report why they can't work today
+- [x] Display check-in status and reasons in admin dashboard
+
+## Voice Progress Report Display Bug
+- [ ] Fix voice progress reports not displaying in admin Progress Reports dashboard
+- [ ] Update Telegram bot confirmation message to include link to view report in app
+- [ ] Verify voice reports are being saved correctly to database
+- [ ] Test complete voice report workflow from Telegram to admin dashboard
+
+
+## n8n Morning Check-in Workflow
+- [ ] Create n8n workflow JSON for morning check-in reminders
+- [ ] Add Schedule Trigger node for 8:15 AM daily
+- [ ] Add HTTP Request node to fetch contractors from database
+- [ ] Add Telegram Send Message nodes for each contractor
+- [ ] Add Telegram Trigger node to listen for responses
+- [ ] Add Switch node to detect "working" vs "reason" responses
+- [ ] Add HTTP Request nodes to call /api/telegram/checkin-confirm and /api/telegram/checkin-reason
+- [ ] Test workflow with real contractor Telegram accounts
+- [ ] Document workflow setup and configuration
+
+
+## Voice Message Translation Bug
+- [x] Fix language detection for Afrikaans voice messages (currently showing "UNKNOWN")
+- [x] Add automatic translation from Afrikaans to English
+- [x] Update progress report display to show both original and translated text
+- [x] Test with multiple languages (Afrikaans, Portuguese, Zulu)
+- [x] Ensure translation works for all non-English voice messages
+
+
+## Test Endpoint for Morning Check-in
+- [x] Create test endpoint to send sample morning check-in message to admin's Telegram
+- [x] Test message delivery and verify format
+- [x] Document how to use test endpoint
+
+
+## n8n Workflow Conflict Resolution
+- [x] Design logic to distinguish check-in responses from progress reports
+- [x] Update progress report workflow to filter out check-in keywords
+- [x] Update check-in workflow to only process check-in responses
+- [x] Add keyword-based filtering for smart message routing
+- [x] Update workflows to use new translation endpoint
+- [x] Create comprehensive setup and testing guide
+
+## Telegram Response Handler Implementation
+- [x] Fix Telegram chat ID truncation issue (updated all 4 contractors with correct 10-digit chat IDs)
+- [x] Create server-side Telegram webhook handler endpoint (/api/telegram/webhook)
+- [x] Add message processing logic with keyword detection (working, yes, ok, etc.)
+- [x] Implement automatic routing to confirm vs reason handlers
+- [x] Add database updates for checkIns and reminderLogs tables
+- [x] Integrate Telegram API for sending reply messages
+- [x] Register webhook with Telegram servers (using dev server URL)
+- [x] Test complete flow: message → process → database → reply
+- [x] Debug and fix webhook routing issues
+- [x] Verify webhook works with real Telegram messages
+- [ ] Monitor webhook logs for any errors
+- [ ] Add multi-language keyword support (Afrikaans, Romanian, Arabic)
+
+## AI-Powered Telegram Chatbot
+- [ ] Create AI query handler with LLM integration for natural language understanding
+- [ ] Build comprehensive database query functions for all entities
+- [ ] Implement smart access control (admin vs contractor permissions)
+- [ ] Add query handlers for jobs (active, completed, pending, over budget)
+- [ ] Add query handlers for payments (outstanding, paid, owed by contractor)
+- [ ] Add query handlers for budgets (spent, remaining, over/under budget)
+- [ ] Add query handlers for contractors (availability, performance, work history)
+- [ ] Add query handlers for work sessions (hours logged, daily summaries)
+- [ ] Add query handlers for progress reports (latest updates, issues)
+- [ ] Update webhook to route check-ins vs conversational queries
+- [ ] Add formatted response templates for different query types
+- [ ] Test with various natural language questions
+- [ ] Add error handling and fallback responses
+
+
+## AI-Powered Telegram Chatbot
+- [x] Create AI query handler with LLM integration for natural language understanding
+- [x] Build database query functions for all entities (jobs, payments, budgets, contractors, work sessions, check-ins, progress reports)
+- [x] Implement access control (admin sees all data, contractors see only their own)
+- [x] Integrate chatbot into Telegram webhook to handle conversational queries
+- [x] Add support for common questions (payments owed, job status, budget tracking, hours worked)
+- [x] Route check-in keywords to confirmation handler, everything else to AI chatbot
+- [x] Fix TypeScript compilation errors in chatbot module
+- [x] Update webhook to import and call chatbot for non-confirmation messages
+- [ ] Test with various natural language questions via Telegram
+- [ ] Add multi-language support (Afrikaans, Romanian, Arabic)
+- [ ] Add conversation history/context for follow-up questions
+- [ ] Implement caching for frequently asked questions
+
+
+## Telegram Voice Command Support
+- [x] Detect voice messages in Telegram webhook
+- [x] Download voice file from Telegram servers
+- [x] Convert voice to text using Whisper API (voiceTranscription helper)
+- [x] Route transcribed text to AI chatbot
+- [x] Send text reply back to user
+- [x] Add error handling for transcription failures
+- [ ] Test with various voice queries (ready for user testing)
+- [ ] Add voice reply support (text-to-speech for responses)
+
+
+## n8n Modular Agent System
+- [ ] Create Check-in Response Agent workflow (handles yes/reasons)
+- [ ] Create Query Agent workflow (AI-powered database queries)
+- [ ] Create Router Agent workflow (directs messages to correct agent)
+- [ ] Test each agent independently
+- [ ] Test agent-to-agent communication
+- [ ] Export all agent workflow JSON files
+- [ ] Document agent architecture and linking pattern
+
+## HBXL Room-Based Pricing System
+- [x] Add rooms field to jobs table (JSON array)
+- [x] Add pricingModel field to jobAssignments (hourly, per_room, per_phase, fixed_price)
+- [x] Add hourlyRate, pricePerRoom fields to jobAssignments
+- [x] Add assignedRooms and completedRooms tracking
+- [x] Create room completion handler for Telegram bot
+- [x] Update Dalwayne and Mohamed contractor information
+- [x] Set up Timi Fofuyen test job with 8 rooms and 2 contractors
+- [ ] Fix contractor assignment interface - cannot assign contractors to jobs
+- [x] Fix contractor authentication bug - Mohamed login shows Welcome Rudy instead of correct name
+- [x] Fix contractor task view - shows "No tasks defined for this phase" instead of actual tasks
+- [x] Extract Material resources as tickable tasks (not Labour) with percentage completion indicator
+- [x] Fix CSV parser to handle "Material - [supplier]" format instead of exact "Material" match
+- [x] Fix CSV parser to handle empty Order Quantity for Material resources
+- [x] Set up login credentials for Dalwayne contractor (username: dalwayne, password: dalwayne123)
+- [x] Implement Telegram alerts when assigning contractors to jobs
+- [x] Add acknowledgment tracking for job assignments
+- [ ] Debug why Rudy didn't receive Telegram notification for job assignment
+- [x] Add postcode to Telegram notification message
+- [x] Fix acknowledgment handler to process ACCEPT messages correctly instead of showing general help menu
+- [x] Clear all reminder logs from database
+- [x] Create short URL redirect /login for contractor login page
+- [x] Update entire app color scheme to match contractor login page (dark navy background with orange accents)
+- [x] Apply gold/orange finish to all headings throughout the app
+- [x] Investigate why Mohamed and Dalwayne didn't receive Telegram messages for assignments and 8:15 reminder this morning
+- [x] Fix missing assign button on Jobs page
+- [x] Fix issue when clicking Job Assignments in sidebar
+- [x] Restore missing Create Assignment button on Job Assignments page
+- [x] Change Create Assignment button color to green
+- [x] Create comprehensive n8n workflow for Telegram bot (all features in one workflow)
+- [x] Include AI chatbot, voice/text translation, reminders, assignments, budget tracking
+- [x] Create API endpoints for AI query and reminder reply agents
+- [x] Document complete setup instructions
+- [x] Create simplified n8n workflow (only 6 nodes, easier to configure)
+- [x] Create unified message handler that routes all logic server-side
+- [x] Fix voice message transcription in Telegram bot (text messages work, voice messages fail)
+- [x] Create updated n8n workflow using Transcribe Recording node (same as working progress report workflow)
+
+## Progress Report Agent Implementation
+- [x] Add progressReports table to database schema
+- [x] Create progressReportSessions table for conversation state
+- [x] Add Telegram menu button (/report command) interface
+- [x] Implement voice transcription for report responses
+- [x] Create server conversation handler for multi-step flow
+- [x] Integrate with existing /api/telegram/handle-message endpoint
+- [x] Admin dashboard view already exists (Progress Reports page)
+- [x] Test complete flow: /report → 4 questions → voice/text responses → save → display in admin
+
+## AI Chatbot Issues
+- [x] Fix AI chatbot returning wrong contractor data (showing Rudy's check-ins when asked about Mohamed)
+- [x] Ensure chatbot queries filter by correct contractor name/ID
+- [ ] Test contractor-specific queries (check-ins, payments, assignments)
+
+## Debugging Tasks
+- [x] Add console.log to verify LLM intent extraction (specificEntities, category, timeRange)
+- [ ] Test if contractor name filtering is actually being triggered
+- [ ] Verify n8n workflow is hitting the updated server endpoint
+
+## Telegram Bot Improvements
+- [x] Replace complex AI intent analysis with simple keyword-based routing
+- [x] Add direct keyword matching for: "did [name] clock in", "show [name]'s hours", "[name] payment"
+- [x] Extract contractor name from message using regex patterns
+- [x] Query database directly without LLM overhead
+- [x] Fall back to AI chatbot only for complex/unmatched queries
+
+## Natural Language Query Improvements
+- [x] Make contractor queries more flexible - detect contractor names anywhere in message
+- [x] Support natural patterns: "mohamed clock in?", "any update mohamed", "where is mohamed", "check mohamed"
+- [x] Infer query type from context keywords (clock/check → check-ins, where/location → GPS, etc.)
+- [x] Remove rigid regex patterns in favor of flexible name + keyword detection
+
+## Direct Telegram Webhook (Proper Implementation)
+- [x] Create webhook endpoint that immediately returns {ok: true} to avoid timeout
+- [x] Process messages asynchronously in background
+- [x] Send responses via Telegram sendMessage API (not webhook response)
+- [x] Handle text and voice messages
+- [x] Register webhook URL with Telegram API
+- [ ] Test end-to-end: Telegram → Webhook → Processing → sendMessage → User receives response
+- [ ] Remove n8n dependency completely
+
+## Webhook Debugging
+- [x] Check if webhook is receiving messages from Telegram
+- [x] Fixed route conflict - removed old disabled webhook endpoint
+- [ ] Verify async processing is being triggered
+- [ ] Check if sendMessage API calls are being made
+- [ ] Verify bot token is correct and has permissions
+- [ ] Test with simple echo response to isolate issue
+
+## Webhook Testing & Verification
+- [x] Check /tmp/telegram-webhook.log to see user's chat ID
+- [x] Verify user's chat ID is registered in contractors table
+- [x] If not registered, either register user or use a contractor's chat ID for testing
+- [x] Verify responses are being sent successfully (Dalwayne test: ok=true)
+- [ ] Test with actual contractor queries once chat ID is confirmed
+
+## Telegram API Error Debugging
+- [ ] Add detailed logging to capture exact Telegram API error response
+- [ ] Identify why sendMessage returns 400 error
+- [ ] Check if bot token is valid
+- [ ] Check if chat ID format is correct
+- [ ] Verify bot hasn't been blocked by user
+- [ ] Fix the error and verify message delivery works
+
+## Morning Reminder Issues
+- [x] Check reminder system configuration (time, timezone, enabled status) - Configured for 8:15 AM UTC
+- [x] Verify reminder cron job or scheduler is running - Scheduler is initialized
+- [x] Check if reminders are being sent via n8n or server - Server-side scheduler
+- [x] Verify Telegram bot can send messages to contractors - Webhook working (Dalwayne test)
+- [ ] ROOT CAUSE: No active job assignments in database - reminders only sent to contractors with active assignments
+- [ ] Create test assignment or manually trigger reminder to verify system works
+
+## Scheduler Date Issue
+- [x] ROOT CAUSE: Most job assignments have end dates in the past (Nov 19) or today (Nov 20)
+- [x] Scheduler filters assignments by date range - only sends to active assignments
+- [ ] Extend assignment end dates to future dates (e.g., Nov 30) so reminders continue
+- [ ] Or manually trigger test reminder to verify system works
+- [ ] Update assignments in UI to have proper date ranges
+
+## Test Reminder Trigger
+- [x] Trigger test reminders via /api/scheduler/test-reminders endpoint
+- [x] Modified endpoint to send to ALL contractors (not just active assignments)
+- [x] Successfully sent to 4 contractors (Mohamed, Dalwayne, Rudy, Marius)
+- [ ] Verify contractors received test reminders on Telegram
+- [ ] Test voice message reply to reminder
+
+## Render Deployment Files
+- [x] Created render.yaml configuration file
+- [x] Created build.sh script
+- [x] Created start.sh script
+- [x] Created health check endpoint (/api/health)
+- [x] Created comprehensive deployment guide (RENDER_DEPLOYMENT.md)
+- [ ] Download files from Manus
+- [ ] Push to GitHub repository
+- [ ] Deploy to Render
+- [ ] Update Telegram webhook to Render URL
+
+## Known Bugs (Fix After Render Deployment)
+- [ ] "Who worked yesterday" query returns wrong response (acknowledgment instead of work session list)
+- [ ] Add better routing to distinguish between queries and progress reports
+- [ ] Add Afrikaans language support for contractor queries (het, gewerk, vandag, etc.)
+- [ ] Implement "who worked" query handler to list contractors with work sessions/check-ins for specified date
+
+## Render Deployment Fixes
+- [x] Move drizzle-kit to regular dependencies (not devDependencies)
+- [x] Update build script to ensure migrations run correctly
+- [x] Update RENDER_DEPLOYMENT.md with PostgreSQL migration instructions
+- [x] Save checkpoint with deployment fixes
+
+## Auto-Migration on Deployment
+- [x] Update build script to run migrations automatically (reverted - doesn't work)
+- [x] Create startup script to run migrations before server starts
+- [x] Update start command to run migrations first
+- [x] Save checkpoint with auto-migration on startup
+- [ ] Redeploy to Render (user action required)
+
+## Fix drizzle-kit Not Found in Start Command
+- [x] Update db:push script to use npx drizzle-kit
+- [x] Test updated start command
+- [x] Save checkpoint with fix
+
+## Fix Render Build - Remove db:push from Build Command
+- [x] Update db:push script to use drizzle-kit push (simpler command)
+- [ ] Document that migrations must be run manually via Shell after first deploy
+- [ ] Save checkpoint with updated instructions
+- [ ] Guide user through Render configuration update
+
+## Render Deployment - Remove Manus OAuth Dependency
+- [x] Replace Home page OAuth login with contractor username/password login
+- [x] Update context.ts to check contractor JWT tokens
+- [x] Update useAuth hook to redirect to /contractor-login
+- [x] Update ContractorLogin to redirect to dashboard after login
+- [ ] Create admin user on Render database (username: admin, password: admin123)
+- [ ] Push changes to GitHub for Render deployment
+- [ ] Verify Render deployment works with new authentication
+
+## Fix Home Page Sign In Button
+- [ ] Update Home.tsx Sign in button to redirect to /contractor-login
+- [ ] Remove any remaining getLoginUrl() references
+- [ ] Test that clicking Sign in goes to contractor login page
+- [ ] Push fix to GitHub for Render deployment
+
+## Remove All Remaining getLoginUrl References
+- [ ] Fix DashboardLayout.tsx to redirect to /contractor-login
+- [ ] Fix main.tsx error boundary to redirect to /contractor-login
+- [ ] Remove getLoginUrl export from const.ts
+- [ ] Push all fixes to GitHub
+
+## Add Missing Contractors to Render Database
+- [ ] Add Dalwayne to contractors table
+- [ ] Add Muhamed to contractors table
+- [ ] Add Marius to contractors table
+- [ ] Add Rudy to contractors table
+
+## Fix CSV Upload Stuck Issue
+- [ ] Investigate why "Creating Jobs..." button is stuck
+- [ ] Check Render logs for upload errors
+- [ ] Fix any backend issues preventing job creation
+
+## Fix Telegram Notifications
+- [ ] Check if TELEGRAM_BOT_TOKEN is set in Render environment variables
+- [ ] Verify Telegram bot is configured correctly
+- [ ] Add telegramChatId to contractor records
+- [ ] Test Telegram notifications for job assignments

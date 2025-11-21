@@ -19,6 +19,10 @@ import SendInvite from "./pages/SendInvite";
 import ContractorDetail from "./pages/ContractorDetail";
 import ContractorLogin from "./pages/ContractorLogin";
 import ContractorDashboard from "./pages/ContractorDashboard";
+import ContractorTasks from "./pages/ContractorTasks";
+import ContractorProgressReport from "./pages/ContractorProgressReport";
+import ProgressReports from "./pages/ProgressReports";
+import ReminderLogs from "./pages/ReminderLogs";
 
 function Router() {
   return (
@@ -97,14 +101,34 @@ function Router() {
         </DashboardLayout>
       </Route>
       
+      <Route path="/progress-reports">
+        <DashboardLayout>
+          <ProgressReports />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/reminder-logs">
+        <DashboardLayout>
+          <ReminderLogs />
+        </DashboardLayout>
+      </Route>
+      
       {/* Public contractor registration form (no auth required) */}
       <Route path={"/contractor-form"} component={ContractorForm} />
       
       {/* Contractor login (no auth required) */}
       <Route path={"/contractor-login"} component={ContractorLogin} />
+      <Route path={"/login"}>
+        {() => {
+          window.location.href = '/contractor-login-simple.html';
+          return null;
+        }}
+      </Route>
       
       {/* Contractor dashboard (contractor auth required) */}
       <Route path={"/contractor-dashboard"} component={ContractorDashboard} />
+      <Route path={"/contractor-tasks"} component={ContractorTasks} />
+      <Route path={"/contractor-progress"} component={ContractorProgressReport} />
       
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
