@@ -407,6 +407,34 @@ export const appRouter = router({
       return await db.getAllJobAssignments();
     }),
 
+    // Test endpoint to manually send notification
+    testNotification: adminProcedure
+      .input(z.object({ contractorId: z.number(), jobId: z.number() }))
+      .mutation(async ({ input }) => {
+        console.log('[TEST] Starting manual notification test');
+        const job = await db.getJobById(input.jobId);
+        const contractor = await db.getContractorById(input.contractorId);
+        
+        console.log('[TEST] Job:', job?.title);
+        console.log('[TEST] Contractor:', contractor?.firstName, contractor?.lastName);
+        console.log('[TEST] Chat ID:', contractor?.telegramChatId);
+        
+        if (!contractor?.telegramChatId) {
+          throw new Error('Contractor has no Telegram chat ID');
+        }
+        
+        const { sendTelegramNotification } = await import("./_core/telegramNotifications");
+        const result = await sendTelegramNotification({
+          chatId: contractor.telegramChatId,
+          message: `🔔 *Test Job Assignment*\n\n📍 Job: ${job?.title || 'Test'}\n\nThis is a manual test notification.`,
+          type: "job_assigned",
+          parseMode: "Markdown",
+        });
+        
+        console.log('[TEST] Notification result:', result);
+        return { success: result.success, message: 'Test notification sent' };
+      }),
+
     create: adminProcedure
       .input(
         z.object({
@@ -421,11 +449,68 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
+        console.log('[Job Assignment] CREATE MUTATION CALLED');
+        console.log('[Job Assignment] Input:', JSON.stringify(input, null, 2));
         const { contractorIds, selectedPhases, ...assignmentData } = input;
         const results = [];
 
+        // Get job details for notification
+        console.log('[Job Assignment] Fetching job', input.jobId);
+        const job = await db.getJobById(input.jobId);
+        console.log('[Job Assignment] Job found:', job?.title);
+        if (!job) {
+          throw new Error("Job not found");
+        }
+
         // Create an assignment for each contractor
+        console.log('[Job Assignment] About to loop through contractors:', contractorIds);
+        console.log('[Job Assignment] Number of contractors:', contractorIds.length);
+        
         for (const contractorId of contractorIds) {
+          console.log('[Job Assignment] Processing contractor:', contractorId);
+          // Send Telegram notification BEFORE creating assignment
+          try {
+            // Write to file to prove this code executes
+            await import('fs/promises').then(fs => fs.appendFile('/tmp/assignment_debug.log', `${new Date().toISOString()} - Notification attempt for contractor ${contractorId}\n`));
+            
+            console.log(`[Job Assignment] Attempting to send notification to contractor ${contractorId}`);
+            const contractor = await db.getContractorById(contractorId);
+            console.log(`[Job Assignment] Contractor found:`, contractor ? `${contractor.firstName} ${contractor.lastName}` : 'NOT FOUND');
+            console.log(`[Job Assignment] Telegram chat ID:`, contractor?.telegramChatId || 'NONE');
+            if (contractor?.telegramChatId) {
+              const { sendTelegramNotification } = await import("./_core/telegramNotifications");
+              
+              const phasesText = selectedPhases && selectedPhases.length > 0
+                ? `\n\n📋 Assigned Phases:\n${selectedPhases.map(p => `  • ${p}`).join('\n')}`
+                : '';
+              
+              const instructionsText = input.specialInstructions
+                ? `\n\n📝 Special Instructions:\n${input.specialInstructions}`
+                : '';
+              
+              const message = `🔔 *New Job Assignment*\n\n` +
+                `📍 Job: ${job.title}\n` +
+                `📌 Address: ${job.address || 'N/A'}\n` +
+                `📅 Start: ${input.startDate.toLocaleDateString()}\n` +
+                `📅 End: ${input.endDate.toLocaleDateString()}` +
+                phasesText +
+                instructionsText +
+                `\n\n✅ Reply with "ACCEPT" to acknowledge this assignment.`;
+              
+              await sendTelegramNotification({
+                chatId: contractor.telegramChatId,
+                message,
+                type: "job_assigned",
+                parseMode: "Markdown",
+              });
+              console.log(`[Job Assignment] Telegram notification sent to contractor ${contractorId}`);
+            }
+          } catch (error) {
+            console.error(`[Job Assignment] Failed to send Telegram notification to contractor ${contractorId}:`, error);
+            // Don't fail the assignment if notification fails
+          }
+
+          // Create assignment after notification
           const result = await db.createJobAssignment({
             ...assignmentData,
             contractorId,

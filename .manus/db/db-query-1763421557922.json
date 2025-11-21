@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, jobId, contractorId, createdAt, acknowledged FROM jobAssignments WHERE contractorId = 90001 ORDER BY createdAt DESC LIMIT 3",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, jobId, contractorId, createdAt, acknowledged FROM jobAssignments WHERE contractorId = 90001 ORDER BY createdAt DESC LIMIT 3",
+  "rows": [
+    {
+      "id": "600003",
+      "jobId": "750002",
+      "contractorId": "90001",
+      "createdAt": "2025-11-17 23:16:49",
+      "acknowledged": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tcontractorId\tcreatedAt\tacknowledged\n600003\t750002\t90001\t2025-11-17 23:16:49\t0\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

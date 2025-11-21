@@ -78,21 +78,16 @@ router.post("/test-reminders", async (req, res) => {
     console.log('[Scheduler Test] Today:', today);
     console.log('[Scheduler Test] Tomorrow:', tomorrow);
 
-    // Find all contractors with active assignments
+    // Find ALL contractors with Telegram chat IDs (for testing)
+    // This bypasses date filtering so you can test the reminder system
     const activeAssignments = await db
       .select({
-        contractorId: jobAssignments.contractorId,
+        contractorId: contractors.id,
         contractorName: sql<string>`${contractors.firstName}`.as('contractorName'),
         telegramChatId: contractors.telegramChatId,
       })
-      .from(jobAssignments)
-      .innerJoin(contractors, eq(jobAssignments.contractorId, contractors.id))
-      .where(
-        and(
-          lte(jobAssignments.startDate, tomorrow),
-          gte(jobAssignments.endDate, today)
-        )
-      );
+      .from(contractors)
+      .where(sql`${contractors.telegramChatId} IS NOT NULL`);
 
     console.log('[Scheduler Test] Found assignments:', activeAssignments.length);
     console.log('[Scheduler Test] Assignments:', JSON.stringify(activeAssignments, null, 2));

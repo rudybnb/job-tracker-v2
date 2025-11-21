@@ -1,5 +1,6 @@
 import { eq, and, gte, lte, desc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import {
   InsertUser,
   users,
@@ -34,11 +35,16 @@ import {
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: Pool | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _pool = new Pool({ 
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false } // Required for Render PostgreSQL
+      });
+      _db = drizzle(_pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -98,7 +104,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
       set: updateSet,
     });
   } catch (error) {
@@ -123,8 +130,8 @@ export async function getAllContractors() {
 export async function createContractor(contractor: InsertContractor) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(contractors).values(contractor);
-  const insertId = Number(result[0]?.insertId || 0);
+  const result = await db.insert(contractors).values(contractor).returning({ id: contractors.id });
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 
@@ -139,9 +146,9 @@ export async function getContractorById(id: number) {
 export async function createJob(job: InsertJob) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobs).values(job);
+  const result = await db.insert(jobs).values(job).returning({ id: jobs.id });
   // For MySQL/TiDB, the insertId is in result[0].insertId
-  const insertId = Number(result[0]?.insertId || 0);
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 
@@ -178,8 +185,8 @@ export async function updateJob(id: number, data: Partial<InsertJob>) {
 export async function createJobResource(resource: InsertJobResource) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobResources).values(resource);
-  const insertId = Number(result[0]?.insertId || 0);
+  const result = await db.insert(jobResources).values(resource).returning({ id: jobResources.id });
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 
@@ -235,8 +242,8 @@ export async function assignJobToContractor(jobId: number, contractorId: number)
 export async function createBuildPhase(phase: InsertBuildPhase) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(buildPhases).values(phase);
-  const insertId = Number(result[0]?.insertId || 0);
+  const result = await db.insert(buildPhases).values(phase).returning({ id: buildPhases.id });
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 
@@ -256,8 +263,8 @@ export async function updatePhase(id: number, data: Partial<InsertBuildPhase>) {
 export async function createCsvUpload(upload: InsertCsvUpload) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(csvUploads).values(upload);
-  const insertId = Number(result[0]?.insertId || 0);
+  const result = await db.insert(csvUploads).values(upload).returning({ id: csvUploads.id });
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 
@@ -400,7 +407,7 @@ export async function getExpensesByPhase(phaseId: number) {
 export async function createJobAssignment(assignment: InsertJobAssignment) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobAssignments).values(assignment);
+  const result = await db.insert(jobAssignments).values(assignment).returning({ id: jobAssignments.id });
   return result;
 }
 
@@ -427,8 +434,8 @@ export async function createContractorApplication(application: InsertContractorA
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(contractorApplications).values(application);
-  const insertId = Number(result[0]?.insertId || 0);
+  const result = await db.insert(contractorApplications).values(application).returning({ id: contractorApplications.id });
+  const insertId = result[0]?.id || 0;
   return { insertId };
 }
 

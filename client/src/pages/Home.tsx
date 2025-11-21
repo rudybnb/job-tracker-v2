@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getLoginUrl } from "@/const";
+
 import { trpc } from "@/lib/trpc";
 import { Briefcase, Upload, Users, DollarSign } from "lucide-react";
 import { useLocation } from "wouter";
@@ -23,7 +23,7 @@ export default function Home() {
             <CardDescription>Manage construction jobs, contractors, and budgets</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full" size="lg" onClick={() => (window.location.href = getLoginUrl())}>
+            <Button className="w-full" size="lg" onClick={() => setLocation("/contractor-login")}>
               Sign In
             </Button>
           </CardContent>

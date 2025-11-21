@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, firstName, lastName, telegramChatId FROM contractors WHERE username = 'rudy' OR firstName LIKE '%Rudy%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute SELECT id, firstName, lastName, telegramChatId FROM contractors WHERE username = 'rudy' OR firstName LIKE '%Rudy%'",
+  "rows": [
+    {
+      "id": "90001",
+      "firstName": "Rudy",
+      "lastName": "Diedericks",
+      "telegramChatId": "7617462316"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\ttelegramChatId\n90001\tRudy\tDiedericks\t7617462316\n",
+  "stderr": "",
+  "execution_time_ms": 100
+}
