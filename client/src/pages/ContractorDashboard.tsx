@@ -1,38 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, LogOut, Briefcase, Clock, MapPin, Calendar } from "lucide-react";
-import ClockInOut from "@/components/ClockInOut";
 import { toast } from "sonner";
 
 export default function ContractorDashboard() {
   const [, setLocation] = useLocation();
-  const [contractorId, setContractorId] = useState<string | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
   
-  // Check localStorage for authentication
-  useEffect(() => {
-    const token = localStorage.getItem('contractor_token');
-    const id = localStorage.getItem('contractor_id');
-    
-    if (token && id) {
-      setContractorId(id);
-      setAuthChecked(true);
-    } else {
-      setAuthChecked(true);
-      setLocation("/contractor-login");
-    }
-  }, [setLocation]);
-  
-  const { data: contractor, isLoading } = trpc.mobileApi.me.useQuery(
-    undefined,
-    {
-      enabled: authChecked && !!contractorId,
-    }
-  );
+  const { data: contractor, isLoading } = trpc.mobileApi.me.useQuery();
   const { data: assignments, isLoading: assignmentsLoading } = trpc.mobileApi.getMyAssignments.useQuery(
     undefined,
     {
@@ -47,7 +25,12 @@ export default function ContractorDashboard() {
     },
   });
 
-  // Authentication is now handled by localStorage check in the first useEffect
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !contractor) {
+      setLocation("/contractor-login");
+    }
+  }, [contractor, isLoading, setLocation]);
 
   if (isLoading) {
     return (
@@ -76,29 +59,14 @@ export default function ContractorDashboard() {
               {contractor.type === "contractor" ? "Contractor" : "Subcontractor"} • {contractor.primaryTrade}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setLocation("/contractor-tasks")}
-              variant="outline"
-              className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
-            >
-              View My Tasks
-            </Button>
-            <Button
-              onClick={() => setLocation("/contractor-progress")}
-              className="bg-[#10B981] hover:bg-[#059669] text-white"
-            >
-              Submit Progress
-            </Button>
-            <Button
-              onClick={() => logoutMutation.mutate()}
-              variant="outline"
-              className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+          <Button
+            onClick={() => logoutMutation.mutate()}
+            variant="outline"
+            className="bg-transparent border-gray-600 text-white hover:bg-[#1a2332]"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </div>
 
@@ -196,7 +164,7 @@ export default function ContractorDashboard() {
                     <div className="mb-3">
                       <p className="text-sm text-gray-400 mb-2">Assigned Phases:</p>
                       <div className="flex flex-wrap gap-2">
-                        {assignment.selectedPhases?.map((phase: string, idx: number) => (
+                        {assignment.phases.map((phase: string, idx: number) => (
                           <Badge
                             key={idx}
                             variant="outline"
@@ -229,16 +197,21 @@ export default function ContractorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Clock In/Out Section */}
-        {assignments && assignments.length > 0 && (
-          <div className="mt-6">
-            <ClockInOut
-              assignmentId={assignments[0].id}
-              jobTitle={assignments[0].jobName}
-              jobLocation={assignments[0].jobAddress}
-            />
-          </div>
-        )}
+        {/* Clock In/Out Section - Coming Soon */}
+        <Card className="bg-[#2a3847] border-gray-700 mt-6">
+          <CardHeader>
+            <CardTitle className="text-white">Time Tracking</CardTitle>
+            <CardDescription className="text-gray-400">
+              Clock in/out feature coming soon
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <Clock className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-400">Clock in/out functionality will be available soon</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

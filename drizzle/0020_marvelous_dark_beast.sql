@@ -1,1 +1,0 @@
-ALTER TABLE `jobAssignments` ADD `notifiedAt` timestamp;

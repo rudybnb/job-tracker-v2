@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE buildPhases SET tasks = '[\"Paint all interior walls with primer coat\", \"Apply final coat of paint to living room and bedrooms\", \"Install decorative molding and trim\"]' WHERE jobId = 390002 AND phaseName = 'Internal Decoration'",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute UPDATE buildPhases SET tasks = '[\"Paint all interior walls with primer coat\", \"Apply final coat of paint to living room and bedrooms\", \"Install decorative molding and trim\"]' WHERE jobId = 390002 AND phaseName = 'Internal Decoration'",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 64
-}

@@ -6,23 +6,6 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { telegramRestRouter } from "../telegramRestApi";
-import telegramVoiceRouter from "../telegramVoiceApi";
-import telegramRegistrationRouter from "../telegramRegistrationApi";
-import telegramBotRouter from "../telegramBotApi";
-import telegramNotificationRouter from "../telegramNotificationApi";
-import schedulerRouter from "../schedulerApi";
-import { telegramCheckInRouter } from "../telegramCheckInApi";
-import { telegramContractorListRouter } from "../telegramContractorListApi";
-import { testWebhookRouter } from "../test-webhook";
-import telegramTestRouter from "../telegramTestApi";
-import telegramAiQueryRouter from "../telegramAiQueryApi";
-import telegramReminderReplyRouter from "../telegramReminderReplyApi";
-import telegramUnifiedRouter from "../telegramUnifiedHandler";
-import telegramWebhookRouter from "../telegramWebhook";
-import healthRouter from "../healthApi";
-import { initializeScheduler, stopScheduler } from "./scheduler";
-import { startAssignmentNotifier } from "../assignmentNotifier.js";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -52,36 +35,6 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  // Telegram REST API for n8n integration
-  app.use("/api/telegram", telegramRestRouter);
-  // Telegram Voice Transcription API
-  app.use("/api/telegram", telegramVoiceRouter);
-  // Telegram Contractor Registration API
-  app.use("/api/telegram", telegramRegistrationRouter);
-  // Telegram Bot Query API
-  app.use("/api/telegram", telegramBotRouter);
-  // Telegram Notification API
-  app.use("/api/telegram", telegramNotificationRouter);
-  // Telegram Check-in API
-  app.use("/api/telegram", telegramCheckInRouter);
-  // Test webhook
-  app.use("/api/telegram", testWebhookRouter);
-  // Telegram Contractor List API
-  app.use("/api/telegram", telegramContractorListRouter);
-  // Telegram Test API (for testing without disturbing contractors)
-  app.use("/api/telegram", telegramTestRouter);
-  // Telegram AI Query API (for n8n workflow)
-  app.use("/api/telegram", telegramAiQueryRouter);
-  // Telegram Reminder Reply API (for n8n workflow)
-  app.use("/api/telegram", telegramReminderReplyRouter);
-  // Telegram Unified Handler (simplified n8n workflow)
-  app.use("/api/telegram", telegramUnifiedRouter);
-  // Telegram Direct Webhook (bypasses n8n)
-  app.use("/api/telegram", telegramWebhookRouter);
-  // Scheduler API
-  app.use("/api/scheduler", schedulerRouter);
-  // Health Check API
-  app.use("/api", healthRouter);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -106,25 +59,6 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-  
-  // Initialize scheduled tasks
-  initializeScheduler();
-  
-  // Start assignment notifier
-  startAssignmentNotifier();
-  
-  // Graceful shutdown
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM received, stopping scheduler...');
-    stopScheduler();
-    process.exit(0);
-  });
-  
-  process.on('SIGINT', () => {
-    console.log('SIGINT received, stopping scheduler...');
-    stopScheduler();
-    process.exit(0);
-  });
   });
 }
 

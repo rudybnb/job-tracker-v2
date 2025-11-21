@@ -117,8 +117,7 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     let buildPhase = (row['Build Phase'] || '').trim();
     const supplier = (row['Supplier'] || '').trim();
     const resourceDescription = (row['Resource Description'] || '').trim();
-    const orderQuantityStr = (row['Order Quantity'] || '').trim();
-    const orderQuantity = orderQuantityStr ? parseInt(orderQuantityStr) : 1; // Default to 1 if empty
+    const orderQuantity = parseInt(row['Order Quantity'] || '0');
     
     // Update current phase if this row has a phase name
     if (buildPhase) {
@@ -129,20 +128,11 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
       buildPhase = currentPhase;
     }
     
-    // Determine resource type (handle "Material - supplier" and "Labour" formats)
-    let resourceType: 'Material' | 'Labour' | null = null;
-    if (typeOfResource.startsWith('Material')) {
-      resourceType = 'Material';
-    } else if (typeOfResource === 'Labour') {
-      resourceType = 'Labour';
-    }
-    
     // Skip invalid rows
-    if (!resourceType) {
+    if (!typeOfResource || (typeOfResource !== 'Material' && typeOfResource !== 'Labour')) {
       continue;
     }
-    // Skip only if orderQuantity is invalid (NaN), but allow 0 or empty (defaulted to 1)
-    if (isNaN(orderQuantity)) {
+    if (isNaN(orderQuantity) || orderQuantity === 0) {
       continue;
     }
 
@@ -150,14 +140,14 @@ export async function parseSmartScheduleCSV(csvContent: string): Promise<{
     
     resources.push({
       buildPhase,
-      typeOfResource: resourceType,
+      typeOfResource: typeOfResource as 'Material' | 'Labour',
       supplier,
       resourceDescription,
       orderQuantity,
       cost,
     });
 
-    if (resourceType === 'Labour') {
+    if (typeOfResource === 'Labour') {
       totalLabourCost += cost;
     } else {
       totalMaterialCost += cost;

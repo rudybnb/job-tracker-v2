@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO buildPhases (jobId, phaseName, tasks) VALUES (1, 'Plastering', '[{\"id\":\"p1\",\"title\":\"Prepare walls\",\"completed\":false},{\"id\":\"p2\",\"title\":\"Apply base coat\",\"completed\":false},{\"id\":\"p3\",\"title\":\"Apply finish coat\",\"completed\":false},{\"id\":\"p4\",\"title\":\"Sand and smooth\",\"completed\":false}]');",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute INSERT INTO buildPhases (jobId, phaseName, tasks) VALUES (1, 'Plastering', '[{\"id\":\"p1\",\"title\":\"Prepare walls\",\"completed\":false},{\"id\":\"p2\",\"title\":\"Apply base coat\",\"completed\":false},{\"id\":\"p3\",\"title\":\"Apply finish coat\",\"completed\":false},{\"id\":\"p4\",\"title\":\"Sand and smooth\",\"completed\":false}]');",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 57
-}

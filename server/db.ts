@@ -1,6 +1,5 @@
-import { eq, and, gte, lte, desc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { eq, desc, and, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
   users,
@@ -30,21 +29,15 @@ import {
   InsertContractorApplication,
   phaseCompletions,
   InsertPhaseCompletion,
-  progressReports,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: Pool | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _pool = new Pool({ 
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false } // Required for Render PostgreSQL
-      });
-      _db = drizzle(_pool);
+      _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -104,8 +97,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onConflictDoUpdate({
-      target: users.openId,
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
   } catch (error) {
@@ -130,8 +122,8 @@ export async function getAllContractors() {
 export async function createContractor(contractor: InsertContractor) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(contractors).values(contractor).returning({ id: contractors.id });
-  const insertId = result[0]?.id || 0;
+  const result = await db.insert(contractors).values(contractor);
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -146,9 +138,9 @@ export async function getContractorById(id: number) {
 export async function createJob(job: InsertJob) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobs).values(job).returning({ id: jobs.id });
+  const result = await db.insert(jobs).values(job);
   // For MySQL/TiDB, the insertId is in result[0].insertId
-  const insertId = result[0]?.id || 0;
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -185,8 +177,8 @@ export async function updateJob(id: number, data: Partial<InsertJob>) {
 export async function createJobResource(resource: InsertJobResource) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobResources).values(resource).returning({ id: jobResources.id });
-  const insertId = result[0]?.id || 0;
+  const result = await db.insert(jobResources).values(resource);
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -212,38 +204,15 @@ export async function deleteJob(id: number) {
 export async function assignJobToContractor(jobId: number, contractorId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  // Get job details to check for postcode
-  const job = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
-  if (job.length === 0) {
-    throw new Error("Job not found");
-  }
-  
-  const updateData: any = { assignedContractorId: contractorId };
-  
-  // If job has a postcode but no GPS coordinates, geocode it
-  if (job[0].postCode && (!job[0].latitude || !job[0].longitude)) {
-    try {
-      const { geocodePostcode } = await import("./geocoding");
-      const geocodeResult = await geocodePostcode(job[0].postCode);
-      updateData.latitude = geocodeResult.latitude;
-      updateData.longitude = geocodeResult.longitude;
-      console.log(`Geocoded ${job[0].postCode} to ${geocodeResult.latitude}, ${geocodeResult.longitude}`);
-    } catch (error) {
-      console.error(`Failed to geocode postcode ${job[0].postCode}:`, error);
-      // Continue with assignment even if geocoding fails
-    }
-  }
-  
-  await db.update(jobs).set(updateData).where(eq(jobs.id, jobId));
+  await db.update(jobs).set({ assignedContractorId: contractorId }).where(eq(jobs.id, jobId));
 }
 
 // Build phase operations
 export async function createBuildPhase(phase: InsertBuildPhase) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(buildPhases).values(phase).returning({ id: buildPhases.id });
-  const insertId = result[0]?.id || 0;
+  const result = await db.insert(buildPhases).values(phase);
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -263,8 +232,8 @@ export async function updatePhase(id: number, data: Partial<InsertBuildPhase>) {
 export async function createCsvUpload(upload: InsertCsvUpload) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(csvUploads).values(upload).returning({ id: csvUploads.id });
-  const insertId = result[0]?.id || 0;
+  const result = await db.insert(csvUploads).values(upload);
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -407,7 +376,7 @@ export async function getExpensesByPhase(phaseId: number) {
 export async function createJobAssignment(assignment: InsertJobAssignment) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(jobAssignments).values(assignment).returning({ id: jobAssignments.id });
+  const result = await db.insert(jobAssignments).values(assignment);
   return result;
 }
 
@@ -434,8 +403,8 @@ export async function createContractorApplication(application: InsertContractorA
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(contractorApplications).values(application).returning({ id: contractorApplications.id });
-  const insertId = result[0]?.id || 0;
+  const result = await db.insert(contractorApplications).values(application);
+  const insertId = Number(result[0]?.insertId || 0);
   return { insertId };
 }
 
@@ -838,78 +807,4 @@ export async function getContractorPayment(
     totalPayment,
     contractorName
   };
-}
-
-
-// Progress Reports operations
-export async function getAllProgressReports(filters: {
-  contractorId?: number;
-  jobId?: number;
-  status?: "submitted" | "reviewed" | "approved";
-  startDate?: string;
-  endDate?: string;
-}) {
-  const database = await getDb();
-  if (!database) return [];
-
-  let query = database
-    .select({
-      report: progressReports,
-      contractor: contractors,
-      job: jobs,
-    })
-    .from(progressReports)
-    .leftJoin(contractors, eq(progressReports.contractorId, contractors.id))
-    .leftJoin(jobs, eq(progressReports.jobId, jobs.id))
-    .$dynamic();
-
-  // Apply filters
-  const conditions = [];
-  if (filters.contractorId) {
-    conditions.push(eq(progressReports.contractorId, filters.contractorId));
-  }
-  if (filters.jobId) {
-    conditions.push(eq(progressReports.jobId, filters.jobId));
-  }
-  if (filters.status) {
-    conditions.push(eq(progressReports.status, filters.status));
-  }
-  if (filters.startDate) {
-    conditions.push(gte(progressReports.reportDate, new Date(filters.startDate)));
-  }
-  if (filters.endDate) {
-    conditions.push(lte(progressReports.reportDate, new Date(filters.endDate)));
-  }
-
-  if (conditions.length > 0) {
-    query = query.where(and(...conditions));
-  }
-
-  const results = await query.orderBy(desc(progressReports.createdAt));
-  
-  return results.map(r => ({
-    ...r.report,
-    contractorName: r.contractor ? `${r.contractor.firstName} ${r.contractor.lastName}` : 'Unknown',
-    jobTitle: r.job?.title || 'Unknown Job',
-  }));
-}
-
-export async function reviewProgressReport(params: {
-  reportId: number;
-  status: "reviewed" | "approved";
-  reviewNotes: string | null;
-  reviewedBy: number;
-}) {
-  const database = await getDb();
-  if (!database) throw new Error("Database not available");
-
-  await database
-    .update(progressReports)
-    .set({
-      status: params.status,
-      reviewNotes: params.reviewNotes,
-      reviewedBy: params.reviewedBy,
-      reviewedAt: new Date(),
-    })
-    .where(eq(progressReports.id, params.reportId));
 }

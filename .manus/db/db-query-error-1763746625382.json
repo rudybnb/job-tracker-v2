@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO contractors (\"firstName\", \"lastName\", email, phone, username, \"passwordHash\", type, \"primaryTrade\", \"paymentType\", \"dailyRate\", \"cisVerified\", status, \"createdAt\", \"updatedAt\")\nVALUES ('Admin', 'User', 'admin@sculptprojects.com', '+44 1234 567890', 'admin', '$2b$10$sEL82ZQezXm9amtWQ5jkiOSo/ebM6itxFABQrNa9wlgU6KpDKcSBO', 'contractor', 'Admin', 'day_rate', 0, true, 'approved', NOW(), NOW())\nON CONFLICT (username) DO UPDATE SET \"passwordHash\" = EXCLUDED.\"passwordHash\";",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute INSERT INTO contractors (\"firstName\", \"lastName\", email, phone, username, \"passwordHash\", type, \"primaryTrade\", \"paymentType\", \"dailyRate\", \"cisVerified\", status, \"createdAt\", \"updatedAt\")\nVALUES ('Admin', 'User', 'admin@sculptprojects.com', '+44 1234 567890', 'admin', '$2b$10$sEL82ZQezXm9amtWQ5jkiOSo/ebM6itxFABQrNa9wlgU6KpDKcSBO', 'contractor', 'Admin', 'day_rate', 0, true, 'approved', NOW(), NOW())\nON CONFLICT (username) DO UPDATE SET \"passwordHash\" = EXCLUDED.\"passwordHash\";",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 36 near \"\"firstName\", \"lastName\", email, phone, username, \"passwordHash\", type, \"primaryTrade\", \"paymentType\", \"dailyRate\", \"cisVerified\", status, \"createdAt\", \"updatedAt\")",
-    "VALUES ('Admin', 'User', 'admin@sculptprojects.com', '+44 1234 567890', 'admin', '$2b$10$sEL82ZQezXm9amtWQ5jkiOSo/ebM6itxFABQrNa9wlgU6KpDKcSBO', 'contractor', 'Admin', 'day_rate', 0, true, 'approved', NO"
-  ]
-}

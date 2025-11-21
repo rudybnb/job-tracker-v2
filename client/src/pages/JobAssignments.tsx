@@ -151,16 +151,16 @@ export default function JobAssignments() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-yellow">Job Assignments</h1>
             <p className="text-muted-foreground mt-1">Assign contractors to jobs and phases</p>
           </div>
           <Button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-green-600 text-white hover:bg-green-700 text-lg px-8 py-6"
+            className="bg-yellow text-black hover:bg-yellow/90"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-4 w-4 mr-2" />
             Create Assignment
           </Button>
         </div>

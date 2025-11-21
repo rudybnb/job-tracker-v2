@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO jobAssignments (jobId, contractorId, status, createdAt) VALUES \n(1, 90001, 'assigned', NOW()),\n(1, 90002, 'assigned', NOW()),\n(1, 150001, 'assigned', NOW()),\n(1, 150002, 'assigned', NOW())",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute INSERT INTO jobAssignments (jobId, contractorId, status, createdAt) VALUES \n(1, 90001, 'assigned', NOW()),\n(1, 90002, 'assigned', NOW()),\n(1, 150001, 'assigned', NOW()),\n(1, 150002, 'assigned', NOW())",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 61
-}

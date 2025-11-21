@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ChevronDown, ChevronRight, Loader2, UserPlus } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 
@@ -56,23 +56,14 @@ export default function JobDetail({ jobId }: JobDetailProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setLocation("/jobs")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{job.title}</h1>
-            <p className="text-muted-foreground mt-1">{job.address}</p>
-          </div>
-        </div>
-        <Button 
-          onClick={() => setLocation('/assignments')}
-          className="gap-2"
-        >
-          <UserPlus className="h-4 w-4" />
-          Assign Contractor
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => setLocation("/jobs")}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div>
+          <h1 className="text-3xl font-bold">{job.title}</h1>
+          <p className="text-muted-foreground mt-1">{job.address}</p>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

@@ -1,8 +1,0 @@
-{
-  "query": "INSERT INTO jobAssignments (jobId, contractorId, status, createdAt) VALUES \n(1, 90001, 'active', NOW()),\n(1, 90002, 'active', NOW()),\n(1, 150001, 'active', NOW()),\n(1, 150002, 'active', NOW())",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 22jfyN8cyREv1iY.43376d1ea5ce --database 7pDSPyD4eqm3QYRLLEkhfC --execute INSERT INTO jobAssignments (jobId, contractorId, status, createdAt) VALUES \n(1, 90001, 'active', NOW()),\n(1, 90002, 'active', NOW()),\n(1, 150001, 'active', NOW()),\n(1, 150002, 'active', NOW())",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1265 (01000) at line 1: Data truncated for column 'status' at row 1"
-  ]
-}

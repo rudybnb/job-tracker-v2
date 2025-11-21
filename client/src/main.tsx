@@ -43,26 +43,9 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        // Get contractor token from localStorage if available
-        const contractorToken = localStorage.getItem('contractor_token');
-        
-        const headers: Record<string, string> = {};
-        
-        // Copy existing headers
-        if (init?.headers) {
-          const existingHeaders = init.headers as Record<string, string>;
-          Object.assign(headers, existingHeaders);
-        }
-        
-        // Add Authorization header if contractor token exists
-        if (contractorToken) {
-          headers['Authorization'] = `Bearer ${contractorToken}`;
-        }
-        
         return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
-          headers,
         });
       },
     }),
