@@ -77,7 +77,6 @@ async function sendMorningCheckInReminders() {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Find all contractors with active assignments today
-    // Include assignments with NULL dates (ongoing/indefinite assignments)
     const activeAssignments = await db
       .select({
         contractorId: jobAssignments.contractorId,
@@ -88,11 +87,8 @@ async function sendMorningCheckInReminders() {
       .innerJoin(contractors, eq(jobAssignments.contractorId, contractors.id))
       .where(
         and(
-          eq(jobAssignments.status, 'assigned'),
-          sql`(
-            (${jobAssignments.startDate} IS NULL AND ${jobAssignments.endDate} IS NULL) OR
-            (${jobAssignments.startDate} <= ${tomorrow} AND ${jobAssignments.endDate} >= ${today})
-          )`
+          lte(jobAssignments.startDate, tomorrow),
+          gte(jobAssignments.endDate, today)
         )
       );
 
@@ -164,7 +160,6 @@ async function sendDailyReminders() {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Find all contractors with active assignments today
-    // Include assignments with NULL dates (ongoing/indefinite assignments)
     const activeAssignments = await db
       .select({
         contractorId: jobAssignments.contractorId,
@@ -175,11 +170,8 @@ async function sendDailyReminders() {
       .innerJoin(contractors, eq(jobAssignments.contractorId, contractors.id))
       .where(
         and(
-          eq(jobAssignments.status, 'assigned'),
-          sql`(
-            (${jobAssignments.startDate} IS NULL AND ${jobAssignments.endDate} IS NULL) OR
-            (${jobAssignments.startDate} <= ${tomorrow} AND ${jobAssignments.endDate} >= ${today})
-          )`
+          lte(jobAssignments.startDate, tomorrow),
+          gte(jobAssignments.endDate, today)
         )
       );
 

@@ -69,13 +69,13 @@ router.post("/register-contractor", async (req, res) => {
       type: "contractor",
       paymentType: "day_rate",
       status: "pending", // Requires admin approval
-    }).returning({ id: contractors.id });
+    });
 
     return res.json({
       success: true,
       message: "Registration successful! An admin will approve your account soon.",
       contractor: {
-        id: result[0].id,
+        id: result[0].insertId,
         name: `${firstName} ${lastName}`,
       },
     });

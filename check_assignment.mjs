@@ -1,12 +1,27 @@
-import mysql from "mysql2/promise";
+import { getDb } from './server/db.ts';
+import { buildAssignments, jobs } from './drizzle/schema.ts';
+import { eq } from 'drizzle-orm';
 
-const connection = await mysql.createConnection(process.env.DATABASE_URL);
+const database = await getDb();
 
-const [assignments] = await connection.query(
-  "SELECT id, jobId, contractorId, createdAt FROM jobAssignments ORDER BY createdAt DESC LIMIT 1"
-);
+// John's contractor ID is 120001
+const assignments = await database
+  .select({
+    assignment: buildAssignments,
+    job: jobs
+  })
+  .from(buildAssignments)
+  .leftJoin(jobs, eq(buildAssignments.jobId, jobs.id))
+  .where(eq(buildAssignments.contractorId, 120001));
 
-console.log("Most recent assignment:");
-console.log(JSON.stringify(assignments, null, 2));
+console.log('John has', assignments.length, 'assignments');
+assignments.forEach(a => {
+  console.log('\n---');
+  console.log('Assignment ID:', a.assignment.id);
+  console.log('Job ID:', a.assignment.jobId);
+  console.log('Job Title:', a.job?.title);
+  console.log('Job Postcode:', a.job?.postcode);
+  console.log('Job GPS:', a.job?.latitude, a.job?.longitude);
+});
 
-await connection.end();
+process.exit(0);

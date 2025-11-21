@@ -118,12 +118,6 @@ function Router() {
       
       {/* Contractor login (no auth required) */}
       <Route path={"/contractor-login"} component={ContractorLogin} />
-      <Route path={"/login"}>
-        {() => {
-          window.location.href = '/contractor-login-simple.html';
-          return null;
-        }}
-      </Route>
       
       {/* Contractor dashboard (contractor auth required) */}
       <Route path={"/contractor-dashboard"} component={ContractorDashboard} />

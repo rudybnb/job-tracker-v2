@@ -373,49 +373,4 @@ router.get("/help", async (req, res) => {
   });
 });
 
-/**
- * POST /api/telegram/acknowledge-assignment
- * Handle contractor acknowledgment of job assignment
- * Body: { chatId: string, message: string }
- */
-router.post("/acknowledge-assignment", async (req, res) => {
-  try {
-    const { chatId, message } = req.body;
-
-    if (!chatId || !message) {
-      return res.status(400).json({
-        error: "Missing required fields: chatId and message",
-      });
-    }
-
-    const db = await getDb();
-    if (!db) {
-      return res.status(500).json({ error: "Database not available" });
-    }
-
-    const { handleJobAcknowledgment } = await import("./telegramAcknowledgment");
-    const result = await handleJobAcknowledgment({
-      telegramChatId: chatId,
-      message,
-      db,
-    });
-
-    if (result.success) {
-      return res.json({
-        success: true,
-        message: result.message,
-        assignmentId: result.assignmentId,
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: result.message,
-      });
-    }
-  } catch (error) {
-    console.error("[Telegram Bot API] Acknowledge assignment error:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 export default router;

@@ -16,13 +16,7 @@ import { telegramCheckInRouter } from "../telegramCheckInApi";
 import { telegramContractorListRouter } from "../telegramContractorListApi";
 import { testWebhookRouter } from "../test-webhook";
 import telegramTestRouter from "../telegramTestApi";
-import telegramAiQueryRouter from "../telegramAiQueryApi";
-import telegramReminderReplyRouter from "../telegramReminderReplyApi";
-import telegramUnifiedRouter from "../telegramUnifiedHandler";
-import telegramWebhookRouter from "../telegramWebhook";
-import healthRouter from "../healthApi";
 import { initializeScheduler, stopScheduler } from "./scheduler";
-import { startAssignmentNotifier } from "../assignmentNotifier.js";
 import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -70,18 +64,8 @@ async function startServer() {
   app.use("/api/telegram", telegramContractorListRouter);
   // Telegram Test API (for testing without disturbing contractors)
   app.use("/api/telegram", telegramTestRouter);
-  // Telegram AI Query API (for n8n workflow)
-  app.use("/api/telegram", telegramAiQueryRouter);
-  // Telegram Reminder Reply API (for n8n workflow)
-  app.use("/api/telegram", telegramReminderReplyRouter);
-  // Telegram Unified Handler (simplified n8n workflow)
-  app.use("/api/telegram", telegramUnifiedRouter);
-  // Telegram Direct Webhook (bypasses n8n)
-  app.use("/api/telegram", telegramWebhookRouter);
   // Scheduler API
   app.use("/api/scheduler", schedulerRouter);
-  // Health Check API
-  app.use("/api", healthRouter);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -109,9 +93,6 @@ async function startServer() {
   
   // Initialize scheduled tasks
   initializeScheduler();
-  
-  // Start assignment notifier
-  startAssignmentNotifier();
   
   // Graceful shutdown
   process.on('SIGTERM', () => {

@@ -51,8 +51,7 @@ export default function ContractorLogin() {
         // Store the token
         localStorage.setItem('contractor_token', result.token);
         localStorage.setItem('contractor_id', result.contractor.id);
-        // Redirect to main dashboard (works for both admin and contractors)
-        setLocation("/");
+        setLocation("/contractor-dashboard");
       } else {
         toast.error(data.error?.json?.message || "Login failed");
       }

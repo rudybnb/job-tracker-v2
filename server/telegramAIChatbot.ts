@@ -122,19 +122,7 @@ Return a JSON object with: category, action, filters, timeRange, specificEntitie
   });
 
   const content = response.choices[0].message.content;
-  const intent = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
-  
-  // Debug logging
-  console.log('[AI Chatbot] Intent Analysis:', {
-    message,
-    category: intent.category,
-    action: intent.action,
-    timeRange: intent.timeRange,
-    specificEntities: intent.specificEntities,
-    filters: intent.filters
-  });
-  
-  return intent;
+  return JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
 }
 
 /**
@@ -544,50 +532,12 @@ async function handleCheckInsQuery(intent: any, context: ChatContext): Promise<s
       .from(checkIns)
       .leftJoin(contractors, eq(checkIns.contractorId, contractors.id));
 
-    // Apply access control and filters
+    // Apply access control
     let query;
-    
-    // If non-admin contractor, only show their own check-ins
     if (!context.isAdmin && context.contractorId) {
       query = baseQuery.where(eq(checkIns.contractorId, context.contractorId));
     } else {
       query = baseQuery;
-    }
-    
-    // If admin asking about specific contractor, filter by name
-    if (context.isAdmin && intent.specificEntities && intent.specificEntities.length > 0) {
-      const contractorName = intent.specificEntities[0].toLowerCase();
-      console.log('[Check-ins Query] Filtering by contractor:', contractorName, 'from entities:', intent.specificEntities);
-      // Filter results by contractor name after query (since we need the joined name)
-      const allResults = await query.orderBy(desc(checkIns.checkInTime)).limit(100);
-      const filtered = allResults.filter(c => 
-        c.contractorName?.toLowerCase().includes(contractorName)
-      );
-      
-      if (filtered.length === 0) {
-        return `No check-ins found for "${intent.specificEntities[0]}".`;
-      }
-      
-      // Apply time filter if specified
-      let finalResults = filtered;
-      if (intent.timeRange === "today") {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        finalResults = filtered.filter(c => new Date(c.checkInTime) >= today);
-      }
-      
-      if (finalResults.length === 0) {
-        return `${intent.specificEntities[0]} hasn't checked in ${intent.timeRange || "recently"}.`;
-      }
-      
-      let response = `✅ *Check-ins for ${intent.specificEntities[0]} (${finalResults.length})*\n\n`;
-      finalResults.slice(0, 15).forEach(c => {
-        response += `• ${c.checkInTime} - ${c.checkInType}\n`;
-        if (c.location) {
-          response += `  📍 ${c.location}\n`;
-        }
-      });
-      return response;
     }
 
     const results = await query.orderBy(desc(checkIns.checkInTime)).limit(20);

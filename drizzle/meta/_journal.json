@@ -134,27 +134,6 @@
       "when": 1763403936696,
       "tag": "0018_unique_ravenous",
       "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "5",
-      "when": 1763421091292,
-      "tag": "0019_tan_kylun",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "5",
-      "when": 1763423033402,
-      "tag": "0020_marvelous_dark_beast",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "5",
-      "when": 1763493396845,
-      "tag": "0021_light_brood",
-      "breakpoints": true
     }
   ]
 }
