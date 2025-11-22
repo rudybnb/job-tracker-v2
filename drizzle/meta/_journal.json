@@ -155,6 +155,20 @@
       "when": 1763493396845,
       "tag": "0021_light_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1763751338725,
+      "tag": "0022_cynical_valeria_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1763751688546,
+      "tag": "0023_futuristic_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

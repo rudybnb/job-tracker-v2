@@ -38,6 +38,8 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
+      // Redirect to login page after logout
+      window.location.href = '/contractor-login-simple.html';
     }
   }, [logoutMutation, utils]);
 
