@@ -1,10 +1,12 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { contractors } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { ENV } from "./_core/env";
 
 export const contractorAuthRouter = router({
   /**
@@ -71,17 +73,29 @@ export const contractorAuthRouter = router({
         });
       }
 
-      // Set session cookie for contractor
-      // Store contractor ID in session
-      ctx.res.cookie("contractor_session", contractorData.id.toString(), {
-        httpOnly: true,
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          contractorId: contractorData.id,
+          username: contractorData.username,
+          type: "contractor",
+        },
+        ENV.cookieSecret,
+        { expiresIn: "7d" }
+      );
+
+      // Set session cookie with JWT token
+      ctx.res.cookie("contractor_session", token, {
+        httpOnly: false, // Allow client-side access for localStorage sync
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
       });
 
       return {
         success: true,
+        token, // Return token to client
         contractor: {
           id: contractorData.id,
           firstName: contractorData.firstName,
@@ -89,6 +103,7 @@ export const contractorAuthRouter = router({
           email: contractorData.email,
           type: contractorData.type,
           primaryTrade: contractorData.primaryTrade,
+          username: contractorData.username,
         },
       };
     }),
@@ -97,44 +112,61 @@ export const contractorAuthRouter = router({
    * Get current contractor session
    */
   me: publicProcedure.query(async ({ ctx }) => {
-    const contractorId = ctx.req.cookies["contractor_session"];
+    const token = ctx.req.cookies["contractor_session"];
 
-    if (!contractorId) {
+    if (!token) {
       return null;
     }
 
-    const db = await getDb();
-    if (!db) {
+    try {
+      // Verify JWT token
+      const decoded = jwt.verify(token, ENV.cookieSecret) as {
+        contractorId: number;
+        username: string;
+        type: string;
+      };
+
+      if (decoded.type !== "contractor") {
+        return null;
+      }
+
+      const db = await getDb();
+      if (!db) {
+        return null;
+      }
+
+      const contractor = await db
+        .select()
+        .from(contractors)
+        .where(eq(contractors.id, decoded.contractorId))
+        .limit(1);
+
+      if (contractor.length === 0) {
+        return null;
+      }
+
+      const contractorData = contractor[0];
+
+      return {
+        id: contractorData.id,
+        firstName: contractorData.firstName,
+        lastName: contractorData.lastName,
+        email: contractorData.email,
+        type: contractorData.type,
+        primaryTrade: contractorData.primaryTrade,
+        username: contractorData.username,
+      };
+    } catch (error) {
+      // Token is invalid or expired
       return null;
     }
-
-    const contractor = await db
-      .select()
-      .from(contractors)
-      .where(eq(contractors.id, parseInt(contractorId)))
-      .limit(1);
-
-    if (contractor.length === 0) {
-      return null;
-    }
-
-    const contractorData = contractor[0];
-
-    return {
-      id: contractorData.id,
-      firstName: contractorData.firstName,
-      lastName: contractorData.lastName,
-      email: contractorData.email,
-      type: contractorData.type,
-      primaryTrade: contractorData.primaryTrade,
-    };
   }),
 
   /**
    * Logout contractor
    */
   logout: publicProcedure.mutation(({ ctx }) => {
-    ctx.res.clearCookie("contractor_session");
+    ctx.res.clearCookie("contractor_session", { path: "/" });
     return { success: true };
   }),
 });

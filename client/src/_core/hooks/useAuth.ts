@@ -3,6 +3,14 @@ import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
 
+// Simple token-based auth helpers
+export function logout() {
+  localStorage.removeItem("contractor_token");
+  localStorage.removeItem("contractor_user");
+  document.cookie = "contractor_session=; Max-Age=0; path=/;";
+  window.location.href = "/contractor-login-simple.html";
+}
+
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
   redirectPath?: string;
@@ -24,7 +32,7 @@ export function useAuth(options?: UseAuthOptions) {
     },
   });
 
-  const logout = useCallback(async () => {
+  const logoutCallback = useCallback(async () => {
     try {
       await logoutMutation.mutateAsync();
     } catch (error: unknown) {
@@ -36,6 +44,9 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
+      // Clear localStorage tokens
+      localStorage.removeItem("contractor_token");
+      localStorage.removeItem("contractor_user");
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
       // Redirect to login page after logout
@@ -78,9 +89,22 @@ export function useAuth(options?: UseAuthOptions) {
     state.user,
   ]);
 
+  // Auto-redirect when not logged in
+  useEffect(() => {
+    const token = localStorage.getItem("contractor_token");
+    if (!token && meQuery.status === "success" && !meQuery.data) {
+      // Only redirect if we're on a protected page
+      const publicPaths = ["/contractor-login", "/contractor-login-simple.html", "/contractor-form"];
+      const isPublicPath = publicPaths.some(path => window.location.pathname.includes(path));
+      if (!isPublicPath) {
+        window.location.href = "/contractor-login-simple.html";
+      }
+    }
+  }, [meQuery.status, meQuery.data]);
+
   return {
     ...state,
     refresh: () => meQuery.refetch(),
-    logout,
+    logout: logoutCallback,
   };
 }

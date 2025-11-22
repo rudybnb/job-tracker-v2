@@ -342,7 +342,7 @@
       submitBtn.textContent = "Signing In...";
 
       try {
-        const response = await fetch('/api/trpc/mobileApi.login', {
+        const response = await fetch('/api/trpc/contractorAuth.login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -363,7 +363,7 @@
           if (result.success) {
             // Store authentication data
             localStorage.setItem('contractor_token', result.token);
-            localStorage.setItem('contractor_id', result.contractor.id);
+            localStorage.setItem('contractor_user', JSON.stringify(result.contractor));
             
             showMessage("Login successful! Redirecting...", "success");
             
